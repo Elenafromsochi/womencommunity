@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MentorsRouteImport } from './routes/mentors'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TopicsRoute = TopicsRouteImport.update({
@@ -29,6 +30,11 @@ const MentorsRoute = MentorsRouteImport.update({
   path: '/mentors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/mentors': typeof MentorsRoute
   '/onboarding': typeof OnboardingRoute
   '/topics': typeof TopicsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/mentors': typeof MentorsRoute
   '/onboarding': typeof OnboardingRoute
   '/topics': typeof TopicsRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/events': typeof EventsRoute
   '/mentors': typeof MentorsRoute
   '/onboarding': typeof OnboardingRoute
   '/topics': typeof TopicsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mentors' | '/onboarding' | '/topics'
+  fullPaths: '/' | '/events' | '/mentors' | '/onboarding' | '/topics'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mentors' | '/onboarding' | '/topics'
-  id: '__root__' | '/' | '/mentors' | '/onboarding' | '/topics'
+  to: '/' | '/events' | '/mentors' | '/onboarding' | '/topics'
+  id: '__root__' | '/' | '/events' | '/mentors' | '/onboarding' | '/topics'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EventsRoute: typeof EventsRoute
   MentorsRoute: typeof MentorsRoute
   OnboardingRoute: typeof OnboardingRoute
   TopicsRoute: typeof TopicsRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MentorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EventsRoute: EventsRoute,
   MentorsRoute: MentorsRoute,
   OnboardingRoute: OnboardingRoute,
   TopicsRoute: TopicsRoute,
