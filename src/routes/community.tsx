@@ -112,9 +112,13 @@ function CommunityPage() {
                 key={msg.id}
                 className={`flex gap-3 ${msg.isMe ? "flex-row-reverse" : ""}`}
               >
-                <div className="size-8 rounded-full bg-cream flex items-center justify-center shrink-0 text-xs">
-                  {msg.isMe ? "Я" : "👩"}
-                </div>
+              <div className="size-8 rounded-full bg-cream flex items-center justify-center shrink-0 text-xs overflow-hidden">
+                {msg.avatar ? (
+                  <img src={msg.avatar} alt={msg.author} className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <span>👩</span>
+                )}
+              </div>
                 <div
                   className={`max-w-[75%] px-4 py-3 rounded-[1.5rem] text-sm leading-relaxed ${
                     msg.isMe
@@ -181,8 +185,12 @@ function PostCard({
   return (
     <div className="bg-card p-5 rounded-[2.5rem] ring-1 ring-border">
       <div className="flex items-center gap-3 mb-3">
-        <div className="size-10 rounded-full bg-cream flex items-center justify-center text-lg">
-          👩
+        <div className="size-10 rounded-full bg-cream flex items-center justify-center text-lg overflow-hidden">
+          {post.avatar ? (
+            <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" loading="lazy" />
+          ) : (
+            <span>👩</span>
+          )}
         </div>
         <div>
           <p className="text-sm font-medium">{post.author}</p>

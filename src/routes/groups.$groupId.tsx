@@ -45,8 +45,12 @@ function GroupDetailPage() {
       {/* Profile */}
       <div className="px-6">
         <div className="flex items-center gap-4">
-          <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border/50">
-            👭
+          <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border/50 overflow-hidden">
+            {group.avatar ? (
+              <img src={group.avatar} alt={group.curator} className="w-full h-full object-cover" />
+            ) : (
+              <span>👭</span>
+            )}
           </div>
           <div>
             <h1 className="font-[Lora] text-2xl leading-tight">{group.title}</h1>

@@ -36,8 +36,12 @@ function GroupsPage() {
             className="bg-card p-5 rounded-[2.5rem] ring-1 ring-border"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="size-14 rounded-full bg-cream flex items-center justify-center text-2xl ring-1 ring-border/50">
-                👭
+              <div className="size-14 rounded-full bg-cream flex items-center justify-center text-2xl ring-1 ring-border/50 overflow-hidden">
+                {group.avatar ? (
+                  <img src={group.avatar} alt={group.curator} className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <span>👭</span>
+                )}
               </div>
               <div>
                 <h3 className="font-[Lora] text-xl leading-tight">
