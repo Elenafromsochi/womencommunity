@@ -18,6 +18,7 @@ import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MentorsMentorIdRouteImport } from './routes/mentors.$mentorId'
 
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
@@ -64,28 +65,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MentorsMentorIdRoute = MentorsMentorIdRouteImport.update({
+  id: '/$mentorId',
+  path: '/$mentorId',
+  getParentRoute: () => MentorsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/community': typeof CommunityRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
-  '/mentors': typeof MentorsRoute
+  '/mentors': typeof MentorsRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/topics': typeof TopicsRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/community': typeof CommunityRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
-  '/mentors': typeof MentorsRoute
+  '/mentors': typeof MentorsRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/topics': typeof TopicsRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,11 +101,12 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
-  '/mentors': typeof MentorsRoute
+  '/mentors': typeof MentorsRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/topics': typeof TopicsRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/topics'
+    | '/mentors/$mentorId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/topics'
+    | '/mentors/$mentorId'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/topics'
+    | '/mentors/$mentorId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,7 +152,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   EventsRoute: typeof EventsRoute
   GroupsRoute: typeof GroupsRoute
-  MentorsRoute: typeof MentorsRoute
+  MentorsRoute: typeof MentorsRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
@@ -212,15 +224,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mentors/$mentorId': {
+      id: '/mentors/$mentorId'
+      path: '/$mentorId'
+      fullPath: '/mentors/$mentorId'
+      preLoaderRoute: typeof MentorsMentorIdRouteImport
+      parentRoute: typeof MentorsRoute
+    }
   }
 }
+
+interface MentorsRouteChildren {
+  MentorsMentorIdRoute: typeof MentorsMentorIdRoute
+}
+
+const MentorsRouteChildren: MentorsRouteChildren = {
+  MentorsMentorIdRoute: MentorsMentorIdRoute,
+}
+
+const MentorsRouteWithChildren =
+  MentorsRoute._addFileChildren(MentorsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CommunityRoute: CommunityRoute,
   EventsRoute: EventsRoute,
   GroupsRoute: GroupsRoute,
-  MentorsRoute: MentorsRoute,
+  MentorsRoute: MentorsRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
