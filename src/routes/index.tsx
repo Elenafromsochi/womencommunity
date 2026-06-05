@@ -121,7 +121,7 @@ function HomePage() {
               className="group bg-card p-3 rounded-[2rem] flex gap-4 ring-1 ring-border"
             >
               <div className="w-24 h-24 shrink-0 rounded-[1.5rem] overflow-hidden bg-cream flex items-center justify-center">
-                <span className="text-2xl">🌸</span>
+                <EventCover src={event.cover} type={event.type} />
               </div>
               <div className="py-1 flex flex-col justify-between flex-1 min-w-0">
                 <div>
