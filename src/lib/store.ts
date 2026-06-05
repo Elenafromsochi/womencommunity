@@ -4,35 +4,20 @@ import type { UserRole, UserProfile } from "./types";
 import { mockUser } from "./mock-data";
 
 interface AppState {
-  // Auth / Onboarding
   onboardingComplete: boolean;
   setOnboardingComplete: (v: boolean) => void;
-
-  // Role
   role: UserRole;
   setRole: (role: UserRole) => void;
-
-  // User Profile
   profile: UserProfile;
   updateProfile: (partial: Partial<UserProfile>) => void;
-
-  // Notifications
   notificationsRead: string[];
   markNotificationRead: (id: string) => void;
-
-  // Saved content
   savedContentIds: string[];
   toggleSavedContent: (id: string) => void;
-
-  // Saved mentors
   savedMentorIds: string[];
   toggleSavedMentor: (id: string) => void;
-
-  // Event registrations
   registeredEventIds: string[];
   toggleEventRegistration: (id: string) => void;
-
-  // Group applications
   appliedGroupIds: string[];
   toggleGroupApplication: (id: string) => void;
 }
@@ -40,18 +25,13 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      onboardingComplete: false,
+      onboardingComplete: true,
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
-
       role: "member",
       setRole: (role) => set({ role }),
-
       profile: mockUser,
       updateProfile: (partial) =>
-        set((state) => ({
-          profile: { ...state.profile, ...partial },
-        })),
-
+        set((state) => ({ profile: { ...state.profile, ...partial } })),
       notificationsRead: [],
       markNotificationRead: (id) =>
         set((state) => ({
@@ -59,7 +39,6 @@ export const useAppStore = create<AppState>()(
             ? state.notificationsRead
             : [...state.notificationsRead, id],
         })),
-
       savedContentIds: [],
       toggleSavedContent: (id) =>
         set((state) => ({
@@ -67,7 +46,6 @@ export const useAppStore = create<AppState>()(
             ? state.savedContentIds.filter((x) => x !== id)
             : [...state.savedContentIds, id],
         })),
-
       savedMentorIds: [],
       toggleSavedMentor: (id) =>
         set((state) => ({
@@ -75,7 +53,6 @@ export const useAppStore = create<AppState>()(
             ? state.savedMentorIds.filter((x) => x !== id)
             : [...state.savedMentorIds, id],
         })),
-
       registeredEventIds: [],
       toggleEventRegistration: (id) =>
         set((state) => ({
@@ -83,7 +60,6 @@ export const useAppStore = create<AppState>()(
             ? state.registeredEventIds.filter((x) => x !== id)
             : [...state.registeredEventIds, id],
         })),
-
       appliedGroupIds: [],
       toggleGroupApplication: (id) =>
         set((state) => ({
@@ -92,8 +68,6 @@ export const useAppStore = create<AppState>()(
             : [...state.appliedGroupIds, id],
         })),
     }),
-    {
-      name: "zhenskoe-obshchestvo-store",
-    }
+    { name: "zhenskoe-obshchestvo-store" }
   )
 );
