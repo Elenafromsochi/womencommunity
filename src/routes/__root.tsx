@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Bell, User } from "lucide-react";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -143,13 +144,23 @@ function RootComponent() {
           <BottomNav />
         </div>
       </div>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: "var(--color-card)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "1.5rem",
+            fontFamily: "Inter, system-ui, sans-serif",
+          },
+        }}
+      />
     </QueryClientProvider>
   );
 }
 
 function AppHeader() {
   const role = useAppStore((s) => s.role);
-  const profile = useAppStore((s) => s.profile);
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   const showHeader = ![
