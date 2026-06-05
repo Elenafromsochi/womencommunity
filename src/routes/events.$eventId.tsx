@@ -45,7 +45,11 @@ function EventDetailPage() {
       {/* Cover */}
       <div className="px-6">
         <div className="aspect-[4/3] rounded-[2.5rem] bg-cream flex items-center justify-center ring-1 ring-border overflow-hidden">
-          <span className="text-6xl">{event.type === "online" ? "💻" : "🌿"}</span>
+          {event.cover ? (
+            <img src={event.cover} alt={event.title} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-6xl">{event.type === "online" ? "💻" : "🌿"}</span>
+          )}
         </div>
       </div>
 

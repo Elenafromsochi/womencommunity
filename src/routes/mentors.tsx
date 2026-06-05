@@ -32,8 +32,12 @@ function MentorsPage() {
             className="block bg-card p-5 rounded-[2.5rem] ring-1 ring-border hover:ring-primary/20 transition-all"
           >
             <div className="flex gap-4">
-              <div className="size-16 shrink-0 rounded-full bg-cream flex items-center justify-center ring-1 ring-border/50">
-                <span className="text-2xl">👩‍⚕️</span>
+              <div className="size-16 shrink-0 rounded-full bg-cream flex items-center justify-center ring-1 ring-border/50 overflow-hidden">
+                {mentor.avatar ? (
+                  <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <span className="text-2xl">👩‍⚕️</span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between">

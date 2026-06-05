@@ -53,8 +53,12 @@ function MentorDetailPage() {
       {/* Profile */}
       <div className="px-6">
         <div className="flex items-center gap-4">
-          <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border/50">
-            👩‍⚕️
+          <div className="size-20 rounded-full bg-cream flex items-center justify-center ring-1 ring-border/50 overflow-hidden">
+            {mentor.avatar ? (
+              <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-4xl">👩‍⚕️</span>
+            )}
           </div>
           <div>
             <h1 className="font-[Lora] text-2xl leading-tight">{mentor.name}</h1>

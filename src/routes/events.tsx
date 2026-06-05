@@ -66,10 +66,12 @@ function EventsPage() {
             className="bg-card p-4 rounded-[2.5rem] ring-1 ring-border"
           >
             <div className="flex gap-4">
-              <div className="w-24 h-24 shrink-0 rounded-[1.5rem] bg-cream flex items-center justify-center">
-                <span className="text-3xl">
-                  {event.type === "online" ? "💻" : "🌿"}
-                </span>
+              <div className="w-24 h-24 shrink-0 rounded-[1.5rem] overflow-hidden bg-cream flex items-center justify-center">
+                {event.cover ? (
+                  <img src={event.cover} alt={event.title} className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <span className="text-3xl">{event.type === "online" ? "💻" : "🌿"}</span>
+                )}
               </div>
               <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                 <div>
