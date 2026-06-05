@@ -135,6 +135,7 @@ function RootComponent() {
           <Outlet />
         </main>
         {!hideChrome && <BottomNav />}
+        <Toaster />
       </div>
     </QueryClientProvider>
   );
