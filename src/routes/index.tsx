@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, Users } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 import { toast } from "sonner";
@@ -13,6 +13,36 @@ export const Route = createFileRoute("/")({
   }),
   component: HomePage,
 });
+
+function MentorAvatar({ src, alt }: { src?: string; alt: string }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full rounded-full object-cover"
+        loading="lazy"
+      />
+    );
+  }
+  return <span className="text-2xl">👩‍⚕️</span>;
+}
+
+function EventCover({ src, type }: { src?: string; type: string }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt="Обложка"
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+    );
+  }
+  return (
+    <span className="text-3xl">{type === "online" ? "💻" : "🌿"}</span>
+  );
+}
 
 function HomePage() {
   const profile = useAppStore((s) => s.profile);
