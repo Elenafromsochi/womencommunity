@@ -41,8 +41,12 @@ function ProfilePage() {
     <div className="px-6 space-y-8 pb-4">
       {/* Profile header */}
       <div className="flex items-center gap-4">
-        <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border">
-          👩
+        <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border overflow-hidden">
+          {profile.avatar ? (
+            <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+          ) : (
+            <span>👩</span>
+          )}
         </div>
         <div>
           <h1 className="font-[Lora] text-2xl leading-tight">{profile.name}</h1>
