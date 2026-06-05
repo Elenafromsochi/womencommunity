@@ -9,38 +9,298 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TopicsRouteImport } from './routes/topics'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as MentorsRouteImport } from './routes/mentors'
+import { Route as MentorRouteImport } from './routes/mentor'
+import { Route as GroupsRouteImport } from './routes/groups'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as CuratorRouteImport } from './routes/curator'
+import { Route as CommunityRouteImport } from './routes/community'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MentorsMentorIdRouteImport } from './routes/mentors.$mentorId'
+import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
+import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 
+const TopicsRoute = TopicsRouteImport.update({
+  id: '/topics',
+  path: '/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorsRoute = MentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorRoute = MentorRouteImport.update({
+  id: '/mentor',
+  path: '/mentor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupsRoute = GroupsRouteImport.update({
+  id: '/groups',
+  path: '/groups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CuratorRoute = CuratorRouteImport.update({
+  id: '/curator',
+  path: '/curator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MentorsMentorIdRoute = MentorsMentorIdRouteImport.update({
+  id: '/$mentorId',
+  path: '/$mentorId',
+  getParentRoute: () => MentorsRoute,
+} as any)
+const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
+  id: '/$groupId',
+  path: '/$groupId',
+  getParentRoute: () => GroupsRoute,
+} as any)
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/$eventId',
+  path: '/$eventId',
+  getParentRoute: () => EventsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/community': typeof CommunityRoute
+  '/curator': typeof CuratorRoute
+  '/events': typeof EventsRouteWithChildren
+  '/groups': typeof GroupsRouteWithChildren
+  '/mentor': typeof MentorRoute
+  '/mentors': typeof MentorsRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/topics': typeof TopicsRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/community': typeof CommunityRoute
+  '/curator': typeof CuratorRoute
+  '/events': typeof EventsRouteWithChildren
+  '/groups': typeof GroupsRouteWithChildren
+  '/mentor': typeof MentorRoute
+  '/mentors': typeof MentorsRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/topics': typeof TopicsRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/community': typeof CommunityRoute
+  '/curator': typeof CuratorRoute
+  '/events': typeof EventsRouteWithChildren
+  '/groups': typeof GroupsRouteWithChildren
+  '/mentor': typeof MentorRoute
+  '/mentors': typeof MentorsRouteWithChildren
+  '/notifications': typeof NotificationsRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/topics': typeof TopicsRoute
+  '/events/$eventId': typeof EventsEventIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/mentors/$mentorId': typeof MentorsMentorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/community'
+    | '/curator'
+    | '/events'
+    | '/groups'
+    | '/mentor'
+    | '/mentors'
+    | '/notifications'
+    | '/onboarding'
+    | '/profile'
+    | '/topics'
+    | '/events/$eventId'
+    | '/groups/$groupId'
+    | '/mentors/$mentorId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/community'
+    | '/curator'
+    | '/events'
+    | '/groups'
+    | '/mentor'
+    | '/mentors'
+    | '/notifications'
+    | '/onboarding'
+    | '/profile'
+    | '/topics'
+    | '/events/$eventId'
+    | '/groups/$groupId'
+    | '/mentors/$mentorId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/community'
+    | '/curator'
+    | '/events'
+    | '/groups'
+    | '/mentor'
+    | '/mentors'
+    | '/notifications'
+    | '/onboarding'
+    | '/profile'
+    | '/topics'
+    | '/events/$eventId'
+    | '/groups/$groupId'
+    | '/mentors/$mentorId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  CommunityRoute: typeof CommunityRoute
+  CuratorRoute: typeof CuratorRoute
+  EventsRoute: typeof EventsRouteWithChildren
+  GroupsRoute: typeof GroupsRouteWithChildren
+  MentorRoute: typeof MentorRoute
+  MentorsRoute: typeof MentorsRouteWithChildren
+  NotificationsRoute: typeof NotificationsRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ProfileRoute: typeof ProfileRoute
+  TopicsRoute: typeof TopicsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/topics': {
+      id: '/topics'
+      path: '/topics'
+      fullPath: '/topics'
+      preLoaderRoute: typeof TopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentors': {
+      id: '/mentors'
+      path: '/mentors'
+      fullPath: '/mentors'
+      preLoaderRoute: typeof MentorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentor': {
+      id: '/mentor'
+      path: '/mentor'
+      fullPath: '/mentor'
+      preLoaderRoute: typeof MentorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/groups': {
+      id: '/groups'
+      path: '/groups'
+      fullPath: '/groups'
+      preLoaderRoute: typeof GroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curator': {
+      id: '/curator'
+      path: '/curator'
+      fullPath: '/curator'
+      preLoaderRoute: typeof CuratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +308,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mentors/$mentorId': {
+      id: '/mentors/$mentorId'
+      path: '/$mentorId'
+      fullPath: '/mentors/$mentorId'
+      preLoaderRoute: typeof MentorsMentorIdRouteImport
+      parentRoute: typeof MentorsRoute
+    }
+    '/groups/$groupId': {
+      id: '/groups/$groupId'
+      path: '/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof GroupsGroupIdRouteImport
+      parentRoute: typeof GroupsRoute
+    }
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
+      parentRoute: typeof EventsRoute
+    }
   }
 }
 
+interface EventsRouteChildren {
+  EventsEventIdRoute: typeof EventsEventIdRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsEventIdRoute: EventsEventIdRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
+interface GroupsRouteChildren {
+  GroupsGroupIdRoute: typeof GroupsGroupIdRoute
+}
+
+const GroupsRouteChildren: GroupsRouteChildren = {
+  GroupsGroupIdRoute: GroupsGroupIdRoute,
+}
+
+const GroupsRouteWithChildren =
+  GroupsRoute._addFileChildren(GroupsRouteChildren)
+
+interface MentorsRouteChildren {
+  MentorsMentorIdRoute: typeof MentorsMentorIdRoute
+}
+
+const MentorsRouteChildren: MentorsRouteChildren = {
+  MentorsMentorIdRoute: MentorsMentorIdRoute,
+}
+
+const MentorsRouteWithChildren =
+  MentorsRoute._addFileChildren(MentorsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  CommunityRoute: CommunityRoute,
+  CuratorRoute: CuratorRoute,
+  EventsRoute: EventsRouteWithChildren,
+  GroupsRoute: GroupsRouteWithChildren,
+  MentorRoute: MentorRoute,
+  MentorsRoute: MentorsRouteWithChildren,
+  NotificationsRoute: NotificationsRoute,
+  OnboardingRoute: OnboardingRoute,
+  ProfileRoute: ProfileRoute,
+  TopicsRoute: TopicsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
