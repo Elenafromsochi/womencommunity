@@ -1,4 +1,9 @@
 import type { UserProfile, Mentor, Event, Group, ContentItem, Topic, Notification, ChatMessage, CommunityPost } from "./types";
+import mentor1Img from "../assets/mentor-1.jpg";
+import mentor2Img from "../assets/mentor-2.jpg";
+import mentor3Img from "../assets/mentor-3.jpg";
+import mentor4Img from "../assets/mentor-4.jpg";
+import coverWellness from "../assets/cover-wellness.jpg";
 
 export const mockUser: UserProfile = {
   id: "u1",
@@ -9,7 +14,7 @@ export const mockUser: UserProfile = {
   occupation: "Маркетолог",
   interests: ["отношения", "здоровье", "самореализация"],
   priorities: ["отношения", "здоровье", "самореализация"],
-  avatar: undefined,
+  avatar: mentor1Img,
   role: "member",
 };
 
@@ -35,13 +40,14 @@ export const mentors: Mentor[] = [
     reviews: 127,
     materialsCount: 34,
     events: [
-      { id: "e1", title: "Вечер открытых сердец", mentor: "Мария Вебер", date: "14 июня", time: "19:00", type: "offline", price: 0, cover: undefined },
+      { id: "e1", title: "Вечер открытых сердец", mentor: "Мария Вебер", date: "14 июня", time: "19:00", type: "offline", price: 0, cover: coverWellness },
       { id: "e2", title: "Практика внутренней опоры", mentor: "Мария Вебер", date: "21 июня", time: "18:00", type: "online", price: 1500, cover: undefined },
     ],
     groups: [
       { id: "g1", title: "Путь к себе", startDate: "1 июля" },
     ],
     experience: "15 лет практики в гештальт-терапии и семейной системной терапии. Автор курса «Отношения с собой».",
+    avatar: mentor1Img,
   },
   {
     id: "m2",
@@ -53,12 +59,13 @@ export const mentors: Mentor[] = [
     reviews: 94,
     materialsCount: 28,
     events: [
-      { id: "e3", title: "Йога-ретрит в черте города", mentor: "Алена Смирнова", date: "16 июня", time: "09:30", type: "offline", price: 2500, cover: undefined },
+      { id: "e3", title: "Йога-ретрит в черте города", mentor: "Алена Смирнова", date: "16 июня", time: "09:30", type: "offline", price: 2500, cover: coverWellness },
     ],
     groups: [
       { id: "g2", title: "Баланс карьеры и жизни", startDate: "5 июля" },
     ],
     experience: "Врач-эндокринолог, сертифицированный йога-терапевт. 10 лет работы в женском здоровье.",
+    avatar: mentor2Img,
   },
   {
     id: "m3",
@@ -76,6 +83,7 @@ export const mentors: Mentor[] = [
       { id: "g3", title: "Финансовое мышление", startDate: "15 июля" },
     ],
     experience: "Финансовый аналитик, коуч по деньгам. Автор методики «Деньги как отражение внутреннего мира».",
+    avatar: mentor3Img,
   },
   {
     id: "m4",
@@ -87,10 +95,11 @@ export const mentors: Mentor[] = [
     reviews: 56,
     materialsCount: 19,
     events: [
-      { id: "e5", title: "Керамика и смыслы", mentor: "Дарья Ланская", date: "17 июня", time: "14:00", type: "offline", price: 3000, cover: undefined },
+      { id: "e5", title: "Керамика и смыслы", mentor: "Дарья Ланская", date: "17 июня", time: "14:00", type: "offline", price: 3000, cover: coverWellness },
     ],
     groups: [],
     experience: "Образование в Берлинской академии искусств. 8 лет практики арт-терапии для женщин.",
+    avatar: mentor4Img,
   },
 ];
 
@@ -106,7 +115,7 @@ export const events: Event[] = [
     spotsTotal: 20,
     type: "offline",
     price: 0,
-    cover: undefined,
+    cover: coverWellness,
     location: "Москва, ул. Петровка, 15",
   },
   {
@@ -134,7 +143,7 @@ export const events: Event[] = [
     spotsTotal: 12,
     type: "offline",
     price: 2500,
-    cover: undefined,
+    cover: coverWellness,
     location: "Парк-отель «Озерный», 25 км от МКАД",
   },
   {
@@ -162,7 +171,7 @@ export const events: Event[] = [
     spotsTotal: 10,
     type: "offline",
     price: 3000,
-    cover: undefined,
+    cover: coverWellness,
     location: "Мастерская «Глина», м. Третьяковская",
   },
   {
@@ -176,7 +185,7 @@ export const events: Event[] = [
     spotsTotal: 15,
     type: "offline",
     price: 0,
-    cover: undefined,
+    cover: coverWellness,
     location: "Сад «Цветник», м. Фрунзенская",
   },
 ];
@@ -191,8 +200,8 @@ export const groups: Group[] = [
     spotsTotal: 6,
     startDate: "1 июля 2026",
     duration: "3 месяца",
-    cover: undefined,
-    avatar: undefined,
+    cover: coverWellness,
+    avatar: mentor1Img,
   },
   {
     id: "g2",
@@ -203,8 +212,8 @@ export const groups: Group[] = [
     spotsTotal: 6,
     startDate: "5 июля 2026",
     duration: "2 месяца",
-    cover: undefined,
-    avatar: undefined,
+    cover: coverWellness,
+    avatar: mentor2Img,
   },
   {
     id: "g3",
@@ -215,17 +224,17 @@ export const groups: Group[] = [
     spotsTotal: 6,
     startDate: "15 июля 2026",
     duration: "2 месяца",
-    cover: undefined,
-    avatar: undefined,
+    cover: coverWellness,
+    avatar: mentor3Img,
   },
 ];
 
 export const contentItems: ContentItem[] = [
-  { id: "c1", title: "Искусство малых ритуалов", type: "article", topic: "Личностный рост", description: "Как ежедневные маленькие практики меняют качество жизни", author: "Мария Вебер", duration: "8 мин", cover: undefined, date: "5 июня" },
+  { id: "c1", title: "Искусство малых ритуалов", type: "article", topic: "Личностный рост", description: "Как ежедневные маленькие практики меняют качество жизни", author: "Мария Вебер", duration: "8 мин", cover: coverWellness, date: "5 июня" },
   { id: "c2", title: "Медитация утренней опоры", type: "audio", topic: "Здоровье", description: "15-минутная практика для начала дня с ресурса", author: "Алена Смирнова", duration: "15 мин", cover: undefined, date: "3 июня" },
   { id: "c3", title: "Деньги и чувства: вебинар", type: "video", topic: "Финансы", description: "Запись вебинара о психологии денежных отношений", author: "София Белая", duration: "45 мин", cover: undefined, date: "1 июня" },
   { id: "c4", title: "Практика принятия тела", type: "practice", topic: "Здоровье", description: "Пошаговое руководство по телесной терапии", author: "Алена Смирнова", duration: "20 мин", cover: undefined, date: "28 мая" },
-  { id: "c5", title: "Подборка: отношения с собой", type: "collection", topic: "Отношения", description: "5 лучших материалов по теме самопринятия", author: "Команда ЖО", duration: undefined, cover: undefined, date: "25 мая" },
+  { id: "c5", title: "Подборка: отношения с собой", type: "collection", topic: "Отношения", description: "5 лучших материалов по теме самопринятия", author: "Команда ЖО", duration: undefined, cover: coverWellness, date: "25 мая" },
   { id: "c6", title: "Творческий блок: что делать?", type: "article", topic: "Самореализация", description: "Понимание причин творческого кризиса и способы выхода", author: "Дарья Ланская", duration: "12 мин", cover: undefined, date: "20 мая" },
   { id: "c7", title: "Вечерняя практика тишины", type: "audio", topic: "Личностный рост", description: "Звуковая медитация для сна и восстановления", author: "Мария Вебер", duration: "25 мин", cover: undefined, date: "18 мая" },
   { id: "c8", title: "Материнство и карьера", type: "video", topic: "Материнство", description: "Интервью с тремя женщинами, нашедшими баланс", author: "Команда ЖО", duration: "30 мин", cover: undefined, date: "15 мая" },
@@ -240,18 +249,18 @@ export const notifications: Notification[] = [
 ];
 
 export const chatMessages: ChatMessage[] = [
-  { id: "ch1", author: "Ольга", text: "Привет всем! Недавно присоединилась к сообществу, рада знакомству 💫", timestamp: "10:15", isMe: false, avatar: undefined },
-  { id: "ch2", author: "Виктория", text: "Добро пожаловать, Ольга! Какие темы тебе ближе всего?", timestamp: "10:18", isMe: false, avatar: undefined },
+  { id: "ch1", author: "Ольга", text: "Привет всем! Недавно присоединилась к сообществу, рада знакомству 💫", timestamp: "10:15", isMe: false, avatar: mentor3Img },
+  { id: "ch2", author: "Виктория", text: "Добро пожаловать, Ольга! Какие темы тебе ближе всего?", timestamp: "10:18", isMe: false, avatar: mentor2Img },
   { id: "ch3", author: "Вы", text: "Привет! Мне интересны отношения и самореализация. Ищу наставника ☺️", timestamp: "10:22", isMe: true, avatar: undefined },
-  { id: "ch4", author: "Анна", text: "О, я хожу к Марии Вебер — очень рекомендую, если про отношения", timestamp: "10:25", isMe: false, avatar: undefined },
-  { id: "ch5", author: "Ольга", text: "Спасибо за рекомендации! Пойду смотреть её материалы", timestamp: "10:30", isMe: false, avatar: undefined },
+  { id: "ch4", author: "Анна", text: "О, я хожу к Марии Вебер — очень рекомендую, если про отношения", timestamp: "10:25", isMe: false, avatar: mentor1Img },
+  { id: "ch5", author: "Ольга", text: "Спасибо за рекомендации! Пойду смотреть её материалы", timestamp: "10:30", isMe: false, avatar: mentor3Img },
 ];
 
 export const communityPosts: CommunityPost[] = [
   { id: "p1", author: "Команда ЖО", title: "Добро пожаловать в сообщество!", content: "Мы рады, что вы здесь. Начните с заполнения анкеты и знакомства с наставниками.", type: "news", date: "5 июня", likes: 124, comments: 8, avatar: undefined },
-  { id: "p2", author: "Екатерина М.", title: "Привет от новой участницы", content: "Живу в Петербурге, работаю дизайнером. Интересуюсь личностным ростом и творчеством. Буду рада знакомству!", type: "introduction", date: "4 июня", likes: 45, comments: 12, avatar: undefined },
-  { id: "p3", author: "Мария Вебер", title: "Новая статья: «Искусство малых ритуалов»", content: "Поделилась своими мыслями о том, как маленькие ежедневные практики меняют качество жизни. Читайте в разделе Темы → Личностный рост.", type: "news", date: "3 июня", likes: 89, comments: 15, avatar: undefined },
-  { id: "p4", author: "Наталья С.", title: "Кто пойдёт на керамику в субботу?", content: "Ещё 2 места свободно! Будет очень уютно, обещаю 🍵", type: "discussion", date: "2 июня", likes: 32, comments: 6, avatar: undefined },
+  { id: "p2", author: "Екатерина М.", title: "Привет от новой участницы", content: "Живу в Петербурге, работаю дизайнером. Интересуюсь личностным ростом и творчеством. Буду рада знакомству!", type: "introduction", date: "4 июня", likes: 45, comments: 12, avatar: mentor4Img },
+  { id: "p3", author: "Мария Вебер", title: "Новая статья: «Искусство малых ритуалов»", content: "Поделилась своими мыслями о том, как маленькие ежедневные практики меняют качество жизни. Читайте в разделе Темы → Личностный рост.", type: "news", date: "3 июня", likes: 89, comments: 15, avatar: mentor1Img },
+  { id: "p4", author: "Наталья С.", title: "Кто пойдёт на керамику в субботу?", content: "Ещё 2 места свободно! Будет очень уютно, обещаю 🍵", type: "discussion", date: "2 июня", likes: 32, comments: 6, avatar: mentor2Img },
 ];
 
 export const interestOptions = [
