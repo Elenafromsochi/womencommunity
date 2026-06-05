@@ -251,10 +251,24 @@ export const notifications: Notification[] = [
 export const chatMessages: ChatMessage[] = [
   { id: "ch1", author: "Ольга", text: "Привет всем! Недавно присоединилась к сообществу, рада знакомству 💫", timestamp: "10:15", isMe: false, avatar: mentor3Img },
   { id: "ch2", author: "Виктория", text: "Добро пожаловать, Ольга! Какие темы тебе ближе всего?", timestamp: "10:18", isMe: false, avatar: mentor2Img },
-  { id: "ch3", author: "Вы", text: "Привет! Мне интересны отношения и самореализация. Ищу наставника ☺️", timestamp: "10:22", isMe: true, avatar: undefined },
-  { id: "ch4", author: "Анна", text: "О, я хожу к Марии Вебер — очень рекомендую, если про отношения", timestamp: "10:25", isMe: false, avatar: mentor1Img },
+  { id: "ch3", author: "Вы", text: "Привет! Мне интересны отношения и самореализация. Ищу наставника ☺️", timestamp: "10:22", isMe: true, status: "read", readBy: ["Ольга", "Виктория", "Анна"] },
+  { id: "ch4", author: "Анна", text: "О, я хожу к Марии Вебер — очень рекомендую, если про отношения", timestamp: "10:25", isMe: false, avatar: mentor1Img, attachments: [{ type: "link", url: "/mentors/m1", label: "Профиль Марии Вебер" }] },
   { id: "ch5", author: "Ольга", text: "Спасибо за рекомендации! Пойду смотреть её материалы", timestamp: "10:30", isMe: false, avatar: mentor3Img },
 ];
+
+export const groupChats: Record<string, ChatMessage[]> = {
+  g1: [
+    { id: "g1m1", author: "Мария Вебер", text: "Добро пожаловать в группу «Путь к себе» 🌸 Здесь мы делимся открытиями и поддерживаем друг друга.", timestamp: "Вчера, 18:00", isMe: false, avatar: mentor1Img },
+    { id: "g1m2", author: "Алина", text: "Девочки, поделюсь практикой, которую делала на этой неделе — стало легче дышать", timestamp: "Вчера, 19:12", isMe: false, avatar: mentor2Img, attachments: [{ type: "link", url: "/topics/t5", label: "Практика тишины" }] },
+    { id: "g1m3", author: "Вы", text: "Спасибо, попробую сегодня вечером 🤍", timestamp: "Сегодня, 09:05", isMe: true, status: "read", readBy: ["Мария Вебер", "Алина"] },
+  ],
+  g2: [
+    { id: "g2m1", author: "Алена Смирнова", text: "Привет! Напоминаю, что в среду в 19:00 у нас созвон по теме границ.", timestamp: "Сегодня, 10:00", isMe: false, avatar: mentor2Img },
+  ],
+  g3: [
+    { id: "g3m1", author: "София Белая", text: "Девочки, для следующей встречи подготовьте свой бюджет за май 💰", timestamp: "Сегодня, 11:30", isMe: false, avatar: mentor3Img },
+  ],
+};
 
 export const communityPosts: CommunityPost[] = [
   { id: "p1", author: "Команда ЖО", title: "Добро пожаловать в сообщество!", content: "Мы рады, что вы здесь. Начните с заполнения анкеты и знакомства с наставниками.", type: "news", date: "5 июня", likes: 124, comments: 8, avatar: undefined },
