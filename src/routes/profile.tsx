@@ -109,8 +109,12 @@ function ProfilePage() {
                 params={{ mentorId: mentor.id }}
                 className="shrink-0 w-28 flex flex-col items-center text-center"
               >
-                <div className="size-16 rounded-full bg-cream flex items-center justify-center text-xl ring-1 ring-border/50 mb-2">
-                  👩‍⚕️
+                <div className="size-16 rounded-full bg-cream flex items-center justify-center text-xl ring-1 ring-border/50 mb-2 overflow-hidden">
+                  {mentor.avatar ? (
+                    <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    <span>👩‍⚕️</span>
+                  )}
                 </div>
                 <span className="text-sm font-[Lora] leading-tight">
                   {mentor.name}
