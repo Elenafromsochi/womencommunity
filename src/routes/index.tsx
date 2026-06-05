@@ -169,8 +169,8 @@ function HomePage() {
               params={{ mentorId: mentor.id }}
               className="shrink-0 w-32 flex flex-col items-center text-center"
             >
-              <div className="size-24 rounded-full p-1 ring-1 ring-primary/20 mb-3 bg-cream flex items-center justify-center">
-                <span className="text-3xl">👩‍⚕️</span>
+              <div className="size-24 rounded-full p-1 ring-1 ring-primary/20 mb-3 bg-cream flex items-center justify-center overflow-hidden">
+                <MentorAvatar src={mentor.avatar} alt={mentor.name} />
               </div>
               <span className="text-sm font-[Lora] leading-tight">
                 {mentor.name}
