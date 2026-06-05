@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -11,6 +12,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AppHeader } from "../components/AppHeader";
+import { BottomNav } from "../components/BottomNav";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -119,11 +123,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { location } = useRouterState();
+  const path = location.pathname;
+  const hideChrome = path.startsWith("/onboarding");
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="mobile-shell flex flex-col">
+        {!hideChrome && <AppHeader />}
+        <main className="flex-1 overflow-y-auto no-scrollbar">
+          <Outlet />
+        </main>
+        {!hideChrome && <BottomNav />}
+      </div>
     </QueryClientProvider>
   );
 }
