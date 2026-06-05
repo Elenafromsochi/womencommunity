@@ -91,6 +91,14 @@ export interface Notification {
   read: boolean;
 }
 
+export interface ChatAttachment {
+  type: "link";
+  url: string;
+  label?: string;
+}
+
+export type MessageStatus = "sending" | "sent" | "delivered" | "read";
+
 export interface ChatMessage {
   id: string;
   author: string;
@@ -98,6 +106,9 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   isMe: boolean;
+  attachments?: ChatAttachment[];
+  status?: MessageStatus;
+  readBy?: string[];
 }
 
 export interface CommunityPost {
