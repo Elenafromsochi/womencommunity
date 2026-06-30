@@ -122,3 +122,83 @@ export interface CommunityPost {
   likes: number;
   comments: number;
 }
+
+// ============================================================================
+// ЯДРО МЕТОДИКИ — неизменный контракт (см. CLAUDE.md, раздел 1).
+// Конкретное наполнение (вопросы, библиотека маркеров, правило уровня) живёт
+// в lib/methodology.ts и может меняться без правки этих типов и экранов.
+// ============================================================================
+
+/** 9 сфер жизни (венок). Идентификаторы неизменны — наполнение в methodology.ts */
+export type SphereId =
+  | "relationships"
+  | "health"
+  | "finance"
+  | "self_realization"
+  | "emotions"
+  | "motherhood"
+  | "creativity"
+  | "growth"
+  | "environment";
+
+export interface Sphere {
+  id: SphereId;
+  name: string;
+  emoji: string;
+  description: string;
+  /** Цвет лепестка в венке (CSS-строка) */
+  color: string;
+}
+
+/** Типы маркеров: факт-событие | число | шкала 0–10 | частота */
+export type MarkerKind = "event" | "number" | "scale" | "frequency";
+
+export interface MarkerDef {
+  id: string;
+  sphereId: SphereId;
+  label: string;
+  kind: MarkerKind;
+  /** Единица для number/frequency (напр. «ч», «раз/нед») */
+  unit?: string;
+  min?: number;
+  max?: number;
+  /** Хребтовый маркер (субъективная шкала благополучия 0–10) */
+  isBackbone?: boolean;
+}
+
+/** Мягкая отметка значения маркера. event → 0/1; scale → 0–10; number/frequency → число */
+export interface MarkerEntry {
+  markerId: string;
+  value: number;
+  date: string; // ISO
+}
+
+export interface WellbeingPoint {
+  date: string; // ISO
+  value: number; // 0–10
+  isRetest?: boolean;
+}
+
+/** Результат входной диагностики «знакомство с собой» (раздел 3 CLAUDE.md) */
+export interface DiagnosticResult {
+  date: string; // ISO
+  energy: number; // ресурс 0–10
+  agency: number; // агентность 0–10 (саморефлексия, не оценка)
+  selectedSpheres: SphereId[];
+  supportSphere: SphereId; // опорная сфера
+  supportSphereScore: number; // шкала в опорной сфере 0–10
+  chosenMarkers: string[]; // 1–2 выбранных маркера
+  wellbeing: number; // хребтовая шкала благополучия 0–10
+}
+
+/**
+ * Прогресс участницы. ИНВАРИАНТ: уровень растёт ВМЕСТЕ с маркерами
+ * (реальные сдвиги), а НЕ за активность/просмотры/время в приложении.
+ */
+export interface ProgressState {
+  level: number;
+  levelTitle: string;
+  markerEntries: MarkerEntry[];
+  wellbeingHistory: WellbeingPoint[];
+  nextRetestDate: string; // ISO, +14 дней — мягкая отметка динамики
+}

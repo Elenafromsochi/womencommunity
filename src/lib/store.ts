@@ -1,7 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { UserRole, UserProfile } from "./types";
+import type {
+  UserRole,
+  UserProfile,
+  DiagnosticResult,
+  ProgressState,
+  MarkerEntry,
+} from "./types";
 import { mockUser } from "./mock-data";
+import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
+
+const addDays = (iso: string, days: number) => {
+  const d = new Date(iso);
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+};
 
 interface AppState {
   onboardingComplete: boolean;
@@ -10,6 +23,18 @@ interface AppState {
   setRole: (role: UserRole) => void;
   profile: UserProfile;
   updateProfile: (partial: Partial<UserProfile>) => void;
+
+  // ===== Ядро методики =====
+  diagnostic: DiagnosticResult | null;
+  progress: ProgressState | null;
+  /** Сохранить результат диагностики и инициализировать прогресс (Уровень 1 · Старт). */
+  saveDiagnostic: (result: DiagnosticResult) => void;
+  /** Мягко отметить маркер. Уровень пересчитывается из числа отметок. */
+  addMarkerEntry: (markerId: string, value: number) => void;
+  /** Отметить точку благополучия (ретест раз в 2 недели). */
+  logWellbeing: (value: number, isRetest?: boolean) => void;
+  /** Сбросить ядро (повторная диагностика с нуля). */
+  resetDiagnostic: () => void;
   notificationsRead: string[];
   markNotificationRead: (id: string) => void;
   savedContentIds: string[];
@@ -32,6 +57,57 @@ export const useAppStore = create<AppState>()(
       profile: mockUser,
       updateProfile: (partial) =>
         set((state) => ({ profile: { ...state.profile, ...partial } })),
+
+      diagnostic: null,
+      progress: null,
+      saveDiagnostic: (result) => {
+        const { level, title } = computeLevel(0);
+        const progress: ProgressState = {
+          level,
+          levelTitle: title,
+          markerEntries: [],
+          wellbeingHistory: [{ date: result.date, value: result.wellbeing }],
+          nextRetestDate: addDays(result.date, RETEST_INTERVAL_DAYS),
+        };
+        set({ diagnostic: result, progress });
+      },
+      addMarkerEntry: (markerId, value) =>
+        set((state) => {
+          if (!state.progress) return state;
+          const entry: MarkerEntry = {
+            markerId,
+            value,
+            date: new Date().toISOString(),
+          };
+          const markerEntries = [...state.progress.markerEntries, entry];
+          const { level, title } = computeLevel(markerEntries.length);
+          return {
+            progress: {
+              ...state.progress,
+              markerEntries,
+              level,
+              levelTitle: title,
+            },
+          };
+        }),
+      logWellbeing: (value, isRetest) =>
+        set((state) => {
+          if (!state.progress) return state;
+          const now = new Date().toISOString();
+          return {
+            progress: {
+              ...state.progress,
+              wellbeingHistory: [
+                ...state.progress.wellbeingHistory,
+                { date: now, value, isRetest },
+              ],
+              nextRetestDate: isRetest
+                ? addDays(now, RETEST_INTERVAL_DAYS)
+                : state.progress.nextRetestDate,
+            },
+          };
+        }),
+      resetDiagnostic: () => set({ diagnostic: null, progress: null }),
       notificationsRead: [],
       markNotificationRead: (id) =>
         set((state) => ({
