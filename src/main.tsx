@@ -6,8 +6,16 @@ import { AuthProvider } from "./lib/auth";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 
+// Базовый путь роутера синхронизирован с base сборки (Vite подставляет BASE_URL).
+// На корневом хостинге BASE_URL = "/", на GitHub Pages = "/womencommunity/".
+const basepath =
+  import.meta.env.BASE_URL === "/"
+    ? undefined
+    : import.meta.env.BASE_URL.replace(/\/$/, "");
+
 const router = createRouter({
   routeTree,
+  basepath,
   defaultPreload: "intent",
   scrollRestoration: true,
 });
