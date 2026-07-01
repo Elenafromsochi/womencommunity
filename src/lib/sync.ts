@@ -1,5 +1,11 @@
 import { supabase } from "./supabase";
-import type { DiagnosticResult, ProgressState, UserProfile, UserRole } from "./types";
+import type {
+  CycleData,
+  DiagnosticResult,
+  ProgressState,
+  UserProfile,
+  UserRole,
+} from "./types";
 
 // Срез состояния приложения, который сохраняется в облаке по аккаунту.
 // Хранится как одна JSONB-строка на пользователя в таблице user_state —
@@ -15,6 +21,7 @@ export interface CloudState {
   appliedGroupIds: string[];
   diagnostic: DiagnosticResult | null;
   progress: ProgressState | null;
+  cycle: CycleData | null;
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

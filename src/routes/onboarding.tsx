@@ -175,19 +175,16 @@ function OnboardingPage() {
         <div className="flex-1 flex flex-col">
           <BackButton onClick={() => go("welcome")} />
           <div className="flex-1 flex flex-col justify-center space-y-6">
-            <h1 className="font-[Lora] text-2xl leading-snug">Как это устроено</h1>
+            <h1 className="font-[Lora] text-2xl leading-snug">Что мы сделаем</h1>
             <div className="space-y-4">
-              <IntroPoint emoji="🌿" title="Девять сфер">
-                Мы посмотрим на жизнь как на венок из 9 сфер и найдём вашу
-                опорную — ту, что потянет за собой остальные.
+              <IntroPoint emoji="🌿" title="Найдём главное">
+                Какой сфере жизни сейчас нужно ваше внимание.
               </IntroPoint>
-              <IntroPoint emoji="🪶" title="Мягкие маркеры">
-                Вы сами выберете 1–2 маркера. Это реальные сдвиги, а не баллы за
-                активность.
+              <IntroPoint emoji="🕊️" title="Первый шаг">
+                Выберем 1–2 простых действия, с которых начать.
               </IntroPoint>
-              <IntroPoint emoji="📈" title="Честный темп">
-                Раз в 2 недели — мягкая отметка динамики. Без давления и без
-                сравнения с другими.
+              <IntroPoint emoji="🌱" title="Увидим рост">
+                Будете замечать, как в этой сфере становится лучше.
               </IntroPoint>
             </div>
           </div>
@@ -491,8 +488,8 @@ function ResultScreen({
       )}
 
       <p className="text-xs text-muted-foreground mt-5 max-w-[280px] leading-relaxed">
-        Это точка отсчёта. Дальше — маленькими шагами и в своём темпе. Через 2
-        недели мягко вернёмся и посмотрим динамику.
+        Это точка отсчёта. Дальше — маленькими шагами и в своём темпе. Такую
+        сверку полезно повторять время от времени — мы мягко напомним.
       </p>
 
       <div className="w-full mt-5">

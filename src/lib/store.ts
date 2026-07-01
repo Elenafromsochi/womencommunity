@@ -5,10 +5,13 @@ import type {
   DiagnosticResult,
   ProgressState,
   MarkerEntry,
+  CycleData,
+  CycleSymptomEntry,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
 import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
+import { defaultCycle, recomputeAvgCycleLength } from "./cycle";
 
 const addDays = (iso: string, days: number) => {
   const d = new Date(iso);
@@ -54,6 +57,15 @@ interface AppState {
   toggleEventRegistration: (id: string) => void;
   appliedGroupIds: string[];
   toggleGroupApplication: (id: string) => void;
+
+  // ===== Женский цикл =====
+  cycle: CycleData | null;
+  /** Отметить начало месячных (YYYY-MM-DD). Пересчитывает среднюю длину цикла. */
+  logPeriodStart: (dateISO: string) => void;
+  /** Убрать ошибочно отмеченную дату начала. */
+  removePeriodStart: (dateISO: string) => void;
+  /** Записать/обновить дневную отметку самочувствия (по дате). */
+  logCycleSymptom: (entry: CycleSymptomEntry) => void;
 }
 
 // Дефолтные значения данных пользователя (новый аккаунт до онбординга).
@@ -68,6 +80,7 @@ const defaultUserData = {
   savedMentorIds: [] as string[],
   registeredEventIds: [] as string[],
   appliedGroupIds: [] as string[],
+  cycle: null as CycleData | null,
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -83,6 +96,7 @@ export function selectCloudState(s: AppState): CloudState {
     appliedGroupIds: s.appliedGroupIds,
     diagnostic: s.diagnostic,
     progress: s.progress,
+    cycle: s.cycle,
   };
 }
 
@@ -182,4 +196,39 @@ export const useAppStore = create<AppState>()((set) => ({
         ? state.appliedGroupIds.filter((x) => x !== id)
         : [...state.appliedGroupIds, id],
     })),
+
+  logPeriodStart: (dateISO) =>
+    set((state) => {
+      const base = state.cycle ?? defaultCycle();
+      if (base.periods.some((p) => p.start === dateISO)) return state;
+      const periods = [...base.periods, { start: dateISO }];
+      return {
+        cycle: {
+          ...base,
+          periods,
+          avgCycleLength: recomputeAvgCycleLength(periods, base.avgCycleLength),
+        },
+      };
+    }),
+  removePeriodStart: (dateISO) =>
+    set((state) => {
+      if (!state.cycle) return state;
+      const periods = state.cycle.periods.filter((p) => p.start !== dateISO);
+      return {
+        cycle: {
+          ...state.cycle,
+          periods,
+          avgCycleLength: recomputeAvgCycleLength(periods, state.cycle.avgCycleLength),
+        },
+      };
+    }),
+  logCycleSymptom: (entry) =>
+    set((state) => {
+      const base = state.cycle ?? defaultCycle();
+      const symptoms = [
+        ...base.symptoms.filter((s) => s.date !== entry.date),
+        entry,
+      ].sort((a, b) => (a.date < b.date ? 1 : -1));
+      return { cycle: { ...base, symptoms } };
+    }),
 }));
