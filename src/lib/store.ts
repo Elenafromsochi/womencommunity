@@ -7,6 +7,7 @@ import type {
   MarkerEntry,
   CycleData,
   CycleSymptomEntry,
+  SphereId,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
@@ -66,6 +67,11 @@ interface AppState {
   removePeriodStart: (dateISO: string) => void;
   /** Записать/обновить дневную отметку самочувствия (по дате). */
   logCycleSymptom: (entry: CycleSymptomEntry) => void;
+
+  // ===== Колесо баланса =====
+  /** Оценка состояния по сферам 0–10 (мини-тесты со страницы сферы). */
+  sphereScores: Partial<Record<SphereId, number>>;
+  setSphereScore: (sphereId: SphereId, score: number) => void;
 }
 
 // Дефолтные значения данных пользователя (новый аккаунт до онбординга).
@@ -81,6 +87,7 @@ const defaultUserData = {
   registeredEventIds: [] as string[],
   appliedGroupIds: [] as string[],
   cycle: null as CycleData | null,
+  sphereScores: {} as Partial<Record<SphereId, number>>,
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -97,6 +104,7 @@ export function selectCloudState(s: AppState): CloudState {
     diagnostic: s.diagnostic,
     progress: s.progress,
     cycle: s.cycle,
+    sphereScores: s.sphereScores,
   };
 }
 
@@ -127,7 +135,11 @@ export const useAppStore = create<AppState>()((set) => ({
       wellbeingHistory: [{ date: result.date, value: result.wellbeing }],
       nextRetestDate: addDays(result.date, RETEST_INTERVAL_DAYS),
     };
-    set({ diagnostic: result, progress });
+    set({
+      diagnostic: result,
+      progress,
+      sphereScores: { [result.supportSphere]: result.supportSphereScore },
+    });
   },
   addMarkerEntry: (markerId, value) =>
     set((state) => {
@@ -231,4 +243,9 @@ export const useAppStore = create<AppState>()((set) => ({
       ].sort((a, b) => (a.date < b.date ? 1 : -1));
       return { cycle: { ...base, symptoms } };
     }),
+
+  setSphereScore: (sphereId, score) =>
+    set((state) => ({
+      sphereScores: { ...state.sphereScores, [sphereId]: score },
+    })),
 }));

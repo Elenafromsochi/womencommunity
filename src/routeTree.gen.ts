@@ -22,6 +22,7 @@ import { Route as CuratorRouteImport } from './routes/curator'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SphereSphereIdRouteImport } from './routes/sphere.$sphereId'
 import { Route as MentorsMentorIdRouteImport } from './routes/mentors.$mentorId'
 import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
@@ -91,6 +92,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SphereSphereIdRoute = SphereSphereIdRouteImport.update({
+  id: '/sphere/$sphereId',
+  path: '/sphere/$sphereId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MentorsMentorIdRoute = MentorsMentorIdRouteImport.update({
   id: '/$mentorId',
   path: '/$mentorId',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/mentors/$mentorId': typeof MentorsMentorIdRoute
+  '/sphere/$sphereId': typeof SphereSphereIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/mentors/$mentorId': typeof MentorsMentorIdRoute
+  '/sphere/$sphereId': typeof SphereSphereIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/mentors/$mentorId': typeof MentorsMentorIdRoute
+  '/sphere/$sphereId': typeof SphereSphereIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/groups/$groupId'
     | '/mentors/$mentorId'
+    | '/sphere/$sphereId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/groups/$groupId'
     | '/mentors/$mentorId'
+    | '/sphere/$sphereId'
   id:
     | '__root__'
     | '/'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/groups/$groupId'
     | '/mentors/$mentorId'
+    | '/sphere/$sphereId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   TopicsRoute: typeof TopicsRoute
+  SphereSphereIdRoute: typeof SphereSphereIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -328,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sphere/$sphereId': {
+      id: '/sphere/$sphereId'
+      path: '/sphere/$sphereId'
+      fullPath: '/sphere/$sphereId'
+      preLoaderRoute: typeof SphereSphereIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mentors/$mentorId': {
       id: '/mentors/$mentorId'
       path: '/$mentorId'
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   TopicsRoute: TopicsRoute,
+  SphereSphereIdRoute: SphereSphereIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

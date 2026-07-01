@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Heart,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { useAuth } from "../lib/auth";
+import { Wreath } from "../components/Wreath";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 
 export const Route = createFileRoute("/profile")({
@@ -34,6 +35,9 @@ function ProfilePage() {
   const appliedGroupIds = useAppStore((s) => s.appliedGroupIds);
 
   const { session, signOut } = useAuth();
+  const navigate = useNavigate();
+  const diagnostic = useAppStore((s) => s.diagnostic);
+  const sphereScores = useAppStore((s) => s.sphereScores);
 
   const savedContent = contentItems.filter((c) => savedContentIds.includes(c.id));
   const savedMentors = mentors.filter((m) => savedMentorIds.includes(m.id));
@@ -42,6 +46,39 @@ function ProfilePage() {
 
   return (
     <div className="px-6 space-y-8 pb-4">
+      {/* Колесо баланса */}
+      <section className="flex flex-col items-center">
+        <h2 className="font-[Lora] text-xl self-start mb-1">Колесо баланса</h2>
+        {diagnostic ? (
+          <>
+            <Wreath
+              size={280}
+              supportSphere={diagnostic.supportSphere}
+              selectedSpheres={diagnostic.selectedSpheres}
+              supportScore={sphereScores[diagnostic.supportSphere]}
+              scores={sphereScores}
+              onSelect={(id) =>
+                navigate({ to: "/sphere/$sphereId", params: { sphereId: id } })
+              }
+            />
+            <p className="text-xs text-muted-foreground -mt-1">
+              Нажмите на сферу, чтобы открыть её
+            </p>
+          </>
+        ) : (
+          <Link
+            to="/onboarding"
+            className="w-full bg-cream rounded-[2rem] p-6 text-center ring-1 ring-border"
+          >
+            <span className="text-3xl">🌿</span>
+            <p className="font-[Lora] text-lg mt-2">Соберите своё колесо</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Пройдите короткое знакомство с собой — и здесь появится ваш венок сфер.
+            </p>
+          </Link>
+        )}
+      </section>
+
       {/* Profile header */}
       <div className="flex items-center gap-4">
         <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border overflow-hidden">

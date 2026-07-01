@@ -10,6 +10,8 @@ export function Wreath({
   supportSphere,
   selectedSpheres = [],
   supportScore,
+  scores,
+  onSelect,
   size = 300,
   className = "",
 }: {
@@ -17,6 +19,10 @@ export function Wreath({
   selectedSpheres?: SphereId[];
   /** Шкала в опорной сфере 0–10 (показывается в центре). */
   supportScore?: number;
+  /** Оценки по сферам 0–10 — сферы с оценкой подсвечиваются. */
+  scores?: Partial<Record<SphereId, number>>;
+  /** Если задан — сферы становятся кликабельными. */
+  onSelect?: (id: SphereId) => void;
   size?: number;
   className?: string;
 }) {
@@ -82,12 +88,18 @@ export function Wreath({
         const y = center + radius * Math.sin(angle);
         const isSupport = sphere.id === supportSphere;
         const isSelected = selectedSpheres.includes(sphere.id);
+        const hasScore = scores?.[sphere.id] != null;
+        const active = isSupport || isSelected || hasScore;
         const node = size * (isSupport ? 0.17 : 0.13);
 
         return (
-          <div
+          <button
             key={sphere.id}
-            className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+            type="button"
+            disabled={!onSelect}
+            onClick={() => onSelect?.(sphere.id)}
+            aria-label={sphere.name}
+            className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center disabled:cursor-default"
             style={{ left: x, top: y }}
           >
             <div
@@ -95,17 +107,17 @@ export function Wreath({
               style={{
                 width: node,
                 height: node,
-                background: isSupport || isSelected ? sphere.color : "var(--color-card)",
+                background: active ? sphere.color : "var(--color-card)",
                 boxShadow: isSupport
                   ? `0 0 0 3px var(--color-background), 0 0 0 5px ${sphere.color}, 0 8px 20px -6px ${sphere.color}`
                   : "0 1px 4px rgba(0,0,0,0.06)",
-                opacity: isSupport || isSelected ? 1 : 0.45,
+                opacity: active ? 1 : 0.45,
                 border: "1px solid var(--color-border)",
               }}
             >
               <span style={{ fontSize: node * 0.5 }}>{sphere.emoji}</span>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>

@@ -169,3 +169,22 @@ export function entriesToNextLevel(markerEntryCount: number): number | null {
 
 /** Период ретеста — мягкая отметка динамики раз в 2 недели. */
 export const RETEST_INTERVAL_DAYS = 14;
+
+// ---------------------------------------------------------------------------
+// Связь сфер с темами контента (для страницы сферы: материалы, наставники).
+// Названия соответствуют topics/mentors.topics в mock-data.
+// ---------------------------------------------------------------------------
+const SPHERE_TOPIC_ALIASES: Record<SphereId, string[]> = {
+  relationships: ["Отношения"],
+  health: ["Здоровье"],
+  finance: ["Финансы"],
+  self_realization: ["Самореализация"],
+  emotions: ["Личностный рост"],
+  motherhood: ["Материнство"],
+  creativity: ["Хобби", "Развлечения"],
+  growth: ["Личностный рост"],
+  environment: ["Отношения"],
+};
+
+export const topicsForSphere = (id: SphereId): string[] =>
+  SPHERE_TOPIC_ALIASES[id] ?? [];
