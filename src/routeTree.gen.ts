@@ -20,6 +20,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as CycleRouteImport } from './routes/cycle'
 import { Route as CuratorRouteImport } from './routes/curator'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as BuddyRouteImport } from './routes/buddy'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SphereSphereIdRouteImport } from './routes/sphere.$sphereId'
@@ -82,6 +83,11 @@ const CommunityRoute = CommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuddyRoute = BuddyRouteImport.update({
+  id: '/buddy',
+  path: '/buddy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -116,6 +122,7 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/buddy': typeof BuddyRoute
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/buddy': typeof BuddyRoute
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/buddy': typeof BuddyRoute
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/buddy'
     | '/community'
     | '/curator'
     | '/cycle'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/buddy'
     | '/community'
     | '/curator'
     | '/cycle'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/buddy'
     | '/community'
     | '/curator'
     | '/cycle'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  BuddyRoute: typeof BuddyRoute
   CommunityRoute: typeof CommunityRoute
   CuratorRoute: typeof CuratorRoute
   CycleRoute: typeof CycleRoute
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buddy': {
+      id: '/buddy'
+      path: '/buddy'
+      fullPath: '/buddy'
+      preLoaderRoute: typeof BuddyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -408,6 +428,7 @@ const MentorsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  BuddyRoute: BuddyRoute,
   CommunityRoute: CommunityRoute,
   CuratorRoute: CuratorRoute,
   CycleRoute: CycleRoute,
