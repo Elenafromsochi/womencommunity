@@ -175,22 +175,16 @@ function OnboardingPage() {
         <div className="flex-1 flex flex-col">
           <BackButton onClick={() => go("welcome")} />
           <div className="flex-1 flex flex-col justify-center space-y-6">
-            <h1 className="font-[Lora] text-2xl leading-snug">Как всё будет</h1>
+            <h1 className="font-[Lora] text-2xl leading-snug">Что мы сделаем</h1>
             <div className="space-y-4">
-              <IntroPoint emoji="🌿" title="Вся ваша жизнь целиком">
-                Близкие, здоровье, дело, деньги, тело, отдых — всё это части
-                одной вас. Посмотрим на них вместе и по-доброму поймём, к чему
-                сейчас тянется душа.
+              <IntroPoint emoji="🌿" title="Найдём главное">
+                Какой сфере жизни сейчас нужно ваше внимание.
               </IntroPoint>
-              <IntroPoint emoji="🪶" title="Замечать хорошее">
-                Выберете пару простых вещей, за которыми приятно тихонько
-                приглядывать. Никаких баллов и оценок — только то, что вы правда
-                чувствуете в себе.
+              <IntroPoint emoji="🕊️" title="Первый шаг">
+                Выберем 1–2 простых действия, с которых начать.
               </IntroPoint>
-              <IntroPoint emoji="📈" title="В своём темпе">
-                Здесь некуда спешить и не с кем соревноваться. Иногда будем
-                мягко оглядываться назад — просто чтобы порадоваться, как много
-                уже сдвинулось.
+              <IntroPoint emoji="🌱" title="Увидим рост">
+                Будете замечать, как в этой сфере становится лучше.
               </IntroPoint>
             </div>
           </div>
@@ -494,8 +488,8 @@ function ResultScreen({
       )}
 
       <p className="text-xs text-muted-foreground mt-5 max-w-[280px] leading-relaxed">
-        Это точка отсчёта. Дальше — маленькими шагами и в своём темпе. Через 2
-        недели мягко вернёмся и посмотрим динамику.
+        Это точка отсчёта. Дальше — маленькими шагами и в своём темпе. Такую
+        сверку полезно повторять время от времени — мы мягко напомним.
       </p>
 
       <div className="w-full mt-5">

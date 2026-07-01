@@ -202,3 +202,30 @@ export interface ProgressState {
   wellbeingHistory: WellbeingPoint[];
   nextRetestDate: string; // ISO, +14 дней — мягкая отметка динамики
 }
+
+// ============================================================================
+// Женский цикл — мягкий трекер (даты, симптомы, подсказка о фазе).
+// Ориентир для саморефлексии, не медицинская точность.
+// ============================================================================
+
+export type FlowLevel = "none" | "light" | "medium" | "heavy";
+
+export interface PeriodLog {
+  start: string; // дата начала, "YYYY-MM-DD"
+  end?: string;
+}
+
+/** Дневная отметка самочувствия в контексте цикла (уникальна по дате). */
+export interface CycleSymptomEntry {
+  date: string; // "YYYY-MM-DD"
+  flow?: FlowLevel;
+  tags: string[];
+  note?: string;
+}
+
+export interface CycleData {
+  periods: PeriodLog[];
+  avgCycleLength: number; // средняя длина цикла, дней
+  avgPeriodLength: number; // средняя длительность месячных, дней
+  symptoms: CycleSymptomEntry[];
+}

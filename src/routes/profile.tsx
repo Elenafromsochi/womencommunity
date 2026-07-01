@@ -74,6 +74,20 @@ function ProfilePage() {
         <StatCard value={myGroups.length} label="Группы" icon={<Users className="size-4 text-rose" />} />
       </div>
 
+      {/* Cycle */}
+      <Link
+        to="/cycle"
+        className="flex items-center justify-between bg-rose/10 ring-1 ring-rose/20 rounded-[1.5rem] p-5"
+      >
+        <div>
+          <p className="font-[Lora] text-lg">Мой цикл</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Даты, самочувствие, подсказка о фазе
+          </p>
+        </div>
+        <span className="text-2xl">🌙</span>
+      </Link>
+
       {/* Saved content */}
       <section className="space-y-3">
         <h2 className="font-[Lora] text-xl">Сохраненные материалы</h2>
