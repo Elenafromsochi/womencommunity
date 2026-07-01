@@ -1,134 +1,68 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
-  useRouter,
+  createRootRoute,
   useRouterState,
+  useNavigate,
   HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
 
-import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppHeader } from "../components/AppHeader";
 import { BottomNav } from "../components/BottomNav";
+import { AuthScreen } from "../components/AuthScreen";
 import { Toaster } from "../components/ui/sonner";
+import { useAuth } from "../lib/auth";
+import { useAppStore } from "../lib/store";
 
-function NotFoundComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
-  const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Bloom Together is a mobile web app for a private women's community." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Bloom Together is a mobile web app for a private women's community." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Bloom Together is a mobile web app for a private women's community." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a376446a-eb9d-4993-98bc-5671564a7ba5/id-preview-238b4ea2--3194892d-b394-4582-bec0-0a96e9681956.lovable.app-1780643224510.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a376446a-eb9d-4993-98bc-5671564a7ba5/id-preview-238b4ea2--3194892d-b394-4582-bec0-0a96e9681956.lovable.app-1780643224510.png" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { title: "Женское общество" },
+      { name: "description", content: "Закрытое женское сообщество" },
     ],
   }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-function RootShell({ children }: { children: ReactNode }) {
+function Loader() {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
+    <div className="min-h-[100dvh] flex items-center justify-center">
+      <span className="size-8 rounded-full border-2 border-border border-t-primary animate-spin" />
+    </div>
   );
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { session, loading } = useAuth();
+  const hydrated = useAppStore((s) => s.hydrated);
+  const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const { location } = useRouterState();
-  const path = location.pathname;
-  const hideChrome = path.startsWith("/onboarding");
+  const navigate = useNavigate();
+
+  // Новую участницу (без пройденной диагностики) ведём на онбординг.
+  useEffect(() => {
+    if (
+      session &&
+      hydrated &&
+      !onboardingComplete &&
+      !location.pathname.startsWith("/onboarding")
+    ) {
+      navigate({ to: "/onboarding" });
+    }
+  }, [session, hydrated, onboardingComplete, location.pathname, navigate]);
+
+  if (loading) return <Loader />;
+  if (!session) return <AuthScreen />;
+  if (!hydrated) return <Loader />;
+
+  const hideChrome = location.pathname.startsWith("/onboarding");
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
+      <HeadContent />
       <div className="mobile-shell flex flex-col">
         {!hideChrome && <AppHeader />}
         <main className="flex-1 overflow-y-auto no-scrollbar">
@@ -137,6 +71,58 @@ function RootComponent() {
         {!hideChrome && <BottomNav />}
         <Toaster />
       </div>
-    </QueryClientProvider>
+    </>
+  );
+}
+
+function NotFoundComponent() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-7xl font-bold text-foreground">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Страница не найдена</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Похоже, такой страницы нет или она была перемещена.
+        </p>
+        <div className="mt-6">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            На главную
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorComponent({ error }: { error: Error }) {
+  console.error(error);
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Страница не загрузилась
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Что-то пошло не так. Попробуйте обновить или вернуться на главную.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Обновить
+          </button>
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            На главную
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }

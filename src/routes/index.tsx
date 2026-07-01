@@ -90,8 +90,7 @@ function HomePage() {
                 {recommendedContent.description}
               </p>
               <Link
-                to="/topics/$topicId"
-                params={{ topicId: "t5" }}
+                to="/topics"
                 className="inline-flex items-center gap-2 bg-foreground text-primary-foreground text-xs font-medium px-5 py-2.5 rounded-full"
               >
                 Смотреть
