@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAppStore } from "../lib/store";
+import { useAuth } from "../lib/auth";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 
 export const Route = createFileRoute("/profile")({
@@ -31,6 +32,8 @@ function ProfilePage() {
   const savedMentorIds = useAppStore((s) => s.savedMentorIds);
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
   const appliedGroupIds = useAppStore((s) => s.appliedGroupIds);
+
+  const { session, signOut } = useAuth();
 
   const savedContent = contentItems.filter((c) => savedContentIds.includes(c.id));
   const savedMentors = mentors.filter((m) => savedMentorIds.includes(m.id));
@@ -191,6 +194,20 @@ function ProfilePage() {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Account */}
+      <section className="space-y-3">
+        <h2 className="font-[Lora] text-xl">Аккаунт</h2>
+        {session?.user?.email && (
+          <p className="text-xs text-muted-foreground">{session.user.email}</p>
+        )}
+        <button
+          onClick={() => signOut()}
+          className="w-full flex items-center justify-center p-4 rounded-[1.5rem] ring-1 ring-border bg-card text-sm font-medium text-destructive hover:ring-destructive/30 transition-all"
+        >
+          Выйти из аккаунта
+        </button>
       </section>
     </div>
   );

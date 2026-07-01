@@ -1,14 +1,19 @@
+import { useEffect } from "react";
 import {
   Outlet,
   Link,
   createRootRoute,
   useRouterState,
+  useNavigate,
   HeadContent,
 } from "@tanstack/react-router";
 
 import { AppHeader } from "../components/AppHeader";
 import { BottomNav } from "../components/BottomNav";
+import { AuthScreen } from "../components/AuthScreen";
 import { Toaster } from "../components/ui/sonner";
+import { useAuth } from "../lib/auth";
+import { useAppStore } from "../lib/store";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -22,8 +27,37 @@ export const Route = createRootRoute({
   errorComponent: ErrorComponent,
 });
 
+function Loader() {
+  return (
+    <div className="min-h-[100dvh] flex items-center justify-center">
+      <span className="size-8 rounded-full border-2 border-border border-t-primary animate-spin" />
+    </div>
+  );
+}
+
 function RootComponent() {
+  const { session, loading } = useAuth();
+  const hydrated = useAppStore((s) => s.hydrated);
+  const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const { location } = useRouterState();
+  const navigate = useNavigate();
+
+  // Новую участницу (без пройденной диагностики) ведём на онбординг.
+  useEffect(() => {
+    if (
+      session &&
+      hydrated &&
+      !onboardingComplete &&
+      !location.pathname.startsWith("/onboarding")
+    ) {
+      navigate({ to: "/onboarding" });
+    }
+  }, [session, hydrated, onboardingComplete, location.pathname, navigate]);
+
+  if (loading) return <Loader />;
+  if (!session) return <AuthScreen />;
+  if (!hydrated) return <Loader />;
+
   const hideChrome = location.pathname.startsWith("/onboarding");
 
   return (
