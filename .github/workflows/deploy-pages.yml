@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
+  # Публикуем только из main (GitHub Pages деплоит из ветки по умолчанию).
+  # Пуши в рабочие ветки не запускают деплой — не создают ложных «Failure».
   push:
-    branches: [claude/womens-community-app-w1b4ur, main]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

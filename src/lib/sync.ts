@@ -3,6 +3,7 @@ import type {
   CycleData,
   DiagnosticResult,
   ProgressState,
+  SphereId,
   UserProfile,
   UserRole,
 } from "./types";
@@ -22,6 +23,8 @@ export interface CloudState {
   diagnostic: DiagnosticResult | null;
   progress: ProgressState | null;
   cycle: CycleData | null;
+  /** Субъективная оценка состояния по каждой сфере (0–10), из мини-тестов. */
+  sphereScores: Partial<Record<SphereId, number>>;
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

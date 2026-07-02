@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Heart, MessageSquare } from "lucide-react";
+import { Heart, MessageSquare, UserPlus } from "lucide-react";
 import { communityPosts, chatMessages } from "../lib/mock-data";
 import { ChatView } from "../components/ChatView";
 
@@ -28,6 +28,15 @@ function CommunityPage() {
 
   return (
     <div className="flex flex-col h-[calc(100dvh-180px)]">
+      <div className="px-6 pt-1 pb-3">
+        <Link
+          to="/buddy"
+          className="flex items-center justify-center gap-2 bg-rose/10 ring-1 ring-rose/20 text-rose text-sm font-medium py-3 rounded-full"
+        >
+          <UserPlus className="size-4" />
+          Найти бадди
+        </Link>
+      </div>
       <div className="px-6 pt-1 pb-3 flex gap-4 border-b border-border">
         {[
           { key: "chat" as Tab, label: "Общий чат" },
