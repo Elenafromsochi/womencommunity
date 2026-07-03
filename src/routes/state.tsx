@@ -2,11 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Sparkles, Heart, Wind } from "lucide-react";
 import { useAppStore } from "../lib/store";
-import { STATE_SPHERE, STATE_TOPICS } from "../lib/methodology";
+import { STATE_SPHERE, STATE_TOPICS, sphereById } from "../lib/methodology";
 import { computeCycleStatus, todayISO } from "../lib/cycle";
 import { contentItems } from "../lib/mock-data";
 import type { SphereId } from "../lib/types";
 import { Scale } from "../components/Scale";
+import { AssistantChat } from "../components/AssistantChat";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/state")({
@@ -62,6 +63,17 @@ function StatePage() {
   const [journal, setJournal] = useState("");
 
   const practices = contentItems.filter((c) => STATE_TOPICS.includes(c.topic)).slice(0, 4);
+
+  const phaseLabel =
+    cycle && cycle.periods.length > 0
+      ? computeCycleStatus(cycle, todayISO()).phaseLabel
+      : null;
+  const assistantContext = {
+    focus: focusSpheres.map((id) => sphereById(id).name),
+    state: stateScore ?? null,
+    phase: phaseLabel,
+    materials: practices.map((c) => ({ id: c.id, title: c.title, topic: c.topic })),
+  };
 
   return (
     <div className="px-6 space-y-8 pb-8">
@@ -191,15 +203,8 @@ function StatePage() {
         </section>
       )}
 
-      {/* ИИ-помощник (скоро) */}
-      <section className="bg-foreground text-primary-foreground rounded-[2rem] p-6">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">Помощник</span>
-        <h2 className="font-[Lora] text-lg mt-1.5">Бережная поддержка рядом</h2>
-        <p className="text-sm text-primary-foreground/75 mt-1.5 leading-relaxed">
-          Скоро здесь появится помощник, который выслушает и мягко подскажет, опираясь на
-          ваши сферы и состояние. Готовим на российском ИИ.
-        </p>
-      </section>
+      {/* ИИ-помощник */}
+      <AssistantChat context={assistantContext} />
     </div>
   );
 }
