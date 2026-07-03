@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Calendar } from "lucide-react";
-import { useAppStore } from "../lib/store";
+import { ArrowLeft, ArrowRight, Calendar, Star } from "lucide-react";
+import { useAppStore, MAX_FOCUS_SPHERES } from "../lib/store";
 import { sphereById, topicsForSphere, SPHERES } from "../lib/methodology";
 import { contentItems, mentors, events } from "../lib/mock-data";
 import type { SphereId } from "../lib/types";
@@ -23,6 +23,9 @@ function SpherePage() {
   const sphereScores = useAppStore((s) => s.sphereScores);
   const sphereGoals = useAppStore((s) => s.sphereGoals);
   const setSphereScore = useAppStore((s) => s.setSphereScore);
+  const focusSpheres = useAppStore((s) => s.focusSpheres);
+  const toggleFocusSphere = useAppStore((s) => s.toggleFocusSphere);
+  const isFocus = focusSpheres.includes(sphereId as SphereId);
 
   const score = sphereScores[sphereId as SphereId];
   const savedGoal = sphereGoals[sphereId as SphereId];
@@ -72,6 +75,28 @@ function SpherePage() {
           <p className="text-sm text-muted-foreground mt-0.5">{sphere.description}</p>
         </div>
       </section>
+
+      {/* Фокус */}
+      <button
+        onClick={() => {
+          const ok = toggleFocusSphere(sphereId as SphereId);
+          if (!ok) {
+            toast.info(
+              `Уже выбрано ${MAX_FOCUS_SPHERES} фокус-сферы. Сначала снимите фокус с другой.`,
+            );
+          } else {
+            toast.success(isFocus ? "Убрали из фокуса" : "Сфера в фокусе ★");
+          }
+        }}
+        className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-full text-sm font-medium border transition-all ${
+          isFocus
+            ? "bg-primary text-primary-foreground border-primary"
+            : "bg-card text-foreground border-border"
+        }`}
+      >
+        <Star className={`size-4 ${isFocus ? "fill-current" : ""}`} />
+        {isFocus ? "В фокусе" : "Сделать фокус-сферой"}
+      </button>
 
       {/* Состояние + мини-тест */}
       <section className="bg-card ring-1 ring-border rounded-[2rem] p-6 space-y-4">

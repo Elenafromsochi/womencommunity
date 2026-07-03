@@ -28,9 +28,9 @@ function BuddyPage() {
   const { session } = useAuth();
   const userId = session?.user?.id ?? "";
   const profile = useAppStore((s) => s.profile);
-  const sphereScores = useAppStore((s) => s.sphereScores);
+  const focusSpheres = useAppStore((s) => s.focusSpheres);
 
-  const scoredSpheres = SPHERES.filter((s) => sphereScores[s.id] != null);
+  const focusList = SPHERES.filter((s) => focusSpheres.includes(s.id));
 
   const [selected, setSelected] = useState<SphereId | null>(null);
   const [note, setNote] = useState("");
@@ -58,16 +58,16 @@ function BuddyPage() {
     void loadAll();
   }, [loadAll]);
 
-  // Гейт: нужна хотя бы одна оценённая сфера.
-  if (scoredSpheres.length === 0) {
+  // Гейт: нужна хотя бы одна фокус-сфера.
+  if (focusList.length === 0) {
     return (
       <div className="px-6 py-10 text-center space-y-5">
         <span className="text-4xl">🤝</span>
         <div>
-          <h1 className="font-[Lora] text-2xl">Сначала — про себя</h1>
+          <h1 className="font-[Lora] text-2xl">Сначала — фокус</h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-[300px] mx-auto leading-relaxed">
-            Чтобы найти бадди по делу, сначала оцените хотя бы одну сферу в своём
-            колесе баланса. Тогда мы поймём, в чём искать поддержку.
+            Бадди ищем по фокус-сферам. Откройте колесо баланса, оцените сферу и
+            отметьте её как фокус (★) — до трёх. Из них и будем искать поддержку.
           </p>
         </div>
         <Link
@@ -135,10 +135,10 @@ function BuddyPage() {
       <section className="space-y-3">
         <h2 className="font-[Lora] text-xl">Кого ищу</h2>
         <p className="text-xs text-muted-foreground">
-          Выберите сферу из тех, что уже оценили в колесе баланса.
+          Выберите одну из своих фокус-сфер (★ в колесе баланса).
         </p>
         <div className="flex flex-wrap gap-2">
-          {scoredSpheres.map((s) => {
+          {focusList.map((s) => {
             const active = selected === s.id;
             const already = myRequests.some((r) => r.sphere === s.id);
             return (

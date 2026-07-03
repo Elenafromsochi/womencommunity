@@ -38,6 +38,7 @@ function ProfilePage() {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const sphereScores = useAppStore((s) => s.sphereScores);
+  const focusSpheres = useAppStore((s) => s.focusSpheres);
   const scoredCount = Object.keys(sphereScores).length;
   const cycle = useAppStore((s) => s.cycle);
   const cycleStatus =
@@ -53,27 +54,37 @@ function ProfilePage() {
   return (
     <div className="px-6 space-y-8 pb-4">
       {/* Profile header */}
-      <div className="flex items-center gap-4">
-        <div className="size-20 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border overflow-hidden">
+      <div className="flex items-start gap-4">
+        <Link
+          to="/edit-profile"
+          className="size-20 shrink-0 rounded-full bg-cream flex items-center justify-center text-4xl ring-1 ring-border overflow-hidden"
+        >
           {profile.avatar ? (
             <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
           ) : (
             <span>👩</span>
           )}
-        </div>
-        <div>
-          <h1 className="font-[Lora] text-2xl leading-tight">{profile.name}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{profile.city}</p>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {profile.interests.slice(0, 3).map((interest) => (
-              <span
-                key={interest}
-                className="text-[10px] px-2.5 py-1 bg-cream rounded-full text-muted-foreground"
-              >
-                {interest}
-              </span>
-            ))}
+        </Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h1 className="font-[Lora] text-2xl leading-tight">{profile.name}</h1>
+              {profile.city && (
+                <p className="text-sm text-muted-foreground mt-0.5">{profile.city}</p>
+              )}
+            </div>
+            <Link
+              to="/edit-profile"
+              className="shrink-0 text-xs text-accent font-medium border-b border-accent/30 pb-0.5"
+            >
+              Изменить
+            </Link>
           </div>
+          {profile.about && (
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+              {profile.about}
+            </p>
+          )}
         </div>
       </div>
 
@@ -83,14 +94,17 @@ function ProfilePage() {
         <WheelOfBalance
           size={300}
           scores={sphereScores}
+          focus={focusSpheres}
           onSelect={(id) =>
             navigate({ to: "/sphere/$sphereId", params: { sphereId: id } })
           }
         />
-        <p className="text-xs text-muted-foreground text-center mt-2 max-w-[260px]">
+        <p className="text-xs text-muted-foreground text-center mt-2 max-w-[270px]">
           {scoredCount === 0
             ? "Нажмите на сектор и оцените сферу — колесо начнёт заполняться."
-            : "Нажмите на сектор, чтобы открыть сферу или обновить оценку."}
+            : focusSpheres.length === 0
+              ? "Нажмите на сектор, оцените её и отметьте до 3 сфер как фокус (★)."
+              : "★ — ваши фокус-сферы. Нажмите на сектор, чтобы открыть или изменить."}
         </p>
       </section>
 

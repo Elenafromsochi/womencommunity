@@ -7,6 +7,8 @@ export interface UserProfile {
   age: number;
   maritalStatus: string;
   occupation: string;
+  /** Короткий рассказ о себе (редактируется участницей). */
+  about?: string;
   interests: string[];
   priorities: string[];
   avatar?: string;

@@ -17,6 +17,7 @@ import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as MentorRouteImport } from './routes/mentor'
 import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as EditProfileRouteImport } from './routes/edit-profile'
 import { Route as CycleRouteImport } from './routes/cycle'
 import { Route as CuratorRouteImport } from './routes/curator'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -66,6 +67,11 @@ const GroupsRoute = GroupsRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditProfileRoute = EditProfileRouteImport.update({
+  id: '/edit-profile',
+  path: '/edit-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CycleRoute = CycleRouteImport.update({
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
+  '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRouteWithChildren
   '/groups': typeof GroupsRouteWithChildren
   '/mentor': typeof MentorRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
+  '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRouteWithChildren
   '/groups': typeof GroupsRouteWithChildren
   '/mentor': typeof MentorRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/curator': typeof CuratorRoute
   '/cycle': typeof CycleRoute
+  '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRouteWithChildren
   '/groups': typeof GroupsRouteWithChildren
   '/mentor': typeof MentorRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/curator'
     | '/cycle'
+    | '/edit-profile'
     | '/events'
     | '/groups'
     | '/mentor'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/curator'
     | '/cycle'
+    | '/edit-profile'
     | '/events'
     | '/groups'
     | '/mentor'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/curator'
     | '/cycle'
+    | '/edit-profile'
     | '/events'
     | '/groups'
     | '/mentor'
@@ -250,6 +262,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CuratorRoute: typeof CuratorRoute
   CycleRoute: typeof CycleRoute
+  EditProfileRoute: typeof EditProfileRoute
   EventsRoute: typeof EventsRouteWithChildren
   GroupsRoute: typeof GroupsRouteWithChildren
   MentorRoute: typeof MentorRoute
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/edit-profile': {
+      id: '/edit-profile'
+      path: '/edit-profile'
+      fullPath: '/edit-profile'
+      preLoaderRoute: typeof EditProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cycle': {
@@ -432,6 +452,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CuratorRoute: CuratorRoute,
   CycleRoute: CycleRoute,
+  EditProfileRoute: EditProfileRoute,
   EventsRoute: EventsRouteWithChildren,
   GroupsRoute: GroupsRouteWithChildren,
   MentorRoute: MentorRoute,

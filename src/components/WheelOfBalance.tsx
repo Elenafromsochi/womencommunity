@@ -8,11 +8,14 @@ import type { SphereId } from "../lib/types";
  */
 export function WheelOfBalance({
   scores,
+  focus = [],
   onSelect,
   size = 320,
   className = "",
 }: {
   scores: Partial<Record<SphereId, number>>;
+  /** Фокус-сферы — выделяются яркой дугой и жирной подписью. */
+  focus?: SphereId[];
   onSelect?: (id: SphereId) => void;
   size?: number;
   className?: string;
@@ -33,6 +36,12 @@ export function WheelOfBalance({
     const [x0, y0] = pt(d0, r);
     const [x1, y1] = pt(d1, r);
     return `M ${c} ${c} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`;
+  };
+
+  const arc = (d0: number, d1: number, r: number) => {
+    const [x0, y0] = pt(d0, r);
+    const [x1, y1] = pt(d1, r);
+    return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;
   };
 
   return (
@@ -63,6 +72,7 @@ export function WheelOfBalance({
           const mid = d0 + step / 2;
           const score = scores[sphere.id];
           const filledR = score != null ? (R * score) / 10 : 0;
+          const isFocus = focus.includes(sphere.id);
           const [ex, ey] = pt(mid, R * 0.66);
           const [lx, ly] = pt(mid, labelR);
 
@@ -87,6 +97,16 @@ export function WheelOfBalance({
                 stroke="var(--color-border)"
                 strokeWidth={1}
               />
+              {/* Яркая дуга у фокус-сферы */}
+              {isFocus && (
+                <path
+                  d={arc(d0 + 1, d1 - 1, R)}
+                  fill="none"
+                  stroke={sphere.color}
+                  strokeWidth={4}
+                  strokeLinecap="round"
+                />
+              )}
               {/* Эмодзи в секторе */}
               <text x={ex} y={ey} textAnchor="middle" dominantBaseline="central" fontSize={size * 0.05}>
                 {sphere.emoji}
@@ -98,9 +118,10 @@ export function WheelOfBalance({
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontSize={size * 0.033}
-                fill="var(--color-muted-foreground)"
-                style={{ fontWeight: 500 }}
+                fill={isFocus ? "var(--color-foreground)" : "var(--color-muted-foreground)"}
+                style={{ fontWeight: isFocus ? 700 : 500 }}
               >
+                {isFocus ? "★ " : ""}
                 {sphere.short}
               </text>
             </g>
