@@ -22,6 +22,7 @@ function SpherePage() {
 
   const sphereScores = useAppStore((s) => s.sphereScores);
   const sphereGoals = useAppStore((s) => s.sphereGoals);
+  const sphereScoreHistory = useAppStore((s) => s.sphereScoreHistory);
   const setSphereScore = useAppStore((s) => s.setSphereScore);
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const toggleFocusSphere = useAppStore((s) => s.toggleFocusSphere);
@@ -32,6 +33,14 @@ function SpherePage() {
   const [draft, setDraft] = useState<number | null>(score ?? null);
   const [goal, setGoal] = useState(savedGoal ?? "");
   const [testing, setTesting] = useState(false);
+
+  // История оценок этой сферы, от старой к новой — для динамики «было → стало».
+  const trend = sphereScoreHistory
+    .filter((h) => h.sphereId === sphereId)
+    .slice()
+    .reverse();
+  const trendDelta =
+    trend.length >= 2 ? trend[trend.length - 1].score - trend[0].score : 0;
 
   const topics = topicsForSphere(sphereId as SphereId);
   const relatedContent = contentItems.filter((c) => topics.includes(c.topic));
@@ -200,6 +209,48 @@ function SpherePage() {
           </div>
         )}
       </section>
+
+      {/* Как менялось — динамика оценок сферы */}
+      {trend.length >= 2 && (
+        <section className="space-y-3">
+          <div className="flex items-end justify-between">
+            <h2 className="font-[Lora] text-xl">Как менялось</h2>
+            <span className="text-xs text-muted-foreground">
+              {trendDelta > 0
+                ? `выросло на +${trendDelta}`
+                : trendDelta < 0
+                  ? `снизилось на ${trendDelta}`
+                  : "пока без изменений"}
+            </span>
+          </div>
+          <div className="bg-card ring-1 ring-border rounded-[2rem] p-5">
+            <div className="flex items-end justify-between gap-1 h-28">
+              {trend.slice(-10).map((p, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                  <span className="text-[10px] text-muted-foreground">{p.score}</span>
+                  <div
+                    className="w-full max-w-6 rounded-full"
+                    style={{
+                      height: `${Math.max(6, p.score * 8)}px`,
+                      background: sphere.color,
+                    }}
+                  />
+                  <span className="text-[9px] text-muted-foreground/70 truncate w-full text-center">
+                    {new Date(p.date).toLocaleDateString("ru-RU", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
+              Это ваша динамика — не оценка. Здесь видно, куда движется сфера. А
+              что именно повлияло, помогает вспомнить дневник.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Материалы */}
       {relatedContent.length > 0 && (

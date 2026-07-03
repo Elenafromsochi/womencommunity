@@ -9,6 +9,7 @@ import type {
   CycleSymptomEntry,
   SphereId,
   JournalEntry,
+  SphereScorePoint,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
@@ -74,6 +75,8 @@ interface AppState {
   sphereScores: Partial<Record<SphereId, number>>;
   /** Цель по сфере: что нужно, чтобы стало 10. */
   sphereGoals: Partial<Record<SphereId, string>>;
+  /** История оценок сфер — чтобы видеть динамику «было → стало». */
+  sphereScoreHistory: SphereScorePoint[];
   setSphereScore: (sphereId: SphereId, score: number, goal?: string) => void;
 
   /** До 3 фокус-сфер. */
@@ -104,6 +107,7 @@ const defaultUserData = {
   cycle: null as CycleData | null,
   sphereScores: {} as Partial<Record<SphereId, number>>,
   sphereGoals: {} as Partial<Record<SphereId, string>>,
+  sphereScoreHistory: [] as SphereScorePoint[],
   focusSpheres: [] as SphereId[],
   journalEntries: [] as JournalEntry[],
 };
@@ -124,6 +128,7 @@ export function selectCloudState(s: AppState): CloudState {
     cycle: s.cycle,
     sphereScores: s.sphereScores,
     sphereGoals: s.sphereGoals,
+    sphereScoreHistory: s.sphereScoreHistory,
     focusSpheres: s.focusSpheres,
     journalEntries: s.journalEntries,
   };
@@ -266,13 +271,25 @@ export const useAppStore = create<AppState>()((set, get) => ({
     }),
 
   setSphereScore: (sphereId, score, goal) =>
-    set((state) => ({
-      sphereScores: { ...state.sphereScores, [sphereId]: score },
-      sphereGoals:
-        goal !== undefined
-          ? { ...state.sphereGoals, [sphereId]: goal }
-          : state.sphereGoals,
-    })),
+    set((state) => {
+      const prev = state.sphereScores[sphereId];
+      // Записываем в историю только реальное изменение оценки.
+      const history =
+        prev === score
+          ? state.sphereScoreHistory
+          : [
+              { date: new Date().toISOString(), sphereId, score },
+              ...state.sphereScoreHistory,
+            ];
+      return {
+        sphereScores: { ...state.sphereScores, [sphereId]: score },
+        sphereScoreHistory: history,
+        sphereGoals:
+          goal !== undefined
+            ? { ...state.sphereGoals, [sphereId]: goal }
+            : state.sphereGoals,
+      };
+    }),
 
   toggleFocusSphere: (sphereId) => {
     const state = get();

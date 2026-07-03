@@ -5,6 +5,7 @@ import type {
   JournalEntry,
   ProgressState,
   SphereId,
+  SphereScorePoint,
   UserProfile,
   UserRole,
 } from "./types";
@@ -28,6 +29,8 @@ export interface CloudState {
   sphereScores: Partial<Record<SphereId, number>>;
   /** Ответ на вопрос «что должно случиться, чтобы стало 10» по сфере. */
   sphereGoals: Partial<Record<SphereId, string>>;
+  /** История оценок сфер — динамика «было → стало». */
+  sphereScoreHistory?: SphereScorePoint[];
   /** До 3 фокус-сфер — на них участница делает упор; из них ищется бадди. */
   focusSpheres: SphereId[];
   /** Дневник состояния. */

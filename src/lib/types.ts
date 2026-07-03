@@ -252,3 +252,10 @@ export interface JournalEntry {
   text: string;
   mood?: number; // 0–10, необязательно
 }
+
+/** Точка в истории оценок сферы — чтобы видеть динамику «было → стало». */
+export interface SphereScorePoint {
+  date: string; // ISO
+  sphereId: SphereId;
+  score: number; // 0–10
+}
