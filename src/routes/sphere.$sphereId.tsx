@@ -129,15 +129,22 @@ function SpherePage() {
             />
             {draft != null && draft < 10 && (
               <div>
-                <label className="text-sm font-medium">
+                <label htmlFor="sphere-goal" className="text-sm font-medium">
                   Что должно случиться, чтобы стало 10?
                 </label>
                 <textarea
+                  id="sphere-goal"
+                  name="sphere-goal"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                   rows={3}
+                  autoCapitalize="none"
+                  autoCorrect="on"
+                  spellCheck
+                  inputMode="text"
                   placeholder="Опишите своими словами — это станет вашим ориентиром"
-                  className="mt-2 w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                  style={{ textTransform: "none" }}
+                  className="mt-2 w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                 />
               </div>
             )}
