@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Users } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
-import { computeCycleStatus, todayISO } from "../lib/cycle";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
@@ -47,11 +46,6 @@ function EventCover({ src, type }: { src?: string; type: string }) {
 
 function HomePage() {
   const profile = useAppStore((s) => s.profile);
-  const cycle = useAppStore((s) => s.cycle);
-  const cycleStatus =
-    cycle && cycle.periods.length > 0
-      ? computeCycleStatus(cycle, todayISO())
-      : null;
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
   const toggleEventRegistration = useAppStore((s) => s.toggleEventRegistration);
   const appliedGroupIds = useAppStore((s) => s.appliedGroupIds);
@@ -80,26 +74,6 @@ function HomePage() {
           Сегодня в клубе уютно и тепло.
         </p>
       </section>
-
-      {/* Cycle */}
-      <Link
-        to="/cycle"
-        className="block bg-rose/10 ring-1 ring-rose/20 rounded-[2rem] p-5"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[10px] uppercase tracking-widest text-rose/80 font-medium">
-              Мой цикл
-            </span>
-            <h3 className="font-[Lora] text-lg mt-1 leading-tight">
-              {cycleStatus
-                ? `${cycleStatus.phaseLabel} · день ${cycleStatus.cycleDay}`
-                : "Настроить трекер цикла"}
-            </h3>
-          </div>
-          <span className="text-2xl">🌙</span>
-        </div>
-      </Link>
 
       {/* Recommended */}
       {recommendedContent && (

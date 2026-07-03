@@ -13,6 +13,7 @@ import {
 import { useAppStore } from "../lib/store";
 import { useAuth } from "../lib/auth";
 import { WheelOfBalance } from "../components/WheelOfBalance";
+import { computeCycleStatus, todayISO } from "../lib/cycle";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 
 export const Route = createFileRoute("/profile")({
@@ -38,6 +39,11 @@ function ProfilePage() {
   const navigate = useNavigate();
   const sphereScores = useAppStore((s) => s.sphereScores);
   const scoredCount = Object.keys(sphereScores).length;
+  const cycle = useAppStore((s) => s.cycle);
+  const cycleStatus =
+    cycle && cycle.periods.length > 0
+      ? computeCycleStatus(cycle, todayISO())
+      : null;
 
   const savedContent = contentItems.filter((c) => savedContentIds.includes(c.id));
   const savedMentors = mentors.filter((m) => savedMentorIds.includes(m.id));
@@ -98,15 +104,26 @@ function ProfilePage() {
       {/* Cycle */}
       <Link
         to="/cycle"
-        className="flex items-center justify-between bg-rose/10 ring-1 ring-rose/20 rounded-[1.5rem] p-5"
+        className="block bg-rose/10 ring-1 ring-rose/20 rounded-[2rem] p-5"
       >
-        <div>
-          <p className="font-[Lora] text-lg">Мой цикл</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Даты, самочувствие, подсказка о фазе
-          </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="text-[10px] uppercase tracking-widest text-rose/80 font-medium">
+              Мой цикл
+            </span>
+            <h3 className="font-[Lora] text-lg mt-1 leading-tight">
+              {cycleStatus
+                ? `${cycleStatus.phaseLabel} · день ${cycleStatus.cycleDay}`
+                : "Настроить трекер цикла"}
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+              {cycleStatus
+                ? cycleStatus.phaseHint
+                : "Даты, самочувствие, подсказка о фазе"}
+            </p>
+          </div>
+          <span className="text-2xl shrink-0">🌙</span>
         </div>
-        <span className="text-2xl">🌙</span>
       </Link>
 
       {/* Saved content */}
