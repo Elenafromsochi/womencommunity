@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
 
-/** Тёплый ИИ-помощник (YandexGPT через серверную функцию). */
+/** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
 export function AssistantChat({ context }: { context: AssistantContext }) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [input, setInput] = useState("");
