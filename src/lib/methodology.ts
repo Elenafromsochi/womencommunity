@@ -13,15 +13,15 @@ import type { MarkerDef, Sphere, SphereId } from "./types";
 // 9 сфер жизни (венок). Единый источник правды.
 // ---------------------------------------------------------------------------
 export const SPHERES: Sphere[] = [
-  { id: "relationships", name: "Отношения", emoji: "💞", description: "Партнёр, семья, близость, границы", color: "hsl(350 60% 72%)" },
-  { id: "health", name: "Здоровье", emoji: "🌿", description: "Тело, сон, движение, энергия", color: "hsl(145 32% 60%)" },
-  { id: "finance", name: "Финансы", emoji: "🪙", description: "Деньги, опора, независимость", color: "hsl(45 55% 62%)" },
-  { id: "self_realization", name: "Самореализация", emoji: "✨", description: "Дело, призвание, цели", color: "hsl(280 35% 70%)" },
-  { id: "emotions", name: "Эмоции", emoji: "🫧", description: "Состояние, чувства, устойчивость", color: "hsl(210 48% 70%)" },
-  { id: "motherhood", name: "Материнство", emoji: "🤱", description: "Дети, баланс, поддержка", color: "hsl(20 58% 73%)" },
-  { id: "creativity", name: "Творчество", emoji: "🎨", description: "Хобби, ремёсла, самовыражение", color: "hsl(320 45% 73%)" },
-  { id: "growth", name: "Личностный рост", emoji: "🌸", description: "Самопознание, осознанность", color: "hsl(165 36% 62%)" },
-  { id: "environment", name: "Окружение", emoji: "🤝", description: "Люди вокруг, среда, поддержка", color: "hsl(95 38% 62%)" },
+  { id: "relationships", name: "Отношения", short: "Отношения", emoji: "💞", description: "Партнёр, семья, близость, границы", color: "hsl(350 60% 72%)" },
+  { id: "health", name: "Здоровье", short: "Здоровье", emoji: "🌿", description: "Тело, сон, движение, энергия", color: "hsl(145 32% 60%)" },
+  { id: "finance", name: "Финансы", short: "Финансы", emoji: "🪙", description: "Деньги, опора, независимость", color: "hsl(45 55% 62%)" },
+  { id: "self_realization", name: "Самореализация", short: "Дело", emoji: "✨", description: "Дело, призвание, цели", color: "hsl(280 35% 70%)" },
+  { id: "emotions", name: "Эмоции", short: "Эмоции", emoji: "🫧", description: "Состояние, чувства, устойчивость", color: "hsl(210 48% 70%)" },
+  { id: "motherhood", name: "Материнство", short: "Дети", emoji: "🤱", description: "Дети, баланс, поддержка", color: "hsl(20 58% 73%)" },
+  { id: "creativity", name: "Творчество", short: "Хобби", emoji: "🎨", description: "Хобби, ремёсла, самовыражение", color: "hsl(320 45% 73%)" },
+  { id: "growth", name: "Личностный рост", short: "Рост", emoji: "🌸", description: "Самопознание, осознанность", color: "hsl(165 36% 62%)" },
+  { id: "environment", name: "Окружение", short: "Окружение", emoji: "🤝", description: "Люди вокруг, среда, поддержка", color: "hsl(95 38% 62%)" },
 ];
 
 export const sphereById = (id: SphereId): Sphere =>

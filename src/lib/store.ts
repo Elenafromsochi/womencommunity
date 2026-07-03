@@ -71,7 +71,9 @@ interface AppState {
   // ===== Колесо баланса =====
   /** Оценка состояния по сферам 0–10 (мини-тесты со страницы сферы). */
   sphereScores: Partial<Record<SphereId, number>>;
-  setSphereScore: (sphereId: SphereId, score: number) => void;
+  /** Цель по сфере: что нужно, чтобы стало 10. */
+  sphereGoals: Partial<Record<SphereId, string>>;
+  setSphereScore: (sphereId: SphereId, score: number, goal?: string) => void;
 }
 
 // Дефолтные значения данных пользователя (новый аккаунт до онбординга).
@@ -88,6 +90,7 @@ const defaultUserData = {
   appliedGroupIds: [] as string[],
   cycle: null as CycleData | null,
   sphereScores: {} as Partial<Record<SphereId, number>>,
+  sphereGoals: {} as Partial<Record<SphereId, string>>,
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -105,6 +108,7 @@ export function selectCloudState(s: AppState): CloudState {
     progress: s.progress,
     cycle: s.cycle,
     sphereScores: s.sphereScores,
+    sphereGoals: s.sphereGoals,
   };
 }
 
@@ -244,8 +248,12 @@ export const useAppStore = create<AppState>()((set) => ({
       return { cycle: { ...base, symptoms } };
     }),
 
-  setSphereScore: (sphereId, score) =>
+  setSphereScore: (sphereId, score, goal) =>
     set((state) => ({
       sphereScores: { ...state.sphereScores, [sphereId]: score },
+      sphereGoals:
+        goal !== undefined
+          ? { ...state.sphereGoals, [sphereId]: goal }
+          : state.sphereGoals,
     })),
 }));
