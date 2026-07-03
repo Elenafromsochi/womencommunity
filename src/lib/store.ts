@@ -86,7 +86,12 @@ interface AppState {
 
   // ===== Дневник состояния =====
   journalEntries: JournalEntry[];
-  addJournalEntry: (prompt: string, text: string, mood?: number) => void;
+  addJournalEntry: (
+    prompt: string,
+    text: string,
+    mood?: number,
+    opts?: { sphereId?: SphereId; tags?: string[] },
+  ) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -304,7 +309,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   journalEntries: [],
-  addJournalEntry: (prompt, text, mood) =>
+  addJournalEntry: (prompt, text, mood, opts) =>
     set((state) => ({
       journalEntries: [
         {
@@ -313,6 +318,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
           prompt,
           text,
           mood,
+          sphereId: opts?.sphereId,
+          tags: opts?.tags,
         },
         ...state.journalEntries,
       ],

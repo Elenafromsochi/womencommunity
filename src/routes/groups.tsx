@@ -79,7 +79,7 @@ function GroupsPage() {
                   toggleGroupApplication(group.id);
                   toast.success("Заявка отправлена!");
                 }}
-                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium bg-foreground text-primary-foreground rounded-full"
+                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
               >
                 Подать заявку
                 <ArrowRight className="size-3.5" />

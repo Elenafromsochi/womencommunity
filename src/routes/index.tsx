@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, Users, HeartHandshake, UserPlus, LifeBuoy, PenLine } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 import { topicsForSphere, sphereById } from "../lib/methodology";
@@ -57,6 +57,19 @@ function HomePage() {
   const focusTopics = focusSpheres.flatMap((id) => topicsForSphere(id));
   const focusContent = contentItems.filter((c) => focusTopics.includes(c.topic));
 
+  // Мягкое напоминание про дневник, если сегодня ещё нет записи.
+  const journalEntries = useAppStore((s) => s.journalEntries);
+  const now = new Date();
+  const hasJournalToday = journalEntries.some((e) => {
+    const d = new Date(e.date);
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  });
+  const focusName = focusSpheres[0] ? sphereById(focusSpheres[0]).name : null;
+
   const upcomingEvents = events.slice(0, 2);
   const recommendedMentors = mentors.slice(0, 3);
   const recommendedContent = focusContent[0] ?? contentItems[0];
@@ -84,6 +97,80 @@ function HomePage() {
         </p>
       </section>
 
+      {/* Быстрая поддержка — живой человек в первую очередь */}
+      <section className="bg-cream ring-1 ring-border rounded-[2rem] p-5 space-y-4">
+        <div>
+          <h2 className="font-[Lora] text-xl">Нужна поддержка?</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Вы не одна. Рядом живые люди и мягкие опоры.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            to="/mentors"
+            className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
+          >
+            <HeartHandshake className="size-5 text-primary" />
+            <span className="text-sm font-medium leading-tight">
+              Поговорить с человеком
+            </span>
+            <span className="text-[11px] text-muted-foreground">Наставники клуба</span>
+          </Link>
+          <Link
+            to="/buddy"
+            className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
+          >
+            <UserPlus className="size-5 text-accent" />
+            <span className="text-sm font-medium leading-tight">Найти бадди</span>
+            <span className="text-[11px] text-muted-foreground">Подруга по пути</span>
+          </Link>
+          <Link
+            to="/state"
+            className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
+          >
+            <LifeBuoy className="size-5 text-rose" />
+            <span className="text-sm font-medium leading-tight">Мне сейчас трудно</span>
+            <span className="text-[11px] text-muted-foreground">Быстрая опора · SOS</span>
+          </Link>
+          <Link
+            to="/community"
+            className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
+          >
+            <Users className="size-5 text-primary" />
+            <span className="text-sm font-medium leading-tight">Написать в клуб</span>
+            <span className="text-[11px] text-muted-foreground">Женщины рядом</span>
+          </Link>
+        </div>
+        <Link
+          to="/state"
+          className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-0.5"
+        >
+          …или спросить бережного помощника
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </section>
+
+      {/* Мягкое напоминание про дневник */}
+      {!hasJournalToday && (
+        <Link
+          to="/state"
+          className="bg-peach/25 ring-1 ring-peach/40 rounded-2xl p-4 flex items-center gap-3"
+        >
+          <span className="size-9 shrink-0 rounded-full bg-card flex items-center justify-center">
+            <PenLine className="size-4 text-primary" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium leading-tight">Дневник сегодня ещё пуст</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {focusName
+                ? `Что сегодня в сфере «${focusName}»? Пара строк для себя.`
+                : "Пара строк для себя — это уже забота."}
+            </p>
+          </div>
+          <ArrowRight className="size-4 text-muted-foreground shrink-0" />
+        </Link>
+      )}
+
       {/* Ваш путь */}
       <PathCard />
 
@@ -104,7 +191,7 @@ function HomePage() {
               <Link
                 to="/material/$id"
                 params={{ id: recommendedContent.id }}
-                className="inline-flex items-center gap-2 bg-foreground text-primary-foreground text-xs font-medium px-5 py-2.5 rounded-full"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-xs font-medium px-5 py-2.5 rounded-full"
               >
                 Смотреть
                 <ArrowRight className="size-3.5" />

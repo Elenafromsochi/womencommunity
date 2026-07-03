@@ -72,7 +72,7 @@ function BuddyPage() {
         </div>
         <Link
           to="/profile"
-          className="inline-flex items-center gap-2 bg-foreground text-primary-foreground text-sm font-medium px-6 py-3 rounded-full"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-6 py-3 rounded-full"
         >
           Открыть колесо баланса
         </Link>
@@ -172,7 +172,7 @@ function BuddyPage() {
             />
             <button
               onClick={publish}
-              className="w-full bg-foreground text-primary-foreground text-sm font-medium py-3 rounded-full"
+              className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-full"
             >
               Опубликовать запрос
             </button>
@@ -227,7 +227,7 @@ function BuddyPage() {
                       toast.success("Теперь вы бадди 🤍");
                       await loadAll();
                     }}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-foreground text-primary-foreground text-sm font-medium py-2.5 rounded-full"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium py-2.5 rounded-full"
                   >
                     <Check className="size-4" /> Принять
                   </button>

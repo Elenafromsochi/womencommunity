@@ -99,7 +99,7 @@ function MentorDetailPage() {
           </button>
           <button
             onClick={() => toast.success("Сообщение отправлено наставнику")}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-foreground text-primary-foreground rounded-full"
+            className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
           >
             <MessageCircle className="size-4" />
             Написать

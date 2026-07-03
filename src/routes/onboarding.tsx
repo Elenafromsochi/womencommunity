@@ -457,7 +457,7 @@ function ResultScreen({
       />
 
       {/* Уровень */}
-      <div className="inline-flex items-center gap-2 bg-foreground text-primary-foreground text-xs font-medium px-4 py-2 rounded-full">
+      <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground text-xs font-medium px-4 py-2 rounded-full">
         <span className="size-1.5 rounded-full bg-accent" />
         Уровень {lvl.level} · {lvl.title}
       </div>
@@ -553,7 +553,7 @@ function PrimaryButton({
       disabled={disabled}
       className={`${
         full ? "w-full" : ""
-      } inline-flex items-center justify-center gap-2 bg-foreground text-primary-foreground text-sm font-medium px-8 py-3.5 rounded-full transition-opacity disabled:opacity-40`}
+      } inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-8 py-3.5 rounded-full transition-opacity disabled:opacity-40`}
     >
       {children}
     </button>

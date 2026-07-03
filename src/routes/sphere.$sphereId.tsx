@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Calendar, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Star, X } from "lucide-react";
 import { useAppStore, MAX_FOCUS_SPHERES } from "../lib/store";
 import { sphereById, topicsForSphere, SPHERES } from "../lib/methodology";
 import { contentItems, mentors, events } from "../lib/mock-data";
 import type { SphereId } from "../lib/types";
 import { Scale } from "../components/Scale";
+import { VoiceInput } from "../components/VoiceInput";
+import { deriveTags } from "../lib/tags";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/sphere/$sphereId")({
@@ -24,6 +26,7 @@ function SpherePage() {
   const sphereGoals = useAppStore((s) => s.sphereGoals);
   const sphereScoreHistory = useAppStore((s) => s.sphereScoreHistory);
   const setSphereScore = useAppStore((s) => s.setSphereScore);
+  const addJournalEntry = useAppStore((s) => s.addJournalEntry);
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const toggleFocusSphere = useAppStore((s) => s.toggleFocusSphere);
   const isFocus = focusSpheres.includes(sphereId as SphereId);
@@ -33,6 +36,10 @@ function SpherePage() {
   const [draft, setDraft] = useState<number | null>(score ?? null);
   const [goal, setGoal] = useState(savedGoal ?? "");
   const [testing, setTesting] = useState(false);
+
+  // Рефлексия после переоценки: что изменилось в сфере и почему.
+  const [reflect, setReflect] = useState<{ from: number; to: number } | null>(null);
+  const [reflectText, setReflectText] = useState("");
 
   // История оценок этой сферы, от старой к новой — для динамики «было → стало».
   const trend = sphereScoreHistory
@@ -193,6 +200,7 @@ function SpherePage() {
                 disabled={draft == null}
                 onClick={() => {
                   if (draft == null) return;
+                  const prev = score;
                   setSphereScore(
                     sphereId as SphereId,
                     draft,
@@ -200,8 +208,13 @@ function SpherePage() {
                   );
                   setTesting(false);
                   toast.success("Отметили состояние сферы");
+                  // Если оценка реально изменилась — предложим рассказать, что произошло.
+                  if (prev != null && prev !== draft) {
+                    setReflectText("");
+                    setReflect({ from: prev, to: draft });
+                  }
                 }}
-                className="flex-1 py-3 rounded-full text-sm font-medium bg-foreground text-primary-foreground disabled:opacity-40"
+                className="flex-1 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-40"
               >
                 Сохранить
               </button>
@@ -344,6 +357,82 @@ function SpherePage() {
             Материалы по этой сфере скоро появятся.
           </p>
         )}
+
+      {/* Рефлексия после переоценки — сохраняется в дневник с тегом сферы */}
+      {reflect && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4 pb-4">
+          <div className="w-full max-w-md bg-background rounded-[2rem] ring-1 ring-border p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-[Lora] text-xl">Что изменилось?</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  «{sphere.name}»: оценка{" "}
+                  <b className="text-foreground">{reflect.from} → {reflect.to}</b>.
+                  Расскажите, что произошло и почему вы её меняете.
+                </p>
+              </div>
+              <button
+                onClick={() => setReflect(null)}
+                aria-label="Закрыть"
+                className="shrink-0 text-muted-foreground"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <textarea
+              value={reflectText}
+              onChange={(e) => setReflectText(e.target.value)}
+              rows={4}
+              autoCapitalize="sentences"
+              autoCorrect="on"
+              spellCheck
+              inputMode="text"
+              placeholder="Своими словами — или наговорите голосом"
+              style={{ textTransform: "none" }}
+              className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            />
+
+            <div className="flex items-center justify-between gap-2">
+              <VoiceInput
+                onResult={(t) =>
+                  setReflectText((prev) => (prev ? `${prev} ${t}` : t))
+                }
+              />
+              <span className="text-[11px] text-muted-foreground">
+                Запишется в дневник · #{sphere.name}
+              </span>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setReflect(null)}
+                className="flex-1 py-3 rounded-full text-sm ring-1 ring-border text-muted-foreground"
+              >
+                Не сейчас
+              </button>
+              <button
+                disabled={!reflectText.trim()}
+                onClick={() => {
+                  const text = reflectText.trim();
+                  const tags = deriveTags(text, sphereId as SphereId);
+                  addJournalEntry(
+                    `«${sphere.name}»: ${reflect.from} → ${reflect.to}. Что изменилось?`,
+                    text,
+                    undefined,
+                    { sphereId: sphereId as SphereId, tags },
+                  );
+                  setReflect(null);
+                  toast.success("Записали в дневник");
+                }}
+                className="flex-1 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-40"
+              >
+                Записать
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

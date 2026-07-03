@@ -29,7 +29,7 @@ export function PathCard() {
   };
 
   return (
-    <section className="bg-foreground text-primary-foreground rounded-[2rem] p-6 space-y-2.5">
+    <section className="bg-primary text-primary-foreground rounded-[2rem] p-6 space-y-2.5">
       <span className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">
         Ваш путь
       </span>

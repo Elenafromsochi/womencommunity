@@ -122,7 +122,7 @@ function EditProfilePage() {
 
       <button
         onClick={save}
-        className="w-full bg-foreground text-primary-foreground text-sm font-medium py-3.5 rounded-full"
+        className="w-full bg-primary text-primary-foreground text-sm font-medium py-3.5 rounded-full"
       >
         Сохранить
       </button>
