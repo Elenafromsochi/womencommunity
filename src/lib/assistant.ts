@@ -15,7 +15,7 @@ export interface AssistantContext {
 // Можно переопределить переменной окружения VITE_ASSISTANT_URL при сборке.
 const ASSISTANT_URL =
   import.meta.env.VITE_ASSISTANT_URL ??
-  "https://functions.yandexcloud.net/d4eoq248v8aibu9aqbic";
+  "https://functions.yandexcloud.net/d4en8qpn8tj8u1dur07j";
 
 /** Спросить помощника (Яндекс Cloud Function → YandexGPT). */
 export async function askAssistant(
