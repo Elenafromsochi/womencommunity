@@ -144,6 +144,8 @@ export type SphereId =
 export interface Sphere {
   id: SphereId;
   name: string;
+  /** Короткая подпись для секторов колеса баланса */
+  short: string;
   emoji: string;
   description: string;
   /** Цвет лепестка в венке (CSS-строка) */

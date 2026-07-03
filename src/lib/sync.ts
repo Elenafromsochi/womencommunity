@@ -25,6 +25,8 @@ export interface CloudState {
   cycle: CycleData | null;
   /** Субъективная оценка состояния по каждой сфере (0–10), из мини-тестов. */
   sphereScores: Partial<Record<SphereId, number>>;
+  /** Ответ на вопрос «что должно случиться, чтобы стало 10» по сфере. */
+  sphereGoals: Partial<Record<SphereId, string>>;
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

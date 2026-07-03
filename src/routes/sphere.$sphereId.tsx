@@ -21,10 +21,13 @@ function SpherePage() {
   const sphere = sphereById(sphereId as SphereId);
 
   const sphereScores = useAppStore((s) => s.sphereScores);
+  const sphereGoals = useAppStore((s) => s.sphereGoals);
   const setSphereScore = useAppStore((s) => s.setSphereScore);
 
   const score = sphereScores[sphereId as SphereId];
+  const savedGoal = sphereGoals[sphereId as SphereId];
   const [draft, setDraft] = useState<number | null>(score ?? null);
+  const [goal, setGoal] = useState(savedGoal ?? "");
   const [testing, setTesting] = useState(false);
 
   const topics = topicsForSphere(sphereId as SphereId);
@@ -95,12 +98,22 @@ function SpherePage() {
         </div>
 
         {score != null && !testing && (
-          <div className="h-2 rounded-full bg-border overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{ width: `${score * 10}%`, background: sphere.color }}
-            />
-          </div>
+          <>
+            <div className="h-2 rounded-full bg-border overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${score * 10}%`, background: sphere.color }}
+              />
+            </div>
+            {savedGoal && (
+              <div className="bg-cream/60 rounded-2xl p-3">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Чтобы стало 10
+                </p>
+                <p className="text-sm mt-1 leading-relaxed">{savedGoal}</p>
+              </div>
+            )}
+          </>
         )}
 
         {testing && (
@@ -114,6 +127,20 @@ function SpherePage() {
               lowLabel="В начале"
               highLabel="Почти как хочу"
             />
+            {draft != null && draft < 10 && (
+              <div>
+                <label className="text-sm font-medium">
+                  Что должно случиться, чтобы стало 10?
+                </label>
+                <textarea
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value)}
+                  rows={3}
+                  placeholder="Опишите своими словами — это станет вашим ориентиром"
+                  className="mt-2 w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                />
+              </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={() => setTesting(false)}
@@ -125,7 +152,11 @@ function SpherePage() {
                 disabled={draft == null}
                 onClick={() => {
                   if (draft == null) return;
-                  setSphereScore(sphereId as SphereId, draft);
+                  setSphereScore(
+                    sphereId as SphereId,
+                    draft,
+                    draft < 10 ? goal.trim() : "",
+                  );
                   setTesting(false);
                   toast.success("Отметили состояние сферы");
                 }}
