@@ -214,7 +214,8 @@ function SpherePage() {
             {relatedContent.slice(0, 4).map((c) => (
               <Link
                 key={c.id}
-                to="/topics"
+                to="/material/$id"
+                params={{ id: c.id }}
                 className="bg-card p-4 rounded-2xl ring-1 ring-border flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">

@@ -97,8 +97,10 @@ function TopicsPage() {
           </div>
         )}
         {filteredContent.map((item) => (
-          <div
+          <Link
             key={item.id}
+            to="/material/$id"
+            params={{ id: item.id }}
             className="bg-card p-4 rounded-[2rem] ring-1 ring-border flex gap-4"
           >
             <div className="size-14 shrink-0 rounded-[1.5rem] bg-cream flex items-center justify-center text-primary">
@@ -121,7 +123,7 @@ function TopicsPage() {
                 {item.duration && ` • ${item.duration}`}
               </p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

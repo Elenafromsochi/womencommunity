@@ -4,7 +4,7 @@ import { events } from "../lib/mock-data";
 import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/events/$eventId")({
+export const Route = createFileRoute("/events_/$eventId")({
   head: () => ({
     meta: [
       { title: "Женское общество — Мероприятие" },

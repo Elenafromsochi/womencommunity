@@ -70,9 +70,19 @@ export interface ContentItem {
   type: ContentType;
   topic: string;
   description: string;
+  /** Полный текст материала (абзацы). */
+  body?: string[];
   author: string;
   duration?: string;
   cover?: string;
+  date: string;
+}
+
+export interface Review {
+  id: string;
+  author: string;
+  text: string;
+  rating: number; // 1–5
   date: string;
 }
 
