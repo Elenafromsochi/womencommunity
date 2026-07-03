@@ -141,17 +141,17 @@ export interface CommunityPost {
 // в lib/methodology.ts и может меняться без правки этих типов и экранов.
 // ============================================================================
 
-/** 9 сфер жизни (венок). Идентификаторы неизменны — наполнение в methodology.ts */
+/**
+ * 6 сфер-лепестков колеса. «Состояние» — не лепесток, а ЦЕНТР (см. STATE_SPHERE
+ * в methodology.ts): общий пульс 0–10, на который влияют остальные сферы.
+ */
 export type SphereId =
+  | "body"
   | "relationships"
-  | "health"
+  | "home"
   | "finance"
-  | "self_realization"
-  | "emotions"
-  | "motherhood"
-  | "creativity"
-  | "growth"
-  | "environment";
+  | "work"
+  | "rest";
 
 export interface Sphere {
   id: SphereId;
@@ -242,4 +242,13 @@ export interface CycleData {
   avgCycleLength: number; // средняя длина цикла, дней
   avgPeriodLength: number; // средняя длительность месячных, дней
   symptoms: CycleSymptomEntry[];
+}
+
+/** Запись дневника состояния. */
+export interface JournalEntry {
+  id: string;
+  date: string; // ISO
+  prompt: string; // вопрос, на который отвечала
+  text: string;
+  mood?: number; // 0–10, необязательно
 }

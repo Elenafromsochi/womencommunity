@@ -39,7 +39,11 @@ function ProfilePage() {
   const navigate = useNavigate();
   const sphereScores = useAppStore((s) => s.sphereScores);
   const focusSpheres = useAppStore((s) => s.focusSpheres);
+  const progress = useAppStore((s) => s.progress);
+  const diagnostic = useAppStore((s) => s.diagnostic);
   const scoredCount = Object.keys(sphereScores).length;
+  const stateScore =
+    progress?.wellbeingHistory?.at(-1)?.value ?? diagnostic?.wellbeing;
   const cycle = useAppStore((s) => s.cycle);
   const cycleStatus =
     cycle && cycle.periods.length > 0
@@ -95,16 +99,16 @@ function ProfilePage() {
           size={300}
           scores={sphereScores}
           focus={focusSpheres}
+          stateScore={stateScore}
           onSelect={(id) =>
             navigate({ to: "/sphere/$sphereId", params: { sphereId: id } })
           }
+          onSelectState={() => navigate({ to: "/state" })}
         />
         <p className="text-xs text-muted-foreground text-center mt-2 max-w-[270px]">
           {scoredCount === 0
-            ? "Нажмите на сектор и оцените сферу — колесо начнёт заполняться."
-            : focusSpheres.length === 0
-              ? "Нажмите на сектор, оцените её и отметьте до 3 сфер как фокус (★)."
-              : "★ — ваши фокус-сферы. Нажмите на сектор, чтобы открыть или изменить."}
+            ? "Нажмите на сектор и оцените сферу. В центре — «Состояние»."
+            : "В центре — «Состояние». ★ — фокус-сферы. Нажмите на сектор или центр."}
         </p>
       </section>
 
