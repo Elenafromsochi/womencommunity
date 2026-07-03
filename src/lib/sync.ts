@@ -2,6 +2,7 @@ import { supabase } from "./supabase";
 import type {
   CycleData,
   DiagnosticResult,
+  JournalEntry,
   ProgressState,
   SphereId,
   UserProfile,
@@ -29,6 +30,8 @@ export interface CloudState {
   sphereGoals: Partial<Record<SphereId, string>>;
   /** До 3 фокус-сфер — на них участница делает упор; из них ищется бадди. */
   focusSpheres: SphereId[];
+  /** Дневник состояния. */
+  journalEntries: JournalEntry[];
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

@@ -3,6 +3,7 @@ import { ArrowRight, Users } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 import { topicsForSphere, sphereById } from "../lib/methodology";
+import { PathCard } from "../components/PathCard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
@@ -82,6 +83,9 @@ function HomePage() {
           Сегодня в клубе уютно и тепло.
         </p>
       </section>
+
+      {/* Ваш путь */}
+      <PathCard />
 
       {/* Recommended */}
       {recommendedContent && (

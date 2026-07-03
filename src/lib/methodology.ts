@@ -12,17 +12,25 @@ import type { MarkerDef, Sphere, SphereId } from "./types";
 // ---------------------------------------------------------------------------
 // 9 сфер жизни (венок). Единый источник правды.
 // ---------------------------------------------------------------------------
+// 6 сфер-лепестков колеса. «Состояние» — отдельно (центр), см. STATE_SPHERE.
 export const SPHERES: Sphere[] = [
-  { id: "relationships", name: "Отношения", short: "Отношения", emoji: "💞", description: "Партнёр, семья, близость, границы", color: "hsl(350 60% 72%)" },
-  { id: "health", name: "Здоровье", short: "Здоровье", emoji: "🌿", description: "Тело, сон, движение, энергия", color: "hsl(145 32% 60%)" },
-  { id: "finance", name: "Финансы", short: "Финансы", emoji: "🪙", description: "Деньги, опора, независимость", color: "hsl(45 55% 62%)" },
-  { id: "self_realization", name: "Самореализация", short: "Дело", emoji: "✨", description: "Дело, призвание, цели", color: "hsl(280 35% 70%)" },
-  { id: "emotions", name: "Эмоции", short: "Эмоции", emoji: "🫧", description: "Состояние, чувства, устойчивость", color: "hsl(210 48% 70%)" },
-  { id: "motherhood", name: "Материнство", short: "Дети", emoji: "🤱", description: "Дети, баланс, поддержка", color: "hsl(20 58% 73%)" },
-  { id: "creativity", name: "Творчество", short: "Хобби", emoji: "🎨", description: "Хобби, ремёсла, самовыражение", color: "hsl(320 45% 73%)" },
-  { id: "growth", name: "Личностный рост", short: "Рост", emoji: "🌸", description: "Самопознание, осознанность", color: "hsl(165 36% 62%)" },
-  { id: "environment", name: "Окружение", short: "Окружение", emoji: "🤝", description: "Люди вокруг, среда, поддержка", color: "hsl(95 38% 62%)" },
+  { id: "body", name: "Тело и здоровье", short: "Тело", emoji: "🌸", description: "Цикл, энергия, сон, самочувствие тела", color: "hsl(145 34% 60%)" },
+  { id: "relationships", name: "Близкие и отношения", short: "Близкие", emoji: "💞", description: "Муж, дети, семья, подруги", color: "hsl(350 60% 72%)" },
+  { id: "home", name: "Дом и быт", short: "Дом", emoji: "🏡", description: "Пространство, уют, комфорт жизни", color: "hsl(28 58% 68%)" },
+  { id: "finance", name: "Финансы", short: "Финансы", emoji: "🪙", description: "Доход, активы, опора, уверенность в завтра", color: "hsl(45 55% 62%)" },
+  { id: "work", name: "Дело и реализация", short: "Дело", emoji: "✨", description: "Работа, карьера, таланты, рост", color: "hsl(280 35% 70%)" },
+  { id: "rest", name: "Отдых и восстановление", short: "Отдых", emoji: "🍃", description: "Сон, паузы, хобби, наполнение", color: "hsl(190 40% 62%)" },
 ];
+
+/** «Состояние» — центр колеса: душевное «как я внутри» + общий пульс 0–10. */
+export const STATE_SPHERE = {
+  id: "state" as const,
+  name: "Состояние",
+  short: "Состояние",
+  emoji: "💗",
+  description: "Как я внутри — общий пульс вашего трека",
+  color: "hsl(340 55% 72%)",
+};
 
 export const sphereById = (id: SphereId): Sphere =>
   SPHERES.find((s) => s.id === id) ?? SPHERES[0];
@@ -75,8 +83,8 @@ export const DIAGNOSTIC_COPY = {
 // ---------------------------------------------------------------------------
 export const BACKBONE_MARKER: MarkerDef = {
   id: "wellbeing",
-  sphereId: "emotions",
-  label: "Шкала благополучия",
+  sphereId: "body",
+  label: "Состояние (как я внутри)",
   kind: "scale",
   min: 0,
   max: 10,
@@ -88,48 +96,35 @@ export const BACKBONE_MARKER: MarkerDef = {
 // Участница выбирает их сама (CLAUDE.md, раздел 1).
 // ---------------------------------------------------------------------------
 export const MARKER_LIBRARY: MarkerDef[] = [
-  // Отношения
+  // Тело и здоровье
+  { id: "body_sleep", sphereId: "body", label: "Часы сна", kind: "number", unit: "ч" },
+  { id: "body_walk", sphereId: "body", label: "Прогулки", kind: "frequency", unit: "раз/нед" },
+  { id: "body_energy", sphereId: "body", label: "Уровень энергии", kind: "scale", min: 0, max: 10 },
+
+  // Близкие и отношения
   { id: "rel_quality_time", sphereId: "relationships", label: "Тёплый разговор с близким", kind: "frequency", unit: "раз/нед" },
   { id: "rel_boundary", sphereId: "relationships", label: "Обозначила свою границу", kind: "event" },
   { id: "rel_closeness", sphereId: "relationships", label: "Ощущение близости", kind: "scale", min: 0, max: 10 },
 
-  // Здоровье
-  { id: "health_sleep", sphereId: "health", label: "Часы сна", kind: "number", unit: "ч" },
-  { id: "health_walk", sphereId: "health", label: "Прогулки", kind: "frequency", unit: "раз/нед" },
-  { id: "health_energy", sphereId: "health", label: "Уровень энергии", kind: "scale", min: 0, max: 10 },
+  // Дом и быт
+  { id: "home_cozy", sphereId: "home", label: "Сделала дом уютнее", kind: "event" },
+  { id: "home_order", sphereId: "home", label: "Навела порядок", kind: "frequency", unit: "раз/нед" },
+  { id: "home_comfort", sphereId: "home", label: "Дома спокойно и хорошо", kind: "scale", min: 0, max: 10 },
 
   // Финансы
   { id: "fin_track", sphereId: "finance", label: "Заметила свои траты", kind: "event" },
   { id: "fin_save", sphereId: "finance", label: "Отложила на себя", kind: "frequency", unit: "раз/мес" },
   { id: "fin_calm", sphereId: "finance", label: "Спокойствие про деньги", kind: "scale", min: 0, max: 10 },
 
-  // Самореализация
-  { id: "self_step", sphereId: "self_realization", label: "Шаг к своей цели", kind: "event" },
-  { id: "self_focus", sphereId: "self_realization", label: "Часы на своё дело", kind: "number", unit: "ч/нед" },
-  { id: "self_meaning", sphereId: "self_realization", label: "Чувство смысла", kind: "scale", min: 0, max: 10 },
+  // Дело и реализация
+  { id: "work_step", sphereId: "work", label: "Шаг к своей цели", kind: "event" },
+  { id: "work_focus", sphereId: "work", label: "Часы на своё дело", kind: "number", unit: "ч/нед" },
+  { id: "work_meaning", sphereId: "work", label: "Чувство смысла в деле", kind: "scale", min: 0, max: 10 },
 
-  // Эмоции
-  { id: "emo_pause", sphereId: "emotions", label: "Заметила своё состояние", kind: "frequency", unit: "раз/день" },
-  { id: "emo_steady", sphereId: "emotions", label: "Эмоциональная устойчивость", kind: "scale", min: 0, max: 10 },
-
-  // Материнство
-  { id: "mom_presence", sphereId: "motherhood", label: "Время с ребёнком без спешки", kind: "frequency", unit: "раз/нед" },
-  { id: "mom_self", sphereId: "motherhood", label: "Время для себя", kind: "event" },
-  { id: "mom_balance", sphereId: "motherhood", label: "Баланс «я и роль мамы»", kind: "scale", min: 0, max: 10 },
-
-  // Творчество
-  { id: "creo_make", sphereId: "creativity", label: "Что-то создала", kind: "frequency", unit: "раз/нед" },
-  { id: "creo_flow", sphereId: "creativity", label: "Ощущение потока", kind: "scale", min: 0, max: 10 },
-
-  // Личностный рост
-  { id: "grow_reflect", sphereId: "growth", label: "Минуты рефлексии/дневник", kind: "frequency", unit: "раз/нед" },
-  { id: "grow_intention", sphereId: "growth", label: "Выполнила намерение дня", kind: "event" },
-  { id: "grow_aware", sphereId: "growth", label: "Ясность про себя", kind: "scale", min: 0, max: 10 },
-
-  // Окружение
-  { id: "env_support", sphereId: "environment", label: "Опёрлась на поддержку", kind: "event" },
-  { id: "env_new", sphereId: "environment", label: "Новое тёплое знакомство", kind: "frequency", unit: "раз/мес" },
-  { id: "env_belong", sphereId: "environment", label: "Чувство «я среди своих»", kind: "scale", min: 0, max: 10 },
+  // Отдых и восстановление
+  { id: "rest_pause", sphereId: "rest", label: "Настоящая пауза для себя", kind: "frequency", unit: "раз/нед" },
+  { id: "rest_joy", sphereId: "rest", label: "Занялась тем, что радует", kind: "event" },
+  { id: "rest_full", sphereId: "rest", label: "Чувство наполненности", kind: "scale", min: 0, max: 10 },
 ];
 
 export const markersForSphere = (sphereId: SphereId): MarkerDef[] =>
@@ -175,16 +170,16 @@ export const RETEST_INTERVAL_DAYS = 14;
 // Названия соответствуют topics/mentors.topics в mock-data.
 // ---------------------------------------------------------------------------
 const SPHERE_TOPIC_ALIASES: Record<SphereId, string[]> = {
-  relationships: ["Отношения"],
-  health: ["Здоровье"],
+  body: ["Здоровье"],
+  relationships: ["Отношения", "Материнство"],
+  home: ["Личностный рост"],
   finance: ["Финансы"],
-  self_realization: ["Самореализация"],
-  emotions: ["Личностный рост"],
-  motherhood: ["Материнство"],
-  creativity: ["Хобби", "Развлечения"],
-  growth: ["Личностный рост"],
-  environment: ["Отношения"],
+  work: ["Самореализация"],
+  rest: ["Хобби", "Развлечения"],
 };
 
 export const topicsForSphere = (id: SphereId): string[] =>
   SPHERE_TOPIC_ALIASES[id] ?? [];
+
+/** Темы для центра «Состояние» — практики и материалы на состояние. */
+export const STATE_TOPICS = ["Личностный рост", "Здоровье"];

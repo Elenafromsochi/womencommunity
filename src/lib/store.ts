@@ -8,6 +8,7 @@ import type {
   CycleData,
   CycleSymptomEntry,
   SphereId,
+  JournalEntry,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
@@ -79,6 +80,10 @@ interface AppState {
   focusSpheres: SphereId[];
   /** Переключить фокус на сфере. Не больше 3 — иначе не добавляет. */
   toggleFocusSphere: (sphereId: SphereId) => boolean;
+
+  // ===== Дневник состояния =====
+  journalEntries: JournalEntry[];
+  addJournalEntry: (prompt: string, text: string, mood?: number) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -100,6 +105,7 @@ const defaultUserData = {
   sphereScores: {} as Partial<Record<SphereId, number>>,
   sphereGoals: {} as Partial<Record<SphereId, string>>,
   focusSpheres: [] as SphereId[],
+  journalEntries: [] as JournalEntry[],
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -119,6 +125,7 @@ export function selectCloudState(s: AppState): CloudState {
     sphereScores: s.sphereScores,
     sphereGoals: s.sphereGoals,
     focusSpheres: s.focusSpheres,
+    journalEntries: s.journalEntries,
   };
 }
 
@@ -278,4 +285,19 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set({ focusSpheres: [...state.focusSpheres, sphereId] });
     return true;
   },
+
+  journalEntries: [],
+  addJournalEntry: (prompt, text, mood) =>
+    set((state) => ({
+      journalEntries: [
+        {
+          id: `j${Date.now()}`,
+          date: new Date().toISOString(),
+          prompt,
+          text,
+          mood,
+        },
+        ...state.journalEntries,
+      ],
+    })),
 }));
