@@ -8,11 +8,11 @@ import {
   Bookmark,
   ArrowRight,
 } from "lucide-react";
-import { mentors } from "../lib/mock-data";
+import { mentors, reviews } from "../lib/mock-data";
 import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/mentors/$mentorId")({
+export const Route = createFileRoute("/mentors_/$mentorId")({
   head: () => ({
     meta: [
       { title: "Женское общество — Наставник" },
@@ -150,8 +150,10 @@ function MentorDetailPage() {
         <h2 className="font-[Lora] text-xl mb-3">Ближайшие мероприятия</h2>
         <div className="space-y-3">
           {mentor.events.map((event) => (
-            <div
+            <Link
               key={event.id}
+              to="/events/$eventId"
+              params={{ eventId: event.id }}
               className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border flex items-center justify-between"
             >
               <div>
@@ -161,7 +163,7 @@ function MentorDetailPage() {
                 <p className="text-sm font-medium mt-1">{event.title}</p>
               </div>
               <ArrowRight className="size-4 text-muted-foreground shrink-0" />
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -172,8 +174,10 @@ function MentorDetailPage() {
           <h2 className="font-[Lora] text-xl mb-3">Группы сопровождения</h2>
           <div className="space-y-3">
             {mentor.groups.map((group) => (
-              <div
+              <Link
                 key={group.id}
+                to="/groups/$groupId"
+                params={{ groupId: group.id }}
                 className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border flex items-center justify-between"
               >
                 <div>
@@ -183,11 +187,37 @@ function MentorDetailPage() {
                   </p>
                 </div>
                 <ArrowRight className="size-4 text-muted-foreground shrink-0" />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
       )}
+
+      {/* Отзывы */}
+      <div className="px-6 pb-8">
+        <h2 className="font-[Lora] text-xl mb-3">Отзывы</h2>
+        <div className="space-y-3">
+          {reviews.map((r) => (
+            <div key={r.id} className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{r.author}</p>
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <Star
+                      key={i}
+                      className={`size-3 ${i < r.rating ? "fill-primary text-primary" : "text-border"}`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                {r.text}
+              </p>
+              <p className="text-[10px] text-muted-foreground/70 mt-2">{r.date}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

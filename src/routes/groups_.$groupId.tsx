@@ -6,7 +6,7 @@ import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
 import { ChatView } from "../components/ChatView";
 
-export const Route = createFileRoute("/groups/$groupId")({
+export const Route = createFileRoute("/groups_/$groupId")({
   head: () => ({
     meta: [
       { title: "Женское общество — Группа" },

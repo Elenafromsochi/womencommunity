@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Users } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
+import { topicsForSphere, sphereById } from "../lib/methodology";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
@@ -51,9 +52,16 @@ function HomePage() {
   const appliedGroupIds = useAppStore((s) => s.appliedGroupIds);
   const toggleGroupApplication = useAppStore((s) => s.toggleGroupApplication);
 
+  const focusSpheres = useAppStore((s) => s.focusSpheres);
+  const focusTopics = focusSpheres.flatMap((id) => topicsForSphere(id));
+  const focusContent = contentItems.filter((c) => focusTopics.includes(c.topic));
+
   const upcomingEvents = events.slice(0, 2);
   const recommendedMentors = mentors.slice(0, 3);
-  const recommendedContent = contentItems.slice(0, 1)[0];
+  const recommendedContent = focusContent[0] ?? contentItems[0];
+  const feed = (focusContent.length ? focusContent : contentItems)
+    .filter((c) => c.id !== recommendedContent?.id)
+    .slice(0, 4);
   const openGroups = groups.filter((g) => g.spots > 0).slice(0, 2);
 
   const getGreeting = () => {
@@ -90,7 +98,8 @@ function HomePage() {
                 {recommendedContent.description}
               </p>
               <Link
-                to="/topics"
+                to="/material/$id"
+                params={{ id: recommendedContent.id }}
                 className="inline-flex items-center gap-2 bg-foreground text-primary-foreground text-xs font-medium px-5 py-2.5 rounded-full"
               >
                 Смотреть
@@ -98,6 +107,42 @@ function HomePage() {
               </Link>
             </div>
             <div className="absolute -right-8 -bottom-8 size-40 bg-primary/10 rounded-full blur-3xl" />
+          </div>
+        </section>
+      )}
+
+      {/* Новое для вас */}
+      {feed.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="font-[Lora] text-2xl">
+            {focusSpheres.length > 0 ? "Новое по вашим фокус-сферам" : "Свежие материалы"}
+          </h2>
+          {focusSpheres.length > 0 && (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              {focusSpheres.map((id) => sphereById(id).name).join(" · ")}
+            </p>
+          )}
+          <div className="space-y-3">
+            {feed.map((c) => (
+              <Link
+                key={c.id}
+                to="/material/$id"
+                params={{ id: c.id }}
+                className="bg-card p-4 rounded-[1.75rem] ring-1 ring-border flex items-center gap-3"
+              >
+                <div className="size-12 shrink-0 rounded-[1.25rem] bg-cream flex items-center justify-center text-xl">
+                  {c.type === "audio" ? "🎧" : c.type === "video" ? "🎬" : c.type === "practice" ? "🧘‍♀️" : "📖"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-[Lora] text-base leading-tight truncate">{c.title}</h4>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {c.topic}
+                    {c.duration ? ` · ${c.duration}` : ""}
+                  </p>
+                </div>
+                <ArrowRight className="size-4 text-muted-foreground shrink-0" />
+              </Link>
+            ))}
           </div>
         </section>
       )}

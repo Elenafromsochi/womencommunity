@@ -74,7 +74,15 @@ interface AppState {
   /** Цель по сфере: что нужно, чтобы стало 10. */
   sphereGoals: Partial<Record<SphereId, string>>;
   setSphereScore: (sphereId: SphereId, score: number, goal?: string) => void;
+
+  /** До 3 фокус-сфер. */
+  focusSpheres: SphereId[];
+  /** Переключить фокус на сфере. Не больше 3 — иначе не добавляет. */
+  toggleFocusSphere: (sphereId: SphereId) => boolean;
 }
+
+/** Максимум фокус-сфер. */
+export const MAX_FOCUS_SPHERES = 3;
 
 // Дефолтные значения данных пользователя (новый аккаунт до онбординга).
 const defaultUserData = {
@@ -91,6 +99,7 @@ const defaultUserData = {
   cycle: null as CycleData | null,
   sphereScores: {} as Partial<Record<SphereId, number>>,
   sphereGoals: {} as Partial<Record<SphereId, string>>,
+  focusSpheres: [] as SphereId[],
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -109,10 +118,11 @@ export function selectCloudState(s: AppState): CloudState {
     cycle: s.cycle,
     sphereScores: s.sphereScores,
     sphereGoals: s.sphereGoals,
+    focusSpheres: s.focusSpheres,
   };
 }
 
-export const useAppStore = create<AppState>()((set) => ({
+export const useAppStore = create<AppState>()((set, get) => ({
   userId: null,
   hydrated: false,
   setUserId: (id) => set({ userId: id }),
@@ -256,4 +266,16 @@ export const useAppStore = create<AppState>()((set) => ({
           ? { ...state.sphereGoals, [sphereId]: goal }
           : state.sphereGoals,
     })),
+
+  toggleFocusSphere: (sphereId) => {
+    const state = get();
+    const has = state.focusSpheres.includes(sphereId);
+    if (has) {
+      set({ focusSpheres: state.focusSpheres.filter((x) => x !== sphereId) });
+      return true;
+    }
+    if (state.focusSpheres.length >= MAX_FOCUS_SPHERES) return false;
+    set({ focusSpheres: [...state.focusSpheres, sphereId] });
+    return true;
+  },
 }));

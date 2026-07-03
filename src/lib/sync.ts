@@ -27,6 +27,8 @@ export interface CloudState {
   sphereScores: Partial<Record<SphereId, number>>;
   /** Ответ на вопрос «что должно случиться, чтобы стало 10» по сфере. */
   sphereGoals: Partial<Record<SphereId, string>>;
+  /** До 3 фокус-сфер — на них участница делает упор; из них ищется бадди. */
+  focusSpheres: SphereId[];
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */
