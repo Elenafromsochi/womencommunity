@@ -92,7 +92,7 @@ function FirstTime({
           onSave(date);
           toast.success("Дата сохранена");
         }}
-        className="w-full bg-foreground text-primary-foreground text-sm font-medium py-3.5 rounded-full"
+        className="w-full bg-primary text-primary-foreground text-sm font-medium py-3.5 rounded-full"
       >
         Сохранить
       </button>
@@ -245,7 +245,7 @@ function TodayWellbeing({ today }: { today: string }) {
           logCycleSymptom({ date: today, flow, tags });
           toast.success("Сохранено на сегодня");
         }}
-        className="w-full inline-flex items-center justify-center gap-2 bg-foreground text-primary-foreground text-sm font-medium py-3.5 rounded-full"
+        className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium py-3.5 rounded-full"
       >
         <Check className="size-4" />
         Сохранить

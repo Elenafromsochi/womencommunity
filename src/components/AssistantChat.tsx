@@ -28,7 +28,7 @@ export function AssistantChat({ context }: { context: AssistantContext }) {
   };
 
   return (
-    <section className="bg-foreground text-primary-foreground rounded-[2rem] p-5 space-y-3">
+    <section className="bg-primary text-primary-foreground rounded-[2rem] p-5 space-y-3">
       <div>
         <span className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">
           Помощник

@@ -120,7 +120,7 @@ function EventsPage() {
                     toggleEventRegistration(event.id);
                     toast.success("Вы записаны на мероприятие!");
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium bg-foreground text-primary-foreground rounded-full"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-full"
                 >
                   Записаться
                   <ArrowRight className="size-3.5" />

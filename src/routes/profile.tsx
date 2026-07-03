@@ -154,13 +154,16 @@ function ProfilePage() {
         ) : (
           <div className="space-y-2">
             {savedContent.map((item) => (
-              <div
+              <Link
                 key={item.id}
+                to="/material/$id"
+                params={{ id: item.id }}
                 className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border flex items-center gap-3"
               >
                 <Bookmark className="size-4 text-primary shrink-0" />
-                <span className="text-sm truncate">{item.title}</span>
-              </div>
+                <span className="text-sm truncate flex-1">{item.title}</span>
+                <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+              </Link>
             ))}
           </div>
         )}
@@ -211,18 +214,20 @@ function ProfilePage() {
         ) : (
           <div className="space-y-2">
             {myEvents.map((event) => (
-              <div
+              <Link
                 key={event.id}
-                className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border flex items-center justify-between"
+                to="/events/$eventId"
+                params={{ eventId: event.id }}
+                className="bg-card p-4 rounded-[1.5rem] ring-1 ring-border flex items-center justify-between gap-3"
               >
-                <div>
-                  <p className="text-sm font-medium">{event.title}</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{event.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {event.date.split(" ").slice(0, 2).join(" ")} • {event.time}
                   </p>
                 </div>
-                <Calendar className="size-4 text-accent shrink-0" />
-              </div>
+                <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+              </Link>
             ))}
           </div>
         )}

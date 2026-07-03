@@ -9,6 +9,8 @@ import type {
   CycleSymptomEntry,
   SphereId,
   JournalEntry,
+  SphereScorePoint,
+  PathStepItem,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
@@ -74,6 +76,8 @@ interface AppState {
   sphereScores: Partial<Record<SphereId, number>>;
   /** Цель по сфере: что нужно, чтобы стало 10. */
   sphereGoals: Partial<Record<SphereId, string>>;
+  /** История оценок сфер — чтобы видеть динамику «было → стало». */
+  sphereScoreHistory: SphereScorePoint[];
   setSphereScore: (sphereId: SphereId, score: number, goal?: string) => void;
 
   /** До 3 фокус-сфер. */
@@ -81,9 +85,25 @@ interface AppState {
   /** Переключить фокус на сфере. Не больше 3 — иначе не добавляет. */
   toggleFocusSphere: (sphereId: SphereId) => boolean;
 
+  // ===== Шаги пути (декомпозиция целей сфер) =====
+  sphereSteps: PathStepItem[];
+  addSphereStep: (
+    sphereId: SphereId,
+    text: string,
+    opts?: { recurring?: boolean; materialId?: string },
+  ) => void;
+  /** Отметить шаг: разовый — done; повторяющийся — «сделан сегодня». Повторный вызов снимает. */
+  toggleStepDone: (id: string) => void;
+  removeSphereStep: (id: string) => void;
+
   // ===== Дневник состояния =====
   journalEntries: JournalEntry[];
-  addJournalEntry: (prompt: string, text: string, mood?: number) => void;
+  addJournalEntry: (
+    prompt: string,
+    text: string,
+    mood?: number,
+    opts?: { sphereId?: SphereId; tags?: string[] },
+  ) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -104,7 +124,9 @@ const defaultUserData = {
   cycle: null as CycleData | null,
   sphereScores: {} as Partial<Record<SphereId, number>>,
   sphereGoals: {} as Partial<Record<SphereId, string>>,
+  sphereScoreHistory: [] as SphereScorePoint[],
   focusSpheres: [] as SphereId[],
+  sphereSteps: [] as PathStepItem[],
   journalEntries: [] as JournalEntry[],
 };
 
@@ -124,7 +146,9 @@ export function selectCloudState(s: AppState): CloudState {
     cycle: s.cycle,
     sphereScores: s.sphereScores,
     sphereGoals: s.sphereGoals,
+    sphereScoreHistory: s.sphereScoreHistory,
     focusSpheres: s.focusSpheres,
+    sphereSteps: s.sphereSteps,
     journalEntries: s.journalEntries,
   };
 }
@@ -266,13 +290,25 @@ export const useAppStore = create<AppState>()((set, get) => ({
     }),
 
   setSphereScore: (sphereId, score, goal) =>
-    set((state) => ({
-      sphereScores: { ...state.sphereScores, [sphereId]: score },
-      sphereGoals:
-        goal !== undefined
-          ? { ...state.sphereGoals, [sphereId]: goal }
-          : state.sphereGoals,
-    })),
+    set((state) => {
+      const prev = state.sphereScores[sphereId];
+      // Записываем в историю только реальное изменение оценки.
+      const history =
+        prev === score
+          ? state.sphereScoreHistory
+          : [
+              { date: new Date().toISOString(), sphereId, score },
+              ...state.sphereScoreHistory,
+            ];
+      return {
+        sphereScores: { ...state.sphereScores, [sphereId]: score },
+        sphereScoreHistory: history,
+        sphereGoals:
+          goal !== undefined
+            ? { ...state.sphereGoals, [sphereId]: goal }
+            : state.sphereGoals,
+      };
+    }),
 
   toggleFocusSphere: (sphereId) => {
     const state = get();
@@ -286,8 +322,47 @@ export const useAppStore = create<AppState>()((set, get) => ({
     return true;
   },
 
+  sphereSteps: [],
+  addSphereStep: (sphereId, text, opts) =>
+    set((state) => ({
+      sphereSteps: [
+        ...state.sphereSteps,
+        {
+          id: `st${Date.now()}${Math.round(state.sphereSteps.length)}`,
+          sphereId,
+          text,
+          recurring: opts?.recurring ?? false,
+          done: false,
+          createdAt: new Date().toISOString(),
+          materialId: opts?.materialId,
+        },
+      ],
+    })),
+  toggleStepDone: (id) =>
+    set((state) => {
+      const today = new Date().toISOString().slice(0, 10);
+      return {
+        sphereSteps: state.sphereSteps.map((st) => {
+          if (st.id !== id) return st;
+          if (st.recurring) {
+            // Повторяющийся: отметить «сделан сегодня» или снять отметку.
+            return st.lastDoneAt === today
+              ? { ...st, lastDoneAt: undefined }
+              : { ...st, lastDoneAt: today };
+          }
+          return st.done
+            ? { ...st, done: false, doneAt: undefined }
+            : { ...st, done: true, doneAt: new Date().toISOString() };
+        }),
+      };
+    }),
+  removeSphereStep: (id) =>
+    set((state) => ({
+      sphereSteps: state.sphereSteps.filter((st) => st.id !== id),
+    })),
+
   journalEntries: [],
-  addJournalEntry: (prompt, text, mood) =>
+  addJournalEntry: (prompt, text, mood, opts) =>
     set((state) => ({
       journalEntries: [
         {
@@ -296,6 +371,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
           prompt,
           text,
           mood,
+          sphereId: opts?.sphereId,
+          tags: opts?.tags,
         },
         ...state.journalEntries,
       ],

@@ -85,7 +85,7 @@ function MaterialPage() {
 
       {/* Плеер-заглушка для аудио/видео */}
       {(item.type === "audio" || item.type === "video") && (
-        <div className="bg-foreground text-primary-foreground rounded-2xl p-4 flex items-center gap-3">
+        <div className="bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3">
           <span className="size-10 rounded-full bg-primary-foreground/15 flex items-center justify-center">
             {item.type === "audio" ? <Headphones className="size-5" /> : <Play className="size-5" />}
           </span>

@@ -8,6 +8,8 @@ import { contentItems } from "../lib/mock-data";
 import type { SphereId } from "../lib/types";
 import { Scale } from "../components/Scale";
 import { AssistantChat } from "../components/AssistantChat";
+import { VoiceInput } from "../components/VoiceInput";
+import { deriveTags } from "../lib/tags";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/state")({
@@ -103,7 +105,7 @@ function StatePage() {
               setRating(null);
               toast.success("Отметили состояние");
             }}
-            className="mt-3 w-full bg-foreground text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
+            className="mt-3 w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
           >
             Сохранить
           </button>
@@ -150,14 +152,20 @@ function StatePage() {
             style={{ textTransform: "none" }}
             className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
           />
+          <VoiceInput
+            onResult={(t) => setJournal((prev) => (prev ? `${prev} ${t}` : t))}
+          />
           <button
             disabled={!journal.trim()}
             onClick={() => {
-              addJournalEntry(prompt, journal.trim(), stateScore);
+              const text = journal.trim();
+              addJournalEntry(prompt, text, stateScore, {
+                tags: deriveTags(text),
+              });
               setJournal("");
               toast.success("Записано в дневник");
             }}
-            className="w-full bg-foreground text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
+            className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
           >
             Записать
           </button>
@@ -172,6 +180,18 @@ function StatePage() {
                 </p>
                 <p className="text-xs text-muted-foreground italic mt-1">{e.prompt}</p>
                 <p className="text-sm mt-1.5 leading-relaxed">{e.text}</p>
+                {e.tags && e.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {e.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="text-[10px] bg-cream ring-1 ring-border rounded-full px-2 py-0.5 text-muted-foreground"
+                      >
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -74,7 +74,7 @@ export function AuthScreen() {
         <button
           onClick={submit}
           disabled={busy}
-          className="w-full inline-flex items-center justify-center gap-2 bg-foreground text-primary-foreground text-sm font-medium py-3.5 rounded-full mt-6 transition-opacity disabled:opacity-50"
+          className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium py-3.5 rounded-full mt-6 transition-opacity disabled:opacity-50"
         >
           {busy ? "Минуту…" : mode === "signin" ? "Войти" : "Создать аккаунт"}
           {!busy && <ArrowRight className="size-4" />}

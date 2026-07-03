@@ -13,6 +13,7 @@ export function PathCard() {
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const sphereScores = useAppStore((s) => s.sphereScores);
   const sphereGoals = useAppStore((s) => s.sphereGoals);
+  const sphereSteps = useAppStore((s) => s.sphereSteps);
   const progress = useAppStore((s) => s.progress);
 
   const step = computeNextStep({
@@ -20,6 +21,7 @@ export function PathCard() {
     focusSpheres,
     sphereScores,
     sphereGoals,
+    steps: sphereSteps,
     progress,
   });
 
@@ -29,7 +31,7 @@ export function PathCard() {
   };
 
   return (
-    <section className="bg-foreground text-primary-foreground rounded-[2rem] p-6 space-y-2.5">
+    <section className="bg-primary text-primary-foreground rounded-[2rem] p-6 space-y-2.5">
       <span className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/60">
         Ваш путь
       </span>

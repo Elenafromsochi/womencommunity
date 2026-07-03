@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Calendar, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Star, X, Check, Plus, Repeat } from "lucide-react";
 import { useAppStore, MAX_FOCUS_SPHERES } from "../lib/store";
 import { sphereById, topicsForSphere, SPHERES } from "../lib/methodology";
 import { contentItems, mentors, events } from "../lib/mock-data";
-import type { SphereId } from "../lib/types";
+import type { SphereId, PathStepItem } from "../lib/types";
 import { Scale } from "../components/Scale";
+import { VoiceInput } from "../components/VoiceInput";
+import { deriveTags } from "../lib/tags";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/sphere/$sphereId")({
@@ -22,16 +24,43 @@ function SpherePage() {
 
   const sphereScores = useAppStore((s) => s.sphereScores);
   const sphereGoals = useAppStore((s) => s.sphereGoals);
+  const sphereScoreHistory = useAppStore((s) => s.sphereScoreHistory);
   const setSphereScore = useAppStore((s) => s.setSphereScore);
+  const addJournalEntry = useAppStore((s) => s.addJournalEntry);
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const toggleFocusSphere = useAppStore((s) => s.toggleFocusSphere);
   const isFocus = focusSpheres.includes(sphereId as SphereId);
+
+  const sphereSteps = useAppStore((s) => s.sphereSteps);
+  const addSphereStep = useAppStore((s) => s.addSphereStep);
+  const toggleStepDone = useAppStore((s) => s.toggleStepDone);
+  const removeSphereStep = useAppStore((s) => s.removeSphereStep);
 
   const score = sphereScores[sphereId as SphereId];
   const savedGoal = sphereGoals[sphereId as SphereId];
   const [draft, setDraft] = useState<number | null>(score ?? null);
   const [goal, setGoal] = useState(savedGoal ?? "");
   const [testing, setTesting] = useState(false);
+
+  // Рефлексия после переоценки: что изменилось в сфере и почему.
+  const [reflect, setReflect] = useState<{ from: number; to: number } | null>(null);
+  const [reflectText, setReflectText] = useState("");
+
+  // Шаги пути для этой сферы.
+  const today = new Date().toISOString().slice(0, 10);
+  const steps = sphereSteps.filter((st) => st.sphereId === sphereId);
+  const [newStep, setNewStep] = useState("");
+  const [newRecurring, setNewRecurring] = useState(false);
+  const isDone = (st: PathStepItem) =>
+    st.recurring ? st.lastDoneAt === today : st.done;
+
+  // История оценок этой сферы, от старой к новой — для динамики «было → стало».
+  const trend = sphereScoreHistory
+    .filter((h) => h.sphereId === sphereId)
+    .slice()
+    .reverse();
+  const trendDelta =
+    trend.length >= 2 ? trend[trend.length - 1].score - trend[0].score : 0;
 
   const topics = topicsForSphere(sphereId as SphereId);
   const relatedContent = contentItems.filter((c) => topics.includes(c.topic));
@@ -40,6 +69,11 @@ function SpherePage() {
   );
   const mentorNames = new Set(relatedMentors.map((m) => m.name));
   const relatedEvents = events.filter((e) => mentorNames.has(e.mentor));
+
+  // Материалы, которые можно добавить как шаг (ещё не добавлены).
+  const suggestedSteps = relatedContent
+    .filter((c) => !steps.some((st) => st.materialId === c.id))
+    .slice(0, 3);
 
   if (!known) {
     return (
@@ -130,14 +164,6 @@ function SpherePage() {
                 style={{ width: `${score * 10}%`, background: sphere.color }}
               />
             </div>
-            {savedGoal && (
-              <div className="bg-cream/60 rounded-2xl p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Чтобы стало 10
-                </p>
-                <p className="text-sm mt-1 leading-relaxed">{savedGoal}</p>
-              </div>
-            )}
           </>
         )}
 
@@ -184,6 +210,7 @@ function SpherePage() {
                 disabled={draft == null}
                 onClick={() => {
                   if (draft == null) return;
+                  const prev = score;
                   setSphereScore(
                     sphereId as SphereId,
                     draft,
@@ -191,8 +218,13 @@ function SpherePage() {
                   );
                   setTesting(false);
                   toast.success("Отметили состояние сферы");
+                  // Если оценка реально изменилась — предложим рассказать, что произошло.
+                  if (prev != null && prev !== draft) {
+                    setReflectText("");
+                    setReflect({ from: prev, to: draft });
+                  }
                 }}
-                className="flex-1 py-3 rounded-full text-sm font-medium bg-foreground text-primary-foreground disabled:opacity-40"
+                className="flex-1 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-40"
               >
                 Сохранить
               </button>
@@ -200,6 +232,192 @@ function SpherePage() {
           </div>
         )}
       </section>
+
+      {/* Ваши шаги — декомпозиция цели на конкретные действия */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="font-[Lora] text-xl">Ваши шаги</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {savedGoal
+              ? "Большая цель — сверху. Разбейте её на маленькие шаги, они и станут вашим путём."
+              : "Сначала задайте большую цель выше, а потом разбейте её на шаги."}
+          </p>
+        </div>
+
+        {savedGoal && (
+          <div className="bg-cream rounded-2xl p-4 ring-1 ring-border">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Большая цель
+            </p>
+            <p className="text-sm mt-1 leading-relaxed">{savedGoal}</p>
+          </div>
+        )}
+
+        {steps.length > 0 && (
+          <div className="space-y-2">
+            {steps.map((st) => {
+              const done = isDone(st);
+              return (
+                <div
+                  key={st.id}
+                  className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex items-center gap-3"
+                >
+                  <button
+                    onClick={() => toggleStepDone(st.id)}
+                    aria-label={done ? "Снять отметку" : "Отметить сделанным"}
+                    className={`size-6 shrink-0 rounded-full flex items-center justify-center border transition-colors ${
+                      done
+                        ? "bg-accent border-accent text-white"
+                        : "border-border text-transparent"
+                    }`}
+                  >
+                    <Check className="size-3.5" />
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`text-sm leading-tight ${
+                        done ? "line-through text-muted-foreground" : ""
+                      }`}
+                    >
+                      {st.text}
+                    </p>
+                    {st.recurring && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground mt-1">
+                        <Repeat className="size-3" />
+                        каждый день
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => removeSphereStep(st.id)}
+                    aria-label="Удалить шаг"
+                    className="shrink-0 text-muted-foreground/50 hover:text-rose"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Добавить свой шаг */}
+        <div className="bg-card ring-1 ring-border rounded-2xl p-3.5 space-y-2.5">
+          <input
+            value={newStep}
+            onChange={(e) => setNewStep(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newStep.trim()) {
+                addSphereStep(sphereId as SphereId, newStep.trim(), {
+                  recurring: newRecurring,
+                });
+                setNewStep("");
+                setNewRecurring(false);
+              }
+            }}
+            autoCapitalize="sentences"
+            autoCorrect="on"
+            inputMode="text"
+            placeholder="Например: завести накопительный счёт"
+            style={{ textTransform: "none" }}
+            className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setNewRecurring((v) => !v)}
+              className={`inline-flex items-center gap-1.5 text-xs rounded-full px-3 py-1.5 border transition-colors ${
+                newRecurring
+                  ? "bg-accent/10 border-accent/30 text-accent"
+                  : "bg-background border-border text-muted-foreground"
+              }`}
+            >
+              <Repeat className="size-3.5" />
+              Повторяющийся
+            </button>
+            <button
+              disabled={!newStep.trim()}
+              onClick={() => {
+                addSphereStep(sphereId as SphereId, newStep.trim(), {
+                  recurring: newRecurring,
+                });
+                setNewStep("");
+                setNewRecurring(false);
+              }}
+              className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-full disabled:opacity-40"
+            >
+              <Plus className="size-4" />
+              Добавить
+            </button>
+          </div>
+        </div>
+
+        {/* Подсказки из материалов клуба */}
+        {suggestedSteps.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Или добавьте шаг из материалов клуба:
+            </p>
+            {suggestedSteps.map((c) => (
+              <button
+                key={c.id}
+                onClick={() =>
+                  addSphereStep(sphereId as SphereId, `Изучить: ${c.title}`, {
+                    materialId: c.id,
+                  })
+                }
+                className="w-full text-left bg-cream/60 ring-1 ring-border rounded-2xl p-3.5 flex items-center gap-3"
+              >
+                <Plus className="size-4 text-primary shrink-0" />
+                <span className="text-sm min-w-0 flex-1 truncate">
+                  Изучить: {c.title}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Как менялось — динамика оценок сферы */}
+      {trend.length >= 2 && (
+        <section className="space-y-3">
+          <div className="flex items-end justify-between">
+            <h2 className="font-[Lora] text-xl">Как менялось</h2>
+            <span className="text-xs text-muted-foreground">
+              {trendDelta > 0
+                ? `выросло на +${trendDelta}`
+                : trendDelta < 0
+                  ? `снизилось на ${trendDelta}`
+                  : "пока без изменений"}
+            </span>
+          </div>
+          <div className="bg-card ring-1 ring-border rounded-[2rem] p-5">
+            <div className="flex items-end justify-between gap-1 h-28">
+              {trend.slice(-10).map((p, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                  <span className="text-[10px] text-muted-foreground">{p.score}</span>
+                  <div
+                    className="w-full max-w-6 rounded-full"
+                    style={{
+                      height: `${Math.max(6, p.score * 8)}px`,
+                      background: sphere.color,
+                    }}
+                  />
+                  <span className="text-[9px] text-muted-foreground/70 truncate w-full text-center">
+                    {new Date(p.date).toLocaleDateString("ru-RU", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
+              Это ваша динамика — не оценка. Здесь видно, куда движется сфера. А
+              что именно повлияло, помогает вспомнить дневник.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* Материалы */}
       {relatedContent.length > 0 && (
@@ -293,6 +511,82 @@ function SpherePage() {
             Материалы по этой сфере скоро появятся.
           </p>
         )}
+
+      {/* Рефлексия после переоценки — сохраняется в дневник с тегом сферы */}
+      {reflect && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4 pb-4">
+          <div className="w-full max-w-md bg-background rounded-[2rem] ring-1 ring-border p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-[Lora] text-xl">Что изменилось?</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  «{sphere.name}»: оценка{" "}
+                  <b className="text-foreground">{reflect.from} → {reflect.to}</b>.
+                  Расскажите, что произошло и почему вы её меняете.
+                </p>
+              </div>
+              <button
+                onClick={() => setReflect(null)}
+                aria-label="Закрыть"
+                className="shrink-0 text-muted-foreground"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <textarea
+              value={reflectText}
+              onChange={(e) => setReflectText(e.target.value)}
+              rows={4}
+              autoCapitalize="sentences"
+              autoCorrect="on"
+              spellCheck
+              inputMode="text"
+              placeholder="Своими словами — или наговорите голосом"
+              style={{ textTransform: "none" }}
+              className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            />
+
+            <div className="flex items-center justify-between gap-2">
+              <VoiceInput
+                onResult={(t) =>
+                  setReflectText((prev) => (prev ? `${prev} ${t}` : t))
+                }
+              />
+              <span className="text-[11px] text-muted-foreground">
+                Запишется в дневник · #{sphere.name}
+              </span>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setReflect(null)}
+                className="flex-1 py-3 rounded-full text-sm ring-1 ring-border text-muted-foreground"
+              >
+                Не сейчас
+              </button>
+              <button
+                disabled={!reflectText.trim()}
+                onClick={() => {
+                  const text = reflectText.trim();
+                  const tags = deriveTags(text, sphereId as SphereId);
+                  addJournalEntry(
+                    `«${sphere.name}»: ${reflect.from} → ${reflect.to}. Что изменилось?`,
+                    text,
+                    undefined,
+                    { sphereId: sphereId as SphereId, tags },
+                  );
+                  setReflect(null);
+                  toast.success("Записали в дневник");
+                }}
+                className="flex-1 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-40"
+              >
+                Записать
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
