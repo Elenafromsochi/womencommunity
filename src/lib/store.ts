@@ -10,6 +10,7 @@ import type {
   SphereId,
   JournalEntry,
   SphereScorePoint,
+  PathStepItem,
 } from "./types";
 import type { CloudState } from "./sync";
 import { mockUser } from "./mock-data";
@@ -84,6 +85,17 @@ interface AppState {
   /** Переключить фокус на сфере. Не больше 3 — иначе не добавляет. */
   toggleFocusSphere: (sphereId: SphereId) => boolean;
 
+  // ===== Шаги пути (декомпозиция целей сфер) =====
+  sphereSteps: PathStepItem[];
+  addSphereStep: (
+    sphereId: SphereId,
+    text: string,
+    opts?: { recurring?: boolean; materialId?: string },
+  ) => void;
+  /** Отметить шаг: разовый — done; повторяющийся — «сделан сегодня». Повторный вызов снимает. */
+  toggleStepDone: (id: string) => void;
+  removeSphereStep: (id: string) => void;
+
   // ===== Дневник состояния =====
   journalEntries: JournalEntry[];
   addJournalEntry: (
@@ -114,6 +126,7 @@ const defaultUserData = {
   sphereGoals: {} as Partial<Record<SphereId, string>>,
   sphereScoreHistory: [] as SphereScorePoint[],
   focusSpheres: [] as SphereId[],
+  sphereSteps: [] as PathStepItem[],
   journalEntries: [] as JournalEntry[],
 };
 
@@ -135,6 +148,7 @@ export function selectCloudState(s: AppState): CloudState {
     sphereGoals: s.sphereGoals,
     sphereScoreHistory: s.sphereScoreHistory,
     focusSpheres: s.focusSpheres,
+    sphereSteps: s.sphereSteps,
     journalEntries: s.journalEntries,
   };
 }
@@ -307,6 +321,45 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set({ focusSpheres: [...state.focusSpheres, sphereId] });
     return true;
   },
+
+  sphereSteps: [],
+  addSphereStep: (sphereId, text, opts) =>
+    set((state) => ({
+      sphereSteps: [
+        ...state.sphereSteps,
+        {
+          id: `st${Date.now()}${Math.round(state.sphereSteps.length)}`,
+          sphereId,
+          text,
+          recurring: opts?.recurring ?? false,
+          done: false,
+          createdAt: new Date().toISOString(),
+          materialId: opts?.materialId,
+        },
+      ],
+    })),
+  toggleStepDone: (id) =>
+    set((state) => {
+      const today = new Date().toISOString().slice(0, 10);
+      return {
+        sphereSteps: state.sphereSteps.map((st) => {
+          if (st.id !== id) return st;
+          if (st.recurring) {
+            // Повторяющийся: отметить «сделан сегодня» или снять отметку.
+            return st.lastDoneAt === today
+              ? { ...st, lastDoneAt: undefined }
+              : { ...st, lastDoneAt: today };
+          }
+          return st.done
+            ? { ...st, done: false, doneAt: undefined }
+            : { ...st, done: true, doneAt: new Date().toISOString() };
+        }),
+      };
+    }),
+  removeSphereStep: (id) =>
+    set((state) => ({
+      sphereSteps: state.sphereSteps.filter((st) => st.id !== id),
+    })),
 
   journalEntries: [],
   addJournalEntry: (prompt, text, mood, opts) =>

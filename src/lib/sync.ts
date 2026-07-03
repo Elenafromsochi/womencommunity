@@ -3,6 +3,7 @@ import type {
   CycleData,
   DiagnosticResult,
   JournalEntry,
+  PathStepItem,
   ProgressState,
   SphereId,
   SphereScorePoint,
@@ -33,6 +34,8 @@ export interface CloudState {
   sphereScoreHistory?: SphereScorePoint[];
   /** До 3 фокус-сфер — на них участница делает упор; из них ищется бадди. */
   focusSpheres: SphereId[];
+  /** Шаги пути — декомпозиция целей сфер на конкретные действия. */
+  sphereSteps?: PathStepItem[];
   /** Дневник состояния. */
   journalEntries: JournalEntry[];
 }

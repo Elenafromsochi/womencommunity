@@ -1,7 +1,13 @@
 import { sphereById } from "./methodology";
-import type { DiagnosticResult, ProgressState, SphereId } from "./types";
+import type {
+  DiagnosticResult,
+  PathStepItem,
+  ProgressState,
+  SphereId,
+} from "./types";
 
 // «Ваш путь» — правило «следующего шага». Детерминированно, из данных участницы.
+// Путь ведёт по РЕАЛЬНЫМ шагам, на которые декомпозирована цель сферы.
 // Одна вещь за раз, без стриков и бейджей. После роста — перекрёсток из 3 дверей.
 
 export interface PathDoor {
@@ -28,10 +34,17 @@ interface PathInput {
   focusSpheres: SphereId[];
   sphereScores: Partial<Record<SphereId, number>>;
   sphereGoals: Partial<Record<SphereId, string>>;
+  steps: PathStepItem[];
   progress: ProgressState | null;
 }
 
+/** Активен ли шаг сейчас: разовый — не выполнен; повторяющийся — не сделан сегодня. */
+export function isStepActive(st: PathStepItem, today: string): boolean {
+  return st.recurring ? st.lastDoneAt !== today : !st.done;
+}
+
 export function computeNextStep(s: PathInput): PathStep {
+  const today = new Date().toISOString().slice(0, 10);
   const focusNames = s.focusSpheres.map((id) => sphereById(id).name);
   const grownSphere = s.focusSpheres.find((id) => (s.sphereScores[id] ?? 0) >= 8);
 
@@ -108,25 +121,58 @@ export function computeNextStep(s: PathInput): PathStep {
     };
   }
 
-  // 5. Нет цели в главной фокус-сфере
+  // 5. Есть активный шаг в фокус-сферах → ведём по нему (одна вещь за раз)
+  const focusSet = new Set(s.focusSpheres);
+  const active = s.focusSpheres.flatMap((id) =>
+    s.steps.filter((st) => st.sphereId === id && isStepActive(st, today)),
+  );
+  if (focusSet.size && active.length) {
+    const next = active[0];
+    const name = sphereById(next.sphereId).name;
+    return {
+      kind: "step",
+      trail,
+      title: "Ваш шаг сегодня",
+      hint: `«${name}»: ${next.text}`,
+      cta: "Открыть сферу",
+      to: "/sphere/$sphereId",
+      params: { sphereId: next.sphereId },
+    };
+  }
+
+  // 6. Нет большой цели в главной фокус-сфере
   if (!s.sphereGoals[primary]) {
     return {
       kind: "step",
       trail,
       title: `Цель в сфере «${primaryName}»`,
-      hint: "Ответьте себе: что должно случиться, чтобы стало 10? Это станет ориентиром.",
-      cta: "Задать ориентир",
+      hint: "Что должно случиться, чтобы стало 10? Запишите большую цель — от неё вырастут шаги.",
+      cta: "Задать цель",
       to: "/sphere/$sphereId",
       params: { sphereId: primary },
     };
   }
 
-  // 6. Дневной шаг по умолчанию
+  // 7. Цель есть, но не разбита на шаги
+  const primarySteps = s.steps.filter((st) => st.sphereId === primary);
+  if (!primarySteps.length) {
+    return {
+      kind: "step",
+      trail,
+      title: "Разбейте цель на первый шаг",
+      hint: `«${primaryName}»: ${s.sphereGoals[primary]}. Какое маленькое действие приблизит к ней? Добавьте первый шаг.`,
+      cta: "Добавить шаг",
+      to: "/sphere/$sphereId",
+      params: { sphereId: primary },
+    };
+  }
+
+  // 8. Все шаги на сегодня сделаны — мягкая пауза
   return {
     kind: "step",
     trail,
-    title: "Ваш маленький шаг сегодня",
-    hint: `Загляните в сферу «${primaryName}»: отметьте состояние или прочитайте один материал.`,
+    title: "Шаги на сегодня сделаны 🌿",
+    hint: `Вы двигаетесь в сфере «${primaryName}». Можно отдохнуть — или добавить следующий шаг.`,
     cta: "Открыть сферу",
     to: "/sphere/$sphereId",
     params: { sphereId: primary },

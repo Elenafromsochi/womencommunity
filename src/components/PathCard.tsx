@@ -13,6 +13,7 @@ export function PathCard() {
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const sphereScores = useAppStore((s) => s.sphereScores);
   const sphereGoals = useAppStore((s) => s.sphereGoals);
+  const sphereSteps = useAppStore((s) => s.sphereSteps);
   const progress = useAppStore((s) => s.progress);
 
   const step = computeNextStep({
@@ -20,6 +21,7 @@ export function PathCard() {
     focusSpheres,
     sphereScores,
     sphereGoals,
+    steps: sphereSteps,
     progress,
   });
 

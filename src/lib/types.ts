@@ -263,3 +263,22 @@ export interface SphereScorePoint {
   sphereId: SphereId;
   score: number; // 0–10
 }
+
+/**
+ * Шаг пути — конкретное действие к цели сферы. Большая цель (sphereGoals)
+ * декомпозируется на такие шаги; из активных шагов складывается «Ваш путь».
+ * Это реальные действия, а НЕ активность в приложении — без стриков и очков.
+ */
+export interface PathStepItem {
+  id: string;
+  sphereId: SphereId;
+  text: string; // что сделать
+  recurring: boolean; // повторяющийся (регулярный) или разовый
+  done: boolean; // для разового — выполнен
+  createdAt: string; // ISO
+  doneAt?: string; // ISO, когда отмечен разовый
+  /** Для повторяющегося — дата последнего выполнения "YYYY-MM-DD". */
+  lastDoneAt?: string;
+  /** Если шаг = изучить материал клуба. */
+  materialId?: string;
+}
