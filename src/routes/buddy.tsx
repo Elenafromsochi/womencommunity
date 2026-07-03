@@ -162,8 +162,13 @@ function BuddyPage() {
             <input
               value={note}
               onChange={(e) => setNote(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="on"
+              spellCheck
+              inputMode="text"
               placeholder="Для чего ищу? Напр. утренние зарядки, контроль привычек…"
-              className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+              style={{ textTransform: "none" }}
+              className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <button
               onClick={publish}
