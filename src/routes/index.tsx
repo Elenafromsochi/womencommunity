@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Users, HeartHandshake, UserPlus, LifeBuoy, PenLine } from "lucide-react";
+import { ArrowRight, Users, HeartHandshake, UserPlus, LifeBuoy, PenLine, ChevronRight } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 import { topicsForSphere, sphereById } from "../lib/methodology";
@@ -205,9 +205,12 @@ function HomePage() {
       {/* Новое для вас */}
       {feed.length > 0 && (
         <section className="space-y-4">
-          <h2 className="font-[Lora] text-2xl">
-            {focusSpheres.length > 0 ? "Новое по вашим фокус-сферам" : "Свежие материалы"}
-          </h2>
+          <Link to="/topics" className="flex items-center justify-between gap-2">
+            <h2 className="font-[Lora] text-2xl">
+              {focusSpheres.length > 0 ? "Новое по вашим фокус-сферам" : "Свежие материалы"}
+            </h2>
+            <ChevronRight className="size-5 text-muted-foreground shrink-0" />
+          </Link>
           {focusSpheres.length > 0 && (
             <p className="-mt-2 text-xs text-muted-foreground">
               {focusSpheres.map((id) => sphereById(id).name).join(" · ")}
@@ -241,7 +244,10 @@ function HomePage() {
       {/* Events */}
       <section className="space-y-4">
         <div className="flex items-end justify-between">
-          <h2 className="font-[Lora] text-2xl">События</h2>
+          <Link to="/events" className="flex items-center gap-1.5">
+            <h2 className="font-[Lora] text-2xl">События</h2>
+            <ChevronRight className="size-5 text-muted-foreground shrink-0" />
+          </Link>
           <Link
             to="/events"
             className="text-xs text-accent font-medium border-b border-accent/30 pb-0.5"
@@ -295,7 +301,10 @@ function HomePage() {
 
       {/* Mentors */}
       <section className="space-y-4">
-        <h2 className="font-[Lora] text-2xl">Наставники</h2>
+        <Link to="/mentors" className="flex items-center gap-1.5">
+          <h2 className="font-[Lora] text-2xl">Наставники</h2>
+          <ChevronRight className="size-5 text-muted-foreground shrink-0" />
+        </Link>
         <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-6 px-6">
           {recommendedMentors.map((mentor) => (
             <Link
@@ -320,7 +329,10 @@ function HomePage() {
 
       {/* Groups */}
       <section className="space-y-4 pb-6">
-        <h2 className="font-[Lora] text-2xl">Группы сопровождения</h2>
+        <Link to="/groups" className="flex items-center gap-1.5">
+          <h2 className="font-[Lora] text-2xl">Группы сопровождения</h2>
+          <ChevronRight className="size-5 text-muted-foreground shrink-0" />
+        </Link>
         <div className="space-y-3">
           {openGroups.map((group) => (
             <div
