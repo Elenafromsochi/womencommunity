@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
+import { renderWithLinks } from "../lib/assistant-links";
 
 /** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
 export function AssistantChat({
@@ -73,7 +74,7 @@ export function AssistantChat({
                   : "bg-primary-foreground/5 mr-6"
               }`}
             >
-              {m.text}
+              {m.role === "assistant" ? renderWithLinks(m.text) : m.text}
             </div>
           ))}
           {busy && (
