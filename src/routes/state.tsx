@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, ArrowRight, Sparkles, Heart, Wind } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Sparkles, Heart, Wind, MessageCircle } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { STATE_SPHERE, STATE_TOPICS, sphereById } from "../lib/methodology";
 import { computeCycleStatus, todayISO } from "../lib/cycle";
@@ -61,6 +61,17 @@ function StatePage() {
 
   const [rating, setRating] = useState<number | null>(null);
   const [openSos, setOpenSos] = useState<number | null>(null);
+  const [discussSeed, setDiscussSeed] = useState<string | undefined>(undefined);
+  const assistantRef = useRef<HTMLDivElement>(null);
+
+  const discussEntry = (text: string) => {
+    setDiscussSeed(
+      `Хочу обсудить свою запись из дневника: «${text}». Что мне бережно сделать сегодня и на этой неделе? Если подскажешь пару маленьких конкретных шагов — было бы здорово.`,
+    );
+    requestAnimationFrame(() =>
+      assistantRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
   const prompt = pickPrompt(focusSpheres, phase, stateScore);
   const [journal, setJournal] = useState("");
 
@@ -192,6 +203,13 @@ function StatePage() {
                     ))}
                   </div>
                 )}
+                <button
+                  onClick={() => discussEntry(e.text)}
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary"
+                >
+                  <MessageCircle className="size-3.5" />
+                  Обсудить с помощником
+                </button>
               </div>
             ))}
           </div>
@@ -224,7 +242,9 @@ function StatePage() {
       )}
 
       {/* ИИ-помощник */}
-      <AssistantChat context={assistantContext} />
+      <div ref={assistantRef} className="scroll-mt-4">
+        <AssistantChat context={assistantContext} seed={discussSeed} />
+      </div>
     </div>
   );
 }

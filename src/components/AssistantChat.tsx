@@ -1,31 +1,57 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
 
 /** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
-export function AssistantChat({ context }: { context: AssistantContext }) {
+export function AssistantChat({
+  context,
+  seed,
+}: {
+  context: AssistantContext;
+  /** Готовое сообщение (например, «обсудить запись дневника») — отправится само. */
+  seed?: string;
+}) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const busyRef = useRef(false);
+  const lastSeed = useRef<string | undefined>(undefined);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || busy) return;
-    const next = [...messages, { role: "user" as const, text }];
-    setMessages(next);
-    setInput("");
+  const sendText = async (raw: string) => {
+    const text = raw.trim();
+    if (!text || busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
-    const { reply, error } = await askAssistant(next, context);
-    setMessages([
-      ...next,
-      { role: "assistant", text: error ?? reply ?? "Я рядом." },
-    ]);
+    let sent: AssistantMessage[] = [];
+    setMessages((prev) => {
+      sent = [...prev, { role: "user" as const, text }];
+      return sent;
+    });
+    const { reply, error } = await askAssistant(sent, context);
+    setMessages([...sent, { role: "assistant", text: error ?? reply ?? "Я рядом." }]);
+    busyRef.current = false;
     setBusy(false);
     requestAnimationFrame(() =>
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }),
     );
   };
+
+  const send = () => {
+    if (!input.trim()) return;
+    const text = input;
+    setInput("");
+    void sendText(text);
+  };
+
+  // Пришёл готовый вопрос (обсудить запись дневника) — отправляем один раз.
+  useEffect(() => {
+    if (seed && seed !== lastSeed.current) {
+      lastSeed.current = seed;
+      void sendText(seed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seed]);
 
   return (
     <section className="bg-primary text-primary-foreground rounded-[2rem] p-5 space-y-3">
