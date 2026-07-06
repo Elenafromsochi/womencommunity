@@ -14,6 +14,7 @@ import { useAppStore } from "../lib/store";
 import { useAuth } from "../lib/auth";
 import { WheelOfBalance } from "../components/WheelOfBalance";
 import { computeCycleStatus, todayISO } from "../lib/cycle";
+import { computeOverallState } from "../lib/methodology";
 import { events, mentors, groups, contentItems } from "../lib/mock-data";
 
 export const Route = createFileRoute("/profile")({
@@ -42,8 +43,9 @@ function ProfilePage() {
   const progress = useAppStore((s) => s.progress);
   const diagnostic = useAppStore((s) => s.diagnostic);
   const scoredCount = Object.keys(sphereScores).length;
-  const stateScore =
-    progress?.wellbeingHistory?.at(-1)?.value ?? diagnostic?.wellbeing;
+  const pulse = progress?.wellbeingHistory?.at(-1)?.value ?? diagnostic?.wellbeing;
+  // Центр колеса — общее состояние: среднее из самочувствия и всех сфер.
+  const stateScore = computeOverallState(pulse, sphereScores) ?? undefined;
   const cycle = useAppStore((s) => s.cycle);
   const cycleStatus =
     cycle && cycle.periods.length > 0

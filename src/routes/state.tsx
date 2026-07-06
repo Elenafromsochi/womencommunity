@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Sparkles, Heart, Wind, MessageCircle } from "lucide-react";
 import { useAppStore } from "../lib/store";
-import { STATE_SPHERE, STATE_TOPICS, sphereById } from "../lib/methodology";
+import { STATE_SPHERE, STATE_TOPICS, sphereById, computeOverallState } from "../lib/methodology";
 import { computeCycleStatus, todayISO } from "../lib/cycle";
 import { contentItems } from "../lib/mock-data";
 import type { SphereId } from "../lib/types";
@@ -52,8 +52,12 @@ function StatePage() {
   const cycle = useAppStore((s) => s.cycle);
   const journalEntries = useAppStore((s) => s.journalEntries);
   const addJournalEntry = useAppStore((s) => s.addJournalEntry);
+  const sphereScores = useAppStore((s) => s.sphereScores);
 
-  const stateScore = progress?.wellbeingHistory?.at(-1)?.value ?? diagnostic?.wellbeing;
+  // Пульс — твоё самочувствие «прямо сейчас». Общее «Состояние» — среднее из
+  // пульса и оценок всех сфер.
+  const pulse = progress?.wellbeingHistory?.at(-1)?.value ?? diagnostic?.wellbeing;
+  const stateScore = computeOverallState(pulse, sphereScores);
   const phase =
     cycle && cycle.periods.length > 0
       ? computeCycleStatus(cycle, todayISO()).phase
@@ -64,6 +68,16 @@ function StatePage() {
   const [discussSeed, setDiscussSeed] = useState<string | undefined>(undefined);
   const assistantRef = useRef<HTMLDivElement>(null);
 
+  // При заходе с якорем (#sos, #journal, #assistant) — сразу проматываем к блоку.
+  useEffect(() => {
+    const id = window.location.hash.replace("#", "");
+    if (!id) return;
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+    return () => clearTimeout(t);
+  }, []);
+
   const discussEntry = (text: string) => {
     setDiscussSeed(
       `Хочу обсудить свою запись из дневника: «${text}». Что мне бережно сделать сегодня и на этой неделе? Если подскажешь пару маленьких конкретных шагов — было бы здорово.`,
@@ -72,7 +86,7 @@ function StatePage() {
       assistantRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
   };
-  const prompt = pickPrompt(focusSpheres, phase, stateScore);
+  const prompt = pickPrompt(focusSpheres, phase, stateScore ?? undefined);
   const [journal, setJournal] = useState("");
 
   const practices = contentItems.filter((c) => STATE_TOPICS.includes(c.topic)).slice(0, 4);
@@ -103,10 +117,15 @@ function StatePage() {
           <p className="text-sm text-muted-foreground mt-1">Как вы сейчас внутри</p>
         </div>
         {stateScore != null && (
-          <p className="font-[Lora] text-4xl">{stateScore}<span className="text-lg text-muted-foreground">/10</span></p>
+          <div>
+            <p className="font-[Lora] text-4xl">{stateScore}<span className="text-lg text-muted-foreground">/10</span></p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Среднее из вашего самочувствия и оценок всех сфер
+            </p>
+          </div>
         )}
         <div className="pt-2">
-          <p className="text-sm text-muted-foreground mb-3">Отметить прямо сейчас:</p>
+          <p className="text-sm text-muted-foreground mb-3">Как вы прямо сейчас?</p>
           <Scale value={rating} onChange={setRating} lowLabel="Тяжело" highLabel="Хорошо" />
           <button
             disabled={rating == null}
@@ -124,7 +143,7 @@ function StatePage() {
       </section>
 
       {/* Быстрая поддержка */}
-      <section className="space-y-3">
+      <section id="sos" className="space-y-3 scroll-mt-4">
         <h2 className="font-[Lora] text-xl">Быстрая поддержка</h2>
         <p className="text-xs text-muted-foreground -mt-1">Если накрыло — сделайте одно из этого прямо сейчас.</p>
         <div className="space-y-2">
@@ -147,7 +166,7 @@ function StatePage() {
       </section>
 
       {/* Дневник */}
-      <section className="space-y-3">
+      <section id="journal" className="space-y-3 scroll-mt-4">
         <h2 className="font-[Lora] text-xl">Дневник состояния</h2>
         <div className="bg-cream rounded-[2rem] p-5 ring-1 ring-border space-y-3">
           <p className="text-sm font-medium leading-relaxed">{prompt}</p>
@@ -170,7 +189,7 @@ function StatePage() {
             disabled={!journal.trim()}
             onClick={() => {
               const text = journal.trim();
-              addJournalEntry(prompt, text, stateScore, {
+              addJournalEntry(prompt, text, stateScore ?? undefined, {
                 tags: deriveTags(text),
               });
               setJournal("");
@@ -242,7 +261,7 @@ function StatePage() {
       )}
 
       {/* ИИ-помощник */}
-      <div ref={assistantRef} className="scroll-mt-4">
+      <div id="assistant" ref={assistantRef} className="scroll-mt-4">
         <AssistantChat context={assistantContext} seed={discussSeed} />
       </div>
     </div>

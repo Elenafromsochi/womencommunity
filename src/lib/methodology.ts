@@ -183,3 +183,22 @@ export const topicsForSphere = (id: SphereId): string[] =>
 
 /** Темы для центра «Состояние» — практики и материалы на состояние. */
 export const STATE_TOPICS = ["Личностный рост", "Здоровье"];
+
+/**
+ * Общее «Состояние» (центр колеса) — среднее арифметическое из твоего
+ * самочувствия (пульс) и оценок всех сфер. Учитываются только заполненные
+ * значения; если ничего нет — null. Результат округляется до 0.1.
+ */
+export function computeOverallState(
+  pulse: number | null | undefined,
+  sphereScores: Partial<Record<SphereId, number>>,
+): number | null {
+  const vals: number[] = [];
+  if (pulse != null) vals.push(pulse);
+  for (const s of SPHERES) {
+    const v = sphereScores[s.id];
+    if (v != null) vals.push(v);
+  }
+  if (!vals.length) return null;
+  return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
+}

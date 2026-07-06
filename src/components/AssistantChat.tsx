@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
+import { renderWithLinks } from "../lib/assistant-links";
+import { VoiceInput } from "./VoiceInput";
 
 /** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
 export function AssistantChat({
@@ -73,7 +75,7 @@ export function AssistantChat({
                   : "bg-primary-foreground/5 mr-6"
               }`}
             >
-              {m.text}
+              {m.role === "assistant" ? renderWithLinks(m.text) : m.text}
             </div>
           ))}
           {busy && (
@@ -118,6 +120,9 @@ export function AssistantChat({
           <Send className="size-4" />
         </button>
       </div>
+      <VoiceInput
+        onResult={(t) => setInput((prev) => (prev ? `${prev} ${t}` : t))}
+      />
       <p className="text-[10px] text-primary-foreground/40 leading-relaxed">
         Это ИИ, не врач. В трудные моменты он мягко направит к живым специалистам.
       </p>
