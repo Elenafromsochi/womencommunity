@@ -126,6 +126,7 @@ function HomePage() {
           </Link>
           <Link
             to="/state"
+            hash="sos"
             className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
           >
             <LifeBuoy className="size-5 text-rose" />
@@ -143,6 +144,7 @@ function HomePage() {
         </div>
         <Link
           to="/state"
+          hash="assistant"
           className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-0.5"
         >
           …или спросить бережного помощника
@@ -154,6 +156,7 @@ function HomePage() {
       {!hasJournalToday && (
         <Link
           to="/state"
+          hash="journal"
           className="bg-peach/25 ring-1 ring-peach/40 rounded-2xl p-4 flex items-center gap-3"
         >
           <span className="size-9 shrink-0 rounded-full bg-card flex items-center justify-center">

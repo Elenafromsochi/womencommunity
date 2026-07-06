@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Sparkles, Heart, Wind, MessageCircle } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { STATE_SPHERE, STATE_TOPICS, sphereById, computeOverallState } from "../lib/methodology";
@@ -68,6 +68,16 @@ function StatePage() {
   const [discussSeed, setDiscussSeed] = useState<string | undefined>(undefined);
   const assistantRef = useRef<HTMLDivElement>(null);
 
+  // При заходе с якорем (#sos, #journal, #assistant) — сразу проматываем к блоку.
+  useEffect(() => {
+    const id = window.location.hash.replace("#", "");
+    if (!id) return;
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+    return () => clearTimeout(t);
+  }, []);
+
   const discussEntry = (text: string) => {
     setDiscussSeed(
       `Хочу обсудить свою запись из дневника: «${text}». Что мне бережно сделать сегодня и на этой неделе? Если подскажешь пару маленьких конкретных шагов — было бы здорово.`,
@@ -133,7 +143,7 @@ function StatePage() {
       </section>
 
       {/* Быстрая поддержка */}
-      <section className="space-y-3">
+      <section id="sos" className="space-y-3 scroll-mt-4">
         <h2 className="font-[Lora] text-xl">Быстрая поддержка</h2>
         <p className="text-xs text-muted-foreground -mt-1">Если накрыло — сделайте одно из этого прямо сейчас.</p>
         <div className="space-y-2">
@@ -156,7 +166,7 @@ function StatePage() {
       </section>
 
       {/* Дневник */}
-      <section className="space-y-3">
+      <section id="journal" className="space-y-3 scroll-mt-4">
         <h2 className="font-[Lora] text-xl">Дневник состояния</h2>
         <div className="bg-cream rounded-[2rem] p-5 ring-1 ring-border space-y-3">
           <p className="text-sm font-medium leading-relaxed">{prompt}</p>
@@ -251,7 +261,7 @@ function StatePage() {
       )}
 
       {/* ИИ-помощник */}
-      <div ref={assistantRef} className="scroll-mt-4">
+      <div id="assistant" ref={assistantRef} className="scroll-mt-4">
         <AssistantChat context={assistantContext} seed={discussSeed} />
       </div>
     </div>
