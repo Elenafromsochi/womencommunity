@@ -126,12 +126,12 @@ function HomePage() {
           </Link>
           <Link
             to="/state"
-            hash="sos"
+            hash="assistant"
             className="bg-card ring-1 ring-border rounded-2xl p-3.5 flex flex-col gap-1.5"
           >
             <LifeBuoy className="size-5 text-rose" />
             <span className="text-sm font-medium leading-tight">Мне сейчас трудно</span>
-            <span className="text-[11px] text-muted-foreground">Быстрая опора · SOS</span>
+            <span className="text-[11px] text-muted-foreground">Помощник рядом · SOS</span>
           </Link>
           <Link
             to="/community"
