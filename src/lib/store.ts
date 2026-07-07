@@ -11,8 +11,11 @@ import type {
   JournalEntry,
   SphereScorePoint,
   PathStepItem,
+  ContentItem,
+  Event,
 } from "./types";
 import type { CloudState } from "./sync";
+import type { AssistantMessage } from "./assistant";
 import { mockUser } from "./mock-data";
 import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
 import { defaultCycle, recomputeAvgCycleLength } from "./cycle";
@@ -104,6 +107,33 @@ interface AppState {
     mood?: number,
     opts?: { sphereId?: SphereId; tags?: string[] },
   ) => void;
+
+  // ===== Память помощника: отдельный диалог на каждую сферу + «state» =====
+  assistantThreads: Record<string, AssistantMessage[]>;
+  addAssistantMessage: (threadId: string, msg: AssistantMessage) => void;
+  clearAssistantThread: (threadId: string) => void;
+
+  // ===== Кабинет эксперта: опубликованные материалы и мероприятия =====
+  myMaterials: ContentItem[];
+  addMyMaterial: (m: {
+    title: string;
+    type: ContentItem["type"];
+    topic: string;
+    description: string;
+    body?: string[];
+    duration?: string;
+  }) => void;
+  removeMyMaterial: (id: string) => void;
+  myEvents: Event[];
+  addMyEvent: (e: {
+    title: string;
+    date: string;
+    time: string;
+    description: string;
+    type: "online" | "offline";
+    location?: string;
+  }) => void;
+  removeMyEvent: (id: string) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -128,6 +158,9 @@ const defaultUserData = {
   focusSpheres: [] as SphereId[],
   sphereSteps: [] as PathStepItem[],
   journalEntries: [] as JournalEntry[],
+  assistantThreads: {} as Record<string, AssistantMessage[]>,
+  myMaterials: [] as ContentItem[],
+  myEvents: [] as Event[],
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -150,6 +183,9 @@ export function selectCloudState(s: AppState): CloudState {
     focusSpheres: s.focusSpheres,
     sphereSteps: s.sphereSteps,
     journalEntries: s.journalEntries,
+    assistantThreads: s.assistantThreads,
+    myMaterials: s.myMaterials,
+    myEvents: s.myEvents,
   };
 }
 
@@ -377,4 +413,60 @@ export const useAppStore = create<AppState>()((set, get) => ({
         ...state.journalEntries,
       ],
     })),
+
+  assistantThreads: {},
+  addAssistantMessage: (threadId, msg) =>
+    set((state) => ({
+      assistantThreads: {
+        ...state.assistantThreads,
+        [threadId]: [...(state.assistantThreads[threadId] ?? []), msg],
+      },
+    })),
+  clearAssistantThread: (threadId) =>
+    set((state) => ({
+      assistantThreads: { ...state.assistantThreads, [threadId]: [] },
+    })),
+
+  myMaterials: [],
+  addMyMaterial: (m) =>
+    set((state) => ({
+      myMaterials: [
+        {
+          id: `my-m-${Date.now()}`,
+          title: m.title,
+          type: m.type,
+          topic: m.topic,
+          description: m.description,
+          body: m.body,
+          author: state.profile.name || "Наставник",
+          duration: m.duration,
+          date: new Date().toISOString(),
+        },
+        ...state.myMaterials,
+      ],
+    })),
+  removeMyMaterial: (id) =>
+    set((state) => ({ myMaterials: state.myMaterials.filter((x) => x.id !== id) })),
+  myEvents: [],
+  addMyEvent: (e) =>
+    set((state) => ({
+      myEvents: [
+        {
+          id: `my-e-${Date.now()}`,
+          title: e.title,
+          mentor: state.profile.name || "Наставник",
+          date: e.date,
+          time: e.time,
+          description: e.description,
+          spots: 20,
+          spotsTotal: 20,
+          type: e.type,
+          price: 0,
+          location: e.location,
+        },
+        ...state.myEvents,
+      ],
+    })),
+  removeMyEvent: (id) =>
+    set((state) => ({ myEvents: state.myEvents.filter((x) => x.id !== id) })),
 }));

@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 import type {
+  ContentItem,
   CycleData,
   DiagnosticResult,
+  Event,
   JournalEntry,
   PathStepItem,
   ProgressState,
@@ -38,6 +40,11 @@ export interface CloudState {
   sphereSteps?: PathStepItem[];
   /** Дневник состояния. */
   journalEntries: JournalEntry[];
+  /** Диалоги с помощником по сферам (и «state») — память между заходами. */
+  assistantThreads?: Record<string, { role: "user" | "assistant"; text: string }[]>;
+  /** Материалы и мероприятия, опубликованные экспертом. */
+  myMaterials?: ContentItem[];
+  myEvents?: Event[];
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

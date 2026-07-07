@@ -3,35 +3,54 @@ import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
 import { renderWithLinks } from "../lib/assistant-links";
 import { VoiceInput } from "./VoiceInput";
+import { useAppStore } from "../lib/store";
+
+const EMPTY: AssistantMessage[] = [];
 
 /** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
 export function AssistantChat({
   context,
   seed,
+  threadId,
 }: {
   context: AssistantContext;
   /** Готовое сообщение (например, «обсудить запись дневника») — отправится само. */
   seed?: string;
+  /** Идентификатор диалога: сфера ("finance"…) или "state". Память хранится по нему. */
+  threadId: string;
 }) {
-  const [messages, setMessages] = useState<AssistantMessage[]>([]);
+  // Сообщения диалога живут в сторе (сохраняются в облако) — помощник помнит контекст.
+  const messages = useAppStore((s) => s.assistantThreads[threadId] ?? EMPTY);
+  const addAssistantMessage = useAppStore((s) => s.addAssistantMessage);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const busyRef = useRef(false);
   const lastSeed = useRef<string | undefined>(undefined);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+
+  // Поле ввода само растёт под текст (до ~8 строк, дальше — прокрутка).
+  useEffect(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 176)}px`;
+  }, [input]);
 
   const sendText = async (raw: string) => {
     const text = raw.trim();
     if (!text || busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
-    let sent: AssistantMessage[] = [];
-    setMessages((prev) => {
-      sent = [...prev, { role: "user" as const, text }];
-      return sent;
-    });
+    // Вся прошлая переписка этого диалога уходит в запрос — контекст продолжается.
+    const history = useAppStore.getState().assistantThreads[threadId] ?? EMPTY;
+    const sent: AssistantMessage[] = [...history, { role: "user", text }];
+    addAssistantMessage(threadId, { role: "user", text });
     const { reply, error } = await askAssistant(sent, context);
-    setMessages([...sent, { role: "assistant", text: error ?? reply ?? "Я рядом." }]);
+    addAssistantMessage(threadId, {
+      role: "assistant",
+      text: error ?? reply ?? "Я рядом.",
+    });
     busyRef.current = false;
     setBusy(false);
     requestAnimationFrame(() =>
@@ -65,22 +84,28 @@ export function AssistantChat({
       </div>
 
       {messages.length > 0 && (
-        <div ref={scrollRef} className="space-y-2 max-h-72 overflow-y-auto no-scrollbar">
+        <div ref={scrollRef} className="space-y-2 max-h-80 overflow-y-auto no-scrollbar">
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`text-sm leading-relaxed rounded-2xl px-3.5 py-2.5 ${
-                m.role === "user"
-                  ? "bg-primary-foreground/15 ml-6"
-                  : "bg-primary-foreground/5 mr-6"
-              }`}
+              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {m.role === "assistant" ? renderWithLinks(m.text) : m.text}
+              <div
+                className={`max-w-[85%] text-sm leading-relaxed rounded-2xl px-3.5 py-2.5 whitespace-pre-wrap break-words ${
+                  m.role === "user"
+                    ? "bg-primary-foreground text-foreground rounded-br-sm"
+                    : "bg-primary-foreground/15 text-primary-foreground rounded-bl-sm"
+                }`}
+              >
+                {m.role === "assistant" ? renderWithLinks(m.text) : m.text}
+              </div>
             </div>
           ))}
           {busy && (
-            <div className="bg-primary-foreground/5 mr-6 rounded-2xl px-3.5 py-2.5 text-sm text-primary-foreground/60">
-              печатает…
+            <div className="flex justify-start">
+              <div className="bg-primary-foreground/15 rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm text-primary-foreground/60">
+                печатает…
+              </div>
             </div>
           )}
         </div>
@@ -95,6 +120,7 @@ export function AssistantChat({
 
       <div className="flex items-end gap-2">
         <textarea
+          ref={taRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -109,7 +135,7 @@ export function AssistantChat({
           inputMode="text"
           placeholder="Напишите здесь…"
           style={{ textTransform: "none" }}
-          className="flex-1 bg-primary-foreground/10 rounded-2xl px-4 py-2.5 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none resize-none normal-case"
+          className="flex-1 bg-primary-foreground/10 rounded-2xl px-4 py-2.5 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:outline-none resize-none normal-case overflow-y-auto"
         />
         <button
           onClick={send}

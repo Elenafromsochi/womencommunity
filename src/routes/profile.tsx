@@ -239,18 +239,21 @@ function ProfilePage() {
       <section className="space-y-3">
         <h2 className="font-[Lora] text-xl">Тестовый режим</h2>
         <p className="text-xs text-muted-foreground">
-          Переключайтесь между ролями для демонстрации интерфейсов
+          Переключайтесь между ролями — интерфейс сразу откроется
         </p>
         <div className="space-y-2">
           {[
-            { key: "member" as const, label: "Участница", desc: "Основной интерфейс" },
-            { key: "mentor" as const, label: "Наставник", desc: "Кабинет наставника" },
-            { key: "curator" as const, label: "Куратор", desc: "Кабинет куратора" },
-            { key: "admin" as const, label: "Администратор", desc: "Панель управления" },
+            { key: "member" as const, label: "Участница", desc: "Основной интерфейс", to: "/" },
+            { key: "mentor" as const, label: "Наставник", desc: "Кабинет наставника", to: "/mentor" },
+            { key: "curator" as const, label: "Куратор", desc: "Кабинет куратора", to: "/curator" },
+            { key: "admin" as const, label: "Администратор", desc: "Панель управления", to: "/admin" },
           ].map((r) => (
             <button
               key={r.key}
-              onClick={() => setRole(r.key)}
+              onClick={() => {
+                setRole(r.key);
+                navigate({ to: r.to });
+              }}
               className={`w-full flex items-center justify-between p-4 rounded-[1.5rem] ring-1 transition-all ${
                 role === r.key
                   ? "bg-primary text-primary-foreground ring-primary"

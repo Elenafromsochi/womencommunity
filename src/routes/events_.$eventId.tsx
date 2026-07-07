@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, MapPin, Video, Users, Clock } from "lucide-react";
-import { events } from "../lib/mock-data";
+import { useAllEvents } from "../lib/content";
 import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/events_/$eventId")({
 
 function EventDetailPage() {
   const { eventId } = Route.useParams();
-  const event = events.find((e) => e.id === eventId);
+  const event = useAllEvents().find((e) => e.id === eventId);
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
   const toggleEventRegistration = useAppStore((s) => s.toggleEventRegistration);
   const isRegistered = event ? registeredEventIds.includes(event.id) : false;

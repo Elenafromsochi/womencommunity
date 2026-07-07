@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Bookmark, Play, Headphones, FileText, Sparkles } from "lucide-react";
 import { useAppStore } from "../lib/store";
-import { contentItems } from "../lib/mock-data";
+import { useAllContent } from "../lib/content";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
 
@@ -28,7 +28,7 @@ function TypeIcon({ type }: { type: ContentType }) {
 
 function MaterialPage() {
   const { id } = Route.useParams();
-  const item = contentItems.find((c) => c.id === id);
+  const item = useAllContent().find((c) => c.id === id);
   const savedContentIds = useAppStore((s) => s.savedContentIds);
   const toggleSavedContent = useAppStore((s) => s.toggleSavedContent);
 
