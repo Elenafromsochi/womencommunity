@@ -4,6 +4,7 @@ import { useAppStore } from "../lib/store";
 import { useAllContent } from "../lib/content";
 import { MediaEmbed } from "../components/MediaEmbed";
 import { CoverPlaceholder } from "../components/CoverPlaceholder";
+import { Comments } from "../components/Comments";
 import { parseMedia } from "../lib/embed";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
@@ -116,6 +117,9 @@ function MaterialPage() {
         <Heart className={`size-4 ${saved ? "fill-current" : ""}`} />
         {saved ? "В сохранённом" : "Нравится · сохранить"}
       </button>
+
+      {/* Отклики */}
+      <Comments materialId={item.id} />
     </div>
   );
 }
