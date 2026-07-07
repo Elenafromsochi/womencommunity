@@ -30,7 +30,6 @@ const TYPES: { key: ContentType; label: string }[] = [
   { key: "article", label: "Статья" },
   { key: "video", label: "Видео" },
   { key: "audio", label: "Аудио" },
-  { key: "collection", label: "Подборка" },
 ];
 
 const field =
@@ -197,17 +196,6 @@ function MentorDashboard() {
                 <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="audio/*" placeholder="Ссылка на аудио (Яндекс Музыка, файл .mp3…)" hint="Вставьте ссылку или загрузите файл — длительность посчитаем сами." onDuration={setMDuration} />
                 {mDuration && <p className="text-[11px] text-muted-foreground px-1">Длительность: {mDuration}</p>}
               </div>
-            )}
-
-            {/* Подборка: текст + любое медиа */}
-            {mType === "collection" && (
-              <>
-                <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={5} placeholder="Описание подборки — абзацы с новой строки" style={{ textTransform: "none" }} className={`${field} resize-none`} />
-                <div>
-                  <p className="text-xs font-medium mb-1.5">Медиа (необязательно)</p>
-                  <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="audio/*,video/*,application/pdf" placeholder="Ссылка или файл (видео, аудио, PDF)" onDuration={setMDuration} />
-                </div>
-              </>
             )}
 
             {/* Обложка */}
