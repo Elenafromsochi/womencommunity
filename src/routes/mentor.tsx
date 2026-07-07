@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar } from "lucide-react";
 import { useAppStore } from "../lib/store";
+import { LinkOrUpload } from "../components/LinkOrUpload";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
 
@@ -161,19 +162,35 @@ function MentorDashboard() {
             <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 15 мин (необязательно)" className={field} />
             <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри (видно на карточке)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
 
-            {/* Поле зависит от типа материала */}
-            {(mType === "audio" || mType === "video") && (
-              <div className="space-y-1.5">
-                <input value={mMedia} onChange={(e) => setMMedia(e.target.value)} inputMode="url" placeholder={mType === "audio" ? "Ссылка на аудио (Яндекс Музыка, файл .mp3…)" : "Ссылка на видео (YouTube, Rutube, VK Видео…)"} className={field} />
-                <p className="text-[11px] text-muted-foreground px-1">
-                  Вставьте ссылку — в карточке появится встроенный плеер. Загрузка файла с устройства — скоро.
-                </p>
-              </div>
-            )}
+            {/* Медиа: ссылка ИЛИ файл (видео, аудио, PDF) */}
+            <div>
+              <p className="text-xs font-medium mb-1.5">Видео / аудио / PDF</p>
+              <LinkOrUpload
+                value={mMedia}
+                onChange={setMMedia}
+                folder="media"
+                accept="audio/*,video/*,application/pdf"
+                placeholder="Ссылка (YouTube, Rutube, VK, Яндекс Музыка…)"
+                hint="Вставьте ссылку — будет встроенный плеер. Или загрузите файл (аудио, PDF, видео)."
+              />
+            </div>
+
+            {/* Текст — для статьи/практики/подборки */}
             {(mType === "article" || mType === "practice" || mType === "collection") && (
               <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={6} placeholder={mType === "practice" ? "Шаги практики — каждый с новой строки" : "Текст материала — абзацы с новой строки"} style={{ textTransform: "none" }} className={`${field} resize-none`} />
             )}
-            <input value={mCover} onChange={(e) => setMCover(e.target.value)} inputMode="url" placeholder="Ссылка на обложку-картинку (необязательно)" className={field} />
+
+            {/* Обложка: ссылка или картинка-файл */}
+            <div>
+              <p className="text-xs font-medium mb-1.5">Обложка (необязательно)</p>
+              <LinkOrUpload
+                value={mCover}
+                onChange={setMCover}
+                folder="covers"
+                accept="image/*"
+                placeholder="Ссылка на картинку"
+              />
+            </div>
             <button
               onClick={publishMaterial}
               disabled={!mTitle.trim() || !mDesc.trim()}

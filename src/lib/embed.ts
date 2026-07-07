@@ -6,6 +6,7 @@ export type Media =
   | { kind: "video"; embedUrl: string }
   | { kind: "music"; embedUrl: string; height: number }
   | { kind: "audio"; src: string }
+  | { kind: "pdf"; src: string }
   | { kind: "link"; url: string }
   | null;
 
@@ -14,6 +15,9 @@ const AUDIO_EXT = /\.(mp3|m4a|wav|ogg|aac|flac)(\?|#|$)/i;
 export function parseMedia(raw?: string): Media {
   const url = (raw ?? "").trim();
   if (!url) return null;
+
+  // PDF-документ
+  if (/\.pdf(\?|#|$)/i.test(url)) return { kind: "pdf", src: url };
 
   // Прямой аудиофайл
   if (AUDIO_EXT.test(url)) return { kind: "audio", src: url };

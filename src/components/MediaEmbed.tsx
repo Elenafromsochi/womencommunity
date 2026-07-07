@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Download } from "lucide-react";
 import { parseMedia } from "../lib/embed";
 
 /** Показывает медиа по ссылке: видео/музыку встроенным плеером, файл — аудио, иначе — кнопку «Открыть». */
@@ -39,6 +39,26 @@ export function MediaEmbed({ url }: { url?: string }) {
       <audio controls preload="none" src={media.src} className="w-full">
         Ваш браузер не поддерживает аудио.
       </audio>
+    );
+  }
+
+  if (media.kind === "pdf") {
+    return (
+      <div className="space-y-2">
+        <div className="rounded-[2rem] overflow-hidden ring-1 ring-border bg-card" style={{ height: 480 }}>
+          <iframe src={media.src} title="PDF" className="w-full h-full" />
+        </div>
+        <a
+          href={media.src}
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+          className="w-full inline-flex items-center justify-center gap-2 bg-card ring-1 ring-border text-foreground text-sm font-medium py-3 rounded-full"
+        >
+          <Download className="size-4" />
+          Открыть / сохранить PDF
+        </a>
+      </div>
     );
   }
 

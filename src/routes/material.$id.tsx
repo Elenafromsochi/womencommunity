@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Bookmark, Play, Headphones, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Heart, Play, Headphones, FileText, Sparkles } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { useAllContent } from "../lib/content";
 import { MediaEmbed } from "../components/MediaEmbed";
@@ -102,11 +102,11 @@ function MaterialPage() {
         ))}
       </div>
 
-      {/* Сохранить */}
+      {/* Нравится = добавить в «Сохранённое» */}
       <button
         onClick={() => {
           toggleSavedContent(item.id);
-          toast.success(saved ? "Убрали из сохранённого" : "Сохранили");
+          toast.success(saved ? "Убрали из сохранённого" : "Добавили в сохранённое");
         }}
         className={`w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-medium border transition-all ${
           saved
@@ -114,8 +114,8 @@ function MaterialPage() {
             : "bg-card text-foreground border-border"
         }`}
       >
-        <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
-        {saved ? "В сохранённом" : "Сохранить"}
+        <Heart className={`size-4 ${saved ? "fill-current" : ""}`} />
+        {saved ? "В сохранённом" : "Нравится · сохранить"}
       </button>
     </div>
   );
