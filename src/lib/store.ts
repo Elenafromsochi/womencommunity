@@ -122,6 +122,8 @@ interface AppState {
     description: string;
     body?: string[];
     duration?: string;
+    mediaUrl?: string;
+    cover?: string;
   }) => void;
   removeMyMaterial: (id: string) => void;
   myEvents: Event[];
@@ -440,6 +442,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
           body: m.body,
           author: state.profile.name || "Наставник",
           duration: m.duration,
+          mediaUrl: m.mediaUrl,
+          cover: m.cover,
           date: new Date().toISOString(),
         },
         ...state.myMaterials,

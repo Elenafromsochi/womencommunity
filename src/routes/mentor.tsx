@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar } from "lucide-react";
 import { useAppStore } from "../lib/store";
+import { LinkOrUpload } from "../components/LinkOrUpload";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/mentor")({
 });
 
 const TOPICS = [
+  "Состояние",
   "Здоровье",
   "Личностный рост",
   "Материнство",
@@ -52,6 +54,8 @@ function MentorDashboard() {
   const [mDuration, setMDuration] = useState("");
   const [mDesc, setMDesc] = useState("");
   const [mBody, setMBody] = useState("");
+  const [mMedia, setMMedia] = useState("");
+  const [mCover, setMCover] = useState("");
 
   // Форма мероприятия
   const [eTitle, setETitle] = useState("");
@@ -70,11 +74,15 @@ function MentorDashboard() {
       description: mDesc.trim(),
       body: mBody.trim() ? mBody.trim().split(/\n+/) : undefined,
       duration: mDuration.trim() || undefined,
+      mediaUrl: mMedia.trim() || undefined,
+      cover: mCover.trim() || undefined,
     });
     setMTitle("");
     setMDesc("");
     setMBody("");
     setMDuration("");
+    setMMedia("");
+    setMCover("");
     toast.success("Материал опубликован — он уже в ленте клуба");
   };
 
@@ -152,8 +160,37 @@ function MentorDashboard() {
               </select>
             </div>
             <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 15 мин (необязательно)" className={field} />
-            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри" style={{ textTransform: "none" }} className={`${field} resize-none`} />
-            <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={5} placeholder="Полный текст материала (по абзацам, каждый с новой строки)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри (видно на карточке)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+
+            {/* Медиа: ссылка ИЛИ файл (видео, аудио, PDF) */}
+            <div>
+              <p className="text-xs font-medium mb-1.5">Видео / аудио / PDF</p>
+              <LinkOrUpload
+                value={mMedia}
+                onChange={setMMedia}
+                folder="media"
+                accept="audio/*,video/*,application/pdf"
+                placeholder="Ссылка (YouTube, Rutube, VK, Яндекс Музыка…)"
+                hint="Вставьте ссылку — будет встроенный плеер. Или загрузите файл (аудио, PDF, видео)."
+              />
+            </div>
+
+            {/* Текст — для статьи/практики/подборки */}
+            {(mType === "article" || mType === "practice" || mType === "collection") && (
+              <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={6} placeholder={mType === "practice" ? "Шаги практики — каждый с новой строки" : "Текст материала — абзацы с новой строки"} style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            )}
+
+            {/* Обложка: ссылка или картинка-файл */}
+            <div>
+              <p className="text-xs font-medium mb-1.5">Обложка (необязательно)</p>
+              <LinkOrUpload
+                value={mCover}
+                onChange={setMCover}
+                folder="covers"
+                accept="image/*"
+                placeholder="Ссылка на картинку"
+              />
+            </div>
             <button
               onClick={publishMaterial}
               disabled={!mTitle.trim() || !mDesc.trim()}
