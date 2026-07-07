@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, MapPin, Users, Video, MapPinned } from "lucide-react";
 import { useState } from "react";
-import { events } from "../lib/mock-data";
+import { useAllEvents } from "../lib/content";
 import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
 
@@ -20,6 +20,7 @@ function EventsPage() {
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
   const toggleEventRegistration = useAppStore((s) => s.toggleEventRegistration);
 
+  const events = useAllEvents();
   const filtered = events.filter((e) => {
     if (filter === "all") return true;
     if (filter === "online") return e.type === "online";

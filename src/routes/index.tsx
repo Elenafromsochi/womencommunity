@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Users, HeartHandshake, UserPlus, LifeBuoy, PenLine, ChevronRight } from "lucide-react";
 import { useAppStore } from "../lib/store";
-import { events, mentors, groups, contentItems } from "../lib/mock-data";
+import { mentors, groups } from "../lib/mock-data";
+import { useAllContent, useAllEvents } from "../lib/content";
 import { topicsForSphere, sphereById } from "../lib/methodology";
 import { PathCard } from "../components/PathCard";
 import { toast } from "sonner";
@@ -53,6 +54,8 @@ function HomePage() {
   const appliedGroupIds = useAppStore((s) => s.appliedGroupIds);
   const toggleGroupApplication = useAppStore((s) => s.toggleGroupApplication);
 
+  const contentItems = useAllContent();
+  const events = useAllEvents();
   const focusSpheres = useAppStore((s) => s.focusSpheres);
   const focusTopics = focusSpheres.flatMap((id) => topicsForSphere(id));
   const focusContent = contentItems.filter((c) => focusTopics.includes(c.topic));

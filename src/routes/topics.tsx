@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, BookOpen, Headphones, Video, Sparkles } from "lucide-react";
 import { useState } from "react";
-import { topics, contentItems } from "../lib/mock-data";
+import { topics } from "../lib/mock-data";
+import { useAllContent } from "../lib/content";
 import type { ContentType } from "../lib/types";
 
 export const Route = createFileRoute("/topics")({
@@ -33,6 +34,7 @@ const typeLabels: Record<ContentType, string> = {
 function TopicsPage() {
   const [search, setSearch] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const contentItems = useAllContent();
 
   const filteredContent = contentItems.filter((item) => {
     const matchesSearch =
