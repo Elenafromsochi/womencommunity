@@ -8,9 +8,19 @@ import {
   Bookmark,
   ArrowRight,
 } from "lucide-react";
-import { mentors, reviews } from "../lib/mock-data";
+import { reviews } from "../lib/mock-data";
+import { useAllMentors } from "../lib/content";
 import { useAppStore } from "../lib/store";
 import { toast } from "sonner";
+
+/** Превратить контакт (телеграм/почта/ссылка) в кликабельный href. */
+function contactHref(c: string): string {
+  const v = c.trim();
+  if (/^https?:\/\//i.test(v)) return v;
+  if (/^@[\w]+$/.test(v)) return `https://t.me/${v.slice(1)}`;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return `mailto:${v}`;
+  return v.startsWith("t.me") || v.includes(".") ? `https://${v}` : v;
+}
 
 export const Route = createFileRoute("/mentors_/$mentorId")({
   head: () => ({
@@ -24,7 +34,7 @@ export const Route = createFileRoute("/mentors_/$mentorId")({
 
 function MentorDetailPage() {
   const { mentorId } = Route.useParams();
-  const mentor = mentors.find((m) => m.id === mentorId);
+  const mentor = useAllMentors().find((m) => m.id === mentorId);
   const savedMentorIds = useAppStore((s) => s.savedMentorIds);
   const toggleSavedMentor = useAppStore((s) => s.toggleSavedMentor);
   const isSaved = mentor ? savedMentorIds.includes(mentor.id) : false;
@@ -97,13 +107,25 @@ function MentorDetailPage() {
             <Bookmark className={`size-4 ${isSaved ? "fill-current" : ""}`} />
             {isSaved ? "В избранном" : "В избранное"}
           </button>
-          <button
-            onClick={() => toast.success("Сообщение отправлено наставнику")}
-            className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
-          >
-            <MessageCircle className="size-4" />
-            Написать
-          </button>
+          {mentor.contact ? (
+            <a
+              href={contactHref(mentor.contact)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
+            >
+              <MessageCircle className="size-4" />
+              Связаться
+            </a>
+          ) : (
+            <button
+              onClick={() => toast.success("Сообщение отправлено наставнику")}
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
+            >
+              <MessageCircle className="size-4" />
+              Написать
+            </button>
+          )}
         </div>
       </div>
 
@@ -193,7 +215,8 @@ function MentorDetailPage() {
         </div>
       )}
 
-      {/* Отзывы */}
+      {/* Отзывы (у новых наставников их ещё нет) */}
+      {mentor.reviews > 0 && (
       <div className="px-6 pb-8">
         <h2 className="font-[Lora] text-xl mb-3">Отзывы</h2>
         <div className="space-y-3">
@@ -218,6 +241,7 @@ function MentorDetailPage() {
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

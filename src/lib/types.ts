@@ -28,6 +28,19 @@ export interface Mentor {
   groups: GroupPreview[];
   avatar?: string;
   experience: string;
+  /** Ссылка/способ связи (телеграм, почта, сайт) — если задан, показываем «Связаться». */
+  contact?: string;
+}
+
+/** Экспертная страница наставника (как её видят участницы). Заполняется в кабинете. */
+export interface ExpertProfile {
+  specialization?: string;
+  tagline?: string; // короткое описание
+  offer?: string; // чем могу помочь / услуги
+  about?: string; // подробнее об опыте
+  contact?: string; // как связаться
+  topics?: string[];
+  published?: boolean; // показывать участницам
 }
 
 export interface Event {
