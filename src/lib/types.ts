@@ -56,6 +56,8 @@ export interface Event {
   price: number;
   cover?: string;
   location?: string;
+  /** Ссылка на оплату (ЮKassa, Продамус, телеграм-бот…) для платных событий. */
+  paymentUrl?: string;
 }
 
 export type EventPreview = Omit<Event, "spots" | "spotsTotal" | "description" | "location">;

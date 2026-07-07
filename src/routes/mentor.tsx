@@ -69,6 +69,9 @@ function MentorDashboard() {
   const [eType, setEType] = useState<"online" | "offline">("online");
   const [ePlace, setEPlace] = useState("");
   const [eDesc, setEDesc] = useState("");
+  const [ePrice, setEPrice] = useState("");
+  const [eSpots, setESpots] = useState("");
+  const [ePayUrl, setEPayUrl] = useState("");
 
   const publishMaterial = () => {
     if (!mTitle.trim() || !mDesc.trim()) return;
@@ -103,12 +106,18 @@ function MentorDashboard() {
       description: eDesc.trim(),
       type: eType,
       location: ePlace.trim() || undefined,
+      price: ePrice.trim() ? Math.max(0, parseInt(ePrice, 10) || 0) : 0,
+      spots: eSpots.trim() ? Math.max(1, parseInt(eSpots, 10) || 20) : undefined,
+      paymentUrl: ePayUrl.trim() || undefined,
     });
     setETitle("");
     setEDate("");
     setETime("");
     setEPlace("");
     setEDesc("");
+    setEPrice("");
+    setESpots("");
+    setEPayUrl("");
     toast.success("Мероприятие создано — оно уже в «Событиях»");
   };
 
@@ -257,6 +266,16 @@ function MentorDashboard() {
               <input value={ePlace} onChange={(e) => setEPlace(e.target.value)} placeholder="Место / ссылка" className={field} />
             </div>
             <textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={4} placeholder="О чём встреча" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            <div className="grid grid-cols-2 gap-2">
+              <input value={ePrice} onChange={(e) => setEPrice(e.target.value)} inputMode="numeric" placeholder="Цена, ₽ (0 — бесплатно)" className={field} />
+              <input value={eSpots} onChange={(e) => setESpots(e.target.value)} inputMode="numeric" placeholder="Мест всего" className={field} />
+            </div>
+            {ePrice.trim() && ePrice.trim() !== "0" && (
+              <div>
+                <input value={ePayUrl} onChange={(e) => setEPayUrl(e.target.value)} inputMode="url" placeholder="Ссылка на оплату (ЮKassa, Продамус, бот…)" className={field} />
+                <p className="text-[11px] text-muted-foreground px-1 mt-1">Участница нажмёт «Оплатить участие» и перейдёт по этой ссылке.</p>
+              </div>
+            )}
             <button
               onClick={publishEvent}
               disabled={!eTitle.trim() || !eDate.trim() || !eTime.trim()}

@@ -135,6 +135,9 @@ interface AppState {
     description: string;
     type: "online" | "offline";
     location?: string;
+    price?: number;
+    spots?: number;
+    paymentUrl?: string;
   }) => void;
   removeMyEvent: (id: string) => void;
 
@@ -469,11 +472,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
           date: e.date,
           time: e.time,
           description: e.description,
-          spots: 20,
-          spotsTotal: 20,
+          spots: e.spots ?? 20,
+          spotsTotal: e.spots ?? 20,
           type: e.type,
-          price: 0,
+          price: e.price ?? 0,
           location: e.location,
+          paymentUrl: e.paymentUrl,
         },
         ...state.myEvents,
       ],
