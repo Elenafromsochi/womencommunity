@@ -16,6 +16,7 @@ export const Route = createFileRoute("/mentor")({
 });
 
 const TOPICS = [
+  "Состояние",
   "Здоровье",
   "Личностный рост",
   "Материнство",
@@ -52,6 +53,8 @@ function MentorDashboard() {
   const [mDuration, setMDuration] = useState("");
   const [mDesc, setMDesc] = useState("");
   const [mBody, setMBody] = useState("");
+  const [mMedia, setMMedia] = useState("");
+  const [mCover, setMCover] = useState("");
 
   // Форма мероприятия
   const [eTitle, setETitle] = useState("");
@@ -70,11 +73,15 @@ function MentorDashboard() {
       description: mDesc.trim(),
       body: mBody.trim() ? mBody.trim().split(/\n+/) : undefined,
       duration: mDuration.trim() || undefined,
+      mediaUrl: mMedia.trim() || undefined,
+      cover: mCover.trim() || undefined,
     });
     setMTitle("");
     setMDesc("");
     setMBody("");
     setMDuration("");
+    setMMedia("");
+    setMCover("");
     toast.success("Материал опубликован — он уже в ленте клуба");
   };
 
@@ -152,8 +159,21 @@ function MentorDashboard() {
               </select>
             </div>
             <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 15 мин (необязательно)" className={field} />
-            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри" style={{ textTransform: "none" }} className={`${field} resize-none`} />
-            <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={5} placeholder="Полный текст материала (по абзацам, каждый с новой строки)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри (видно на карточке)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+
+            {/* Поле зависит от типа материала */}
+            {(mType === "audio" || mType === "video") && (
+              <div className="space-y-1.5">
+                <input value={mMedia} onChange={(e) => setMMedia(e.target.value)} inputMode="url" placeholder={mType === "audio" ? "Ссылка на аудио (Яндекс Музыка, файл .mp3…)" : "Ссылка на видео (YouTube, Rutube, VK Видео…)"} className={field} />
+                <p className="text-[11px] text-muted-foreground px-1">
+                  Вставьте ссылку — в карточке появится встроенный плеер. Загрузка файла с устройства — скоро.
+                </p>
+              </div>
+            )}
+            {(mType === "article" || mType === "practice" || mType === "collection") && (
+              <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={6} placeholder={mType === "practice" ? "Шаги практики — каждый с новой строки" : "Текст материала — абзацы с новой строки"} style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            )}
+            <input value={mCover} onChange={(e) => setMCover(e.target.value)} inputMode="url" placeholder="Ссылка на обложку-картинку (необязательно)" className={field} />
             <button
               onClick={publishMaterial}
               disabled={!mTitle.trim() || !mDesc.trim()}

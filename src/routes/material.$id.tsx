@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Bookmark, Play, Headphones, FileText, Sparkles } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { useAllContent } from "../lib/content";
+import { MediaEmbed } from "../components/MediaEmbed";
+import { parseMedia } from "../lib/embed";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
 
@@ -44,6 +46,7 @@ function MaterialPage() {
   }
 
   const saved = savedContentIds.includes(item.id);
+  const media = parseMedia(item.mediaUrl);
 
   return (
     <div className="px-6 space-y-6 pb-8">
@@ -55,16 +58,20 @@ function MaterialPage() {
         Темы
       </Link>
 
-      {/* Обложка / медиа */}
-      <div className="rounded-[2rem] overflow-hidden bg-cream ring-1 ring-border aspect-video flex items-center justify-center">
-        {item.cover ? (
-          <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-5xl opacity-70">
-            {item.type === "audio" ? "🎧" : item.type === "video" ? "🎬" : "🌿"}
-          </span>
-        )}
-      </div>
+      {/* Медиа: встроенный плеер по ссылке, иначе обложка */}
+      {media && media.kind !== "link" ? (
+        <MediaEmbed url={item.mediaUrl} />
+      ) : (
+        <div className="rounded-[2rem] overflow-hidden bg-cream ring-1 ring-border aspect-video flex items-center justify-center">
+          {item.cover ? (
+            <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-5xl opacity-70">
+              {item.type === "audio" ? "🎧" : item.type === "video" ? "🎬" : "🌿"}
+            </span>
+          )}
+        </div>
+      )}
 
       <div>
         <div className="flex items-center gap-2 text-accent">
@@ -83,20 +90,8 @@ function MaterialPage() {
         </p>
       </div>
 
-      {/* Плеер-заглушка для аудио/видео */}
-      {(item.type === "audio" || item.type === "video") && (
-        <div className="bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3">
-          <span className="size-10 rounded-full bg-primary-foreground/15 flex items-center justify-center">
-            {item.type === "audio" ? <Headphones className="size-5" /> : <Play className="size-5" />}
-          </span>
-          <div>
-            <p className="text-sm font-medium">
-              {item.type === "audio" ? "Аудио" : "Видео"} · {item.duration}
-            </p>
-            <p className="text-xs text-primary-foreground/70">Плеер появится в приложении</p>
-          </div>
-        </div>
-      )}
+      {/* Внешняя ссылка (сервис без встраивания) — кнопка «Открыть» */}
+      {media?.kind === "link" && <MediaEmbed url={item.mediaUrl} />}
 
       {/* Текст */}
       <div className="space-y-4">

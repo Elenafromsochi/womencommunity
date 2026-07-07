@@ -75,6 +75,8 @@ export interface ContentItem {
   author: string;
   duration?: string;
   cover?: string;
+  /** Ссылка на аудио/видео (YouTube, Rutube, VK, Яндекс Музыка, прямой файл…). */
+  mediaUrl?: string;
   date: string;
 }
 

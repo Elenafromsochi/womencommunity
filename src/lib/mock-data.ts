@@ -231,6 +231,16 @@ export const groups: Group[] = [
 
 export const contentItems: ContentItem[] = [
   {
+    id: "c-audio-demo", title: "Аудио: спокойное дыхание (пример)", type: "audio", topic: "Здоровье",
+    description: "Пример аудио-материала со встроенным плеером — нажмите ▶",
+    author: "Клуб", duration: "6 мин", date: "сегодня",
+    mediaUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    body: [
+      "Это пример аудио-материала. Эксперт вставляет ссылку на аудио или видео, и в карточке появляется встроенный плеер.",
+      "Так же работают видео (YouTube, Rutube, VK Видео) и музыка (Яндекс Музыка) — вставленные ссылкой.",
+    ],
+  },
+  {
     id: "c1", title: "Искусство малых ритуалов", type: "article", topic: "Личностный рост",
     description: "Как ежедневные маленькие практики меняют качество жизни",
     author: "Мария Вебер", duration: "8 мин", cover: coverWellness, date: "5 июня",

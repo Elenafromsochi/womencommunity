@@ -182,7 +182,7 @@ export const topicsForSphere = (id: SphereId): string[] =>
   SPHERE_TOPIC_ALIASES[id] ?? [];
 
 /** Темы для центра «Состояние» — практики и материалы на состояние. */
-export const STATE_TOPICS = ["Личностный рост", "Здоровье"];
+export const STATE_TOPICS = ["Состояние", "Личностный рост", "Здоровье"];
 
 /**
  * Общее «Состояние» (центр колеса) — среднее арифметическое из твоего
