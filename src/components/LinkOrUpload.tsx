@@ -14,6 +14,7 @@ export function LinkOrUpload({
   accept,
   folder,
   hint,
+  onDuration,
 }: {
   value: string;
   onChange: (url: string) => void;
@@ -21,6 +22,8 @@ export function LinkOrUpload({
   accept?: string;
   folder: string;
   hint?: string;
+  /** Для аудио/видео файла — вернёт длительность строкой «N мин». */
+  onDuration?: (label: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -30,6 +33,19 @@ export function LinkOrUpload({
 
   const onFile = async (file?: File) => {
     if (!file) return;
+    // Длительность аудио/видео — читаем из метаданных файла.
+    if (onDuration && /^(audio|video)\//.test(file.type)) {
+      const el = document.createElement(file.type.startsWith("video") ? "video" : "audio");
+      el.preload = "metadata";
+      const obj = URL.createObjectURL(file);
+      el.onloadedmetadata = () => {
+        if (isFinite(el.duration) && el.duration > 0) {
+          onDuration(`${Math.max(1, Math.round(el.duration / 60))} мин`);
+        }
+        URL.revokeObjectURL(obj);
+      };
+      el.src = obj;
+    }
     setBusy(true);
     try {
       const url = await uploadFile(file, folder);

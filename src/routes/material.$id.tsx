@@ -3,6 +3,7 @@ import { ArrowLeft, Heart, Play, Headphones, FileText, Sparkles } from "lucide-r
 import { useAppStore } from "../lib/store";
 import { useAllContent } from "../lib/content";
 import { MediaEmbed } from "../components/MediaEmbed";
+import { CoverPlaceholder } from "../components/CoverPlaceholder";
 import { parseMedia } from "../lib/embed";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
@@ -62,13 +63,11 @@ function MaterialPage() {
       {media && media.kind !== "link" ? (
         <MediaEmbed url={item.mediaUrl} />
       ) : (
-        <div className="rounded-[2rem] overflow-hidden bg-cream ring-1 ring-border aspect-video flex items-center justify-center">
+        <div className="rounded-[2rem] overflow-hidden ring-1 ring-border aspect-video">
           {item.cover ? (
             <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-5xl opacity-70">
-              {item.type === "audio" ? "🎧" : item.type === "video" ? "🎬" : "🌿"}
-            </span>
+            <CoverPlaceholder title={item.title} topic={item.topic} type={item.type} className="w-full h-full" />
           )}
         </div>
       )}

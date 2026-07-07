@@ -28,9 +28,8 @@ const TOPICS = [
 
 const TYPES: { key: ContentType; label: string }[] = [
   { key: "article", label: "Статья" },
-  { key: "practice", label: "Практика" },
-  { key: "audio", label: "Аудио" },
   { key: "video", label: "Видео" },
+  { key: "audio", label: "Аудио" },
   { key: "collection", label: "Подборка" },
 ];
 
@@ -56,6 +55,11 @@ function MentorDashboard() {
   const [mBody, setMBody] = useState("");
   const [mMedia, setMMedia] = useState("");
   const [mCover, setMCover] = useState("");
+  // Примерное время чтения статьи по числу слов (~170 слов/мин).
+  const readingMin = Math.max(
+    1,
+    Math.round(mBody.trim().split(/\s+/).filter(Boolean).length / 170),
+  );
 
   // Форма мероприятия
   const [eTitle, setETitle] = useState("");
@@ -73,7 +77,10 @@ function MentorDashboard() {
       topic: mTopic,
       description: mDesc.trim(),
       body: mBody.trim() ? mBody.trim().split(/\n+/) : undefined,
-      duration: mDuration.trim() || undefined,
+      duration:
+        mType === "article" && mBody.trim()
+          ? `${readingMin} мин чтения`
+          : mDuration.trim() || undefined,
       mediaUrl: mMedia.trim() || undefined,
       cover: mCover.trim() || undefined,
     });
@@ -159,37 +166,54 @@ function MentorDashboard() {
                 ))}
               </select>
             </div>
-            <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 15 мин (необязательно)" className={field} />
-            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Короткое описание — что внутри (видно на карточке)" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            <textarea value={mDesc} onChange={(e) => setMDesc(e.target.value)} rows={2} placeholder="Очень кратко, одним предложением — что это и зачем" style={{ textTransform: "none" }} className={`${field} resize-none`} />
 
-            {/* Медиа: ссылка ИЛИ файл (видео, аудио, PDF) */}
-            <div>
-              <p className="text-xs font-medium mb-1.5">Видео / аудио / PDF</p>
-              <LinkOrUpload
-                value={mMedia}
-                onChange={setMMedia}
-                folder="media"
-                accept="audio/*,video/*,application/pdf"
-                placeholder="Ссылка (YouTube, Rutube, VK, Яндекс Музыка…)"
-                hint="Вставьте ссылку — будет встроенный плеер. Или загрузите файл (аудио, PDF, видео)."
-              />
-            </div>
-
-            {/* Текст — для статьи/практики/подборки */}
-            {(mType === "article" || mType === "practice" || mType === "collection") && (
-              <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={6} placeholder={mType === "practice" ? "Шаги практики — каждый с новой строки" : "Текст материала — абзацы с новой строки"} style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            {/* Статья: текст или файл-документ */}
+            {mType === "article" && (
+              <>
+                <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={7} placeholder="Текст статьи — абзацы с новой строки" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+                {mBody.trim() && (
+                  <p className="text-[11px] text-muted-foreground px-1">≈ {readingMin} мин чтения — посчитаем сами</p>
+                )}
+                <div>
+                  <p className="text-xs font-medium mb-1.5">…или загрузите документ (PDF)</p>
+                  <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="application/pdf" placeholder="Ссылка на PDF (необязательно)" hint="Если это PDF — статья откроется документом, участница сможет сохранить и распечатать." />
+                </div>
+              </>
             )}
 
-            {/* Обложка: ссылка или картинка-файл */}
+            {/* Видео */}
+            {mType === "video" && (
+              <div>
+                <p className="text-xs font-medium mb-1.5">Видео</p>
+                <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="video/*" placeholder="Ссылка на видео (YouTube, Rutube, VK Видео…)" hint="Вставьте ссылку — будет встроенный плеер. Или загрузите свой видеофайл." onDuration={setMDuration} />
+              </div>
+            )}
+
+            {/* Аудио */}
+            {mType === "audio" && (
+              <div>
+                <p className="text-xs font-medium mb-1.5">Аудио</p>
+                <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="audio/*" placeholder="Ссылка на аудио (Яндекс Музыка, файл .mp3…)" hint="Вставьте ссылку или загрузите файл — длительность посчитаем сами." onDuration={setMDuration} />
+                {mDuration && <p className="text-[11px] text-muted-foreground px-1">Длительность: {mDuration}</p>}
+              </div>
+            )}
+
+            {/* Подборка: текст + любое медиа */}
+            {mType === "collection" && (
+              <>
+                <textarea value={mBody} onChange={(e) => setMBody(e.target.value)} rows={5} placeholder="Описание подборки — абзацы с новой строки" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+                <div>
+                  <p className="text-xs font-medium mb-1.5">Медиа (необязательно)</p>
+                  <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="audio/*,video/*,application/pdf" placeholder="Ссылка или файл (видео, аудио, PDF)" onDuration={setMDuration} />
+                </div>
+              </>
+            )}
+
+            {/* Обложка */}
             <div>
               <p className="text-xs font-medium mb-1.5">Обложка (необязательно)</p>
-              <LinkOrUpload
-                value={mCover}
-                onChange={setMCover}
-                folder="covers"
-                accept="image/*"
-                placeholder="Ссылка на картинку"
-              />
+              <LinkOrUpload value={mCover} onChange={setMCover} folder="covers" accept="image/*" placeholder="Ссылка на картинку" hint="Нет обложки? Подставим красивую в едином стиле клуба." />
             </div>
             <button
               onClick={publishMaterial}
