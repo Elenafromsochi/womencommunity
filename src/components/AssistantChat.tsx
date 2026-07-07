@@ -3,17 +3,25 @@ import { Send } from "lucide-react";
 import { askAssistant, type AssistantMessage, type AssistantContext } from "../lib/assistant";
 import { renderWithLinks } from "../lib/assistant-links";
 import { VoiceInput } from "./VoiceInput";
+import { useAppStore } from "../lib/store";
+
+const EMPTY: AssistantMessage[] = [];
 
 /** Тёплый ИИ-помощник (YandexGPT через Яндекс Cloud Function). */
 export function AssistantChat({
   context,
   seed,
+  threadId,
 }: {
   context: AssistantContext;
   /** Готовое сообщение (например, «обсудить запись дневника») — отправится само. */
   seed?: string;
+  /** Идентификатор диалога: сфера ("finance"…) или "state". Память хранится по нему. */
+  threadId: string;
 }) {
-  const [messages, setMessages] = useState<AssistantMessage[]>([]);
+  // Сообщения диалога живут в сторе (сохраняются в облако) — помощник помнит контекст.
+  const messages = useAppStore((s) => s.assistantThreads[threadId] ?? EMPTY);
+  const addAssistantMessage = useAppStore((s) => s.addAssistantMessage);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,13 +42,15 @@ export function AssistantChat({
     if (!text || busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
-    let sent: AssistantMessage[] = [];
-    setMessages((prev) => {
-      sent = [...prev, { role: "user" as const, text }];
-      return sent;
-    });
+    // Вся прошлая переписка этого диалога уходит в запрос — контекст продолжается.
+    const history = useAppStore.getState().assistantThreads[threadId] ?? EMPTY;
+    const sent: AssistantMessage[] = [...history, { role: "user", text }];
+    addAssistantMessage(threadId, { role: "user", text });
     const { reply, error } = await askAssistant(sent, context);
-    setMessages([...sent, { role: "assistant", text: error ?? reply ?? "Я рядом." }]);
+    addAssistantMessage(threadId, {
+      role: "assistant",
+      text: error ?? reply ?? "Я рядом.",
+    });
     busyRef.current = false;
     setBusy(false);
     requestAnimationFrame(() =>

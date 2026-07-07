@@ -7,6 +7,7 @@ import { contentItems, mentors, events } from "../lib/mock-data";
 import type { SphereId, PathStepItem } from "../lib/types";
 import { Scale } from "../components/Scale";
 import { VoiceInput } from "../components/VoiceInput";
+import { AssistantChat } from "../components/AssistantChat";
 import { deriveTags } from "../lib/tags";
 import { toast } from "sonner";
 
@@ -511,6 +512,23 @@ function SpherePage() {
             Материалы по этой сфере скоро появятся.
           </p>
         )}
+
+      {/* Помощник по этой сфере — свой диалог, помнит прошлые разговоры о ней */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-2">
+          Поговорить о сфере «{sphere.name}» — помощник помнит ваши прошлые разговоры о ней.
+        </p>
+        <AssistantChat
+          threadId={sphereId as SphereId}
+          context={{
+            focus: [sphere.name],
+            state: score ?? null,
+            materials: relatedContent
+              .slice(0, 6)
+              .map((c) => ({ id: c.id, title: c.title, topic: c.topic })),
+          }}
+        />
+      </div>
 
       {/* Рефлексия после переоценки — сохраняется в дневник с тегом сферы */}
       {reflect && (

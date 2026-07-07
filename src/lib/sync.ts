@@ -38,6 +38,8 @@ export interface CloudState {
   sphereSteps?: PathStepItem[];
   /** Дневник состояния. */
   journalEntries: JournalEntry[];
+  /** Диалоги с помощником по сферам (и «state») — память между заходами. */
+  assistantThreads?: Record<string, { role: "user" | "assistant"; text: string }[]>;
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

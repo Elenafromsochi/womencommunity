@@ -262,7 +262,7 @@ function StatePage() {
 
       {/* ИИ-помощник */}
       <div id="assistant" ref={assistantRef} className="scroll-mt-4">
-        <AssistantChat context={assistantContext} seed={discussSeed} />
+        <AssistantChat context={assistantContext} seed={discussSeed} threadId="state" />
       </div>
     </div>
   );

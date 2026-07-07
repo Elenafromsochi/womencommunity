@@ -13,6 +13,7 @@ import type {
   PathStepItem,
 } from "./types";
 import type { CloudState } from "./sync";
+import type { AssistantMessage } from "./assistant";
 import { mockUser } from "./mock-data";
 import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
 import { defaultCycle, recomputeAvgCycleLength } from "./cycle";
@@ -104,6 +105,11 @@ interface AppState {
     mood?: number,
     opts?: { sphereId?: SphereId; tags?: string[] },
   ) => void;
+
+  // ===== Память помощника: отдельный диалог на каждую сферу + «state» =====
+  assistantThreads: Record<string, AssistantMessage[]>;
+  addAssistantMessage: (threadId: string, msg: AssistantMessage) => void;
+  clearAssistantThread: (threadId: string) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -128,6 +134,7 @@ const defaultUserData = {
   focusSpheres: [] as SphereId[],
   sphereSteps: [] as PathStepItem[],
   journalEntries: [] as JournalEntry[],
+  assistantThreads: {} as Record<string, AssistantMessage[]>,
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -150,6 +157,7 @@ export function selectCloudState(s: AppState): CloudState {
     focusSpheres: s.focusSpheres,
     sphereSteps: s.sphereSteps,
     journalEntries: s.journalEntries,
+    assistantThreads: s.assistantThreads,
   };
 }
 
@@ -376,5 +384,18 @@ export const useAppStore = create<AppState>()((set, get) => ({
         },
         ...state.journalEntries,
       ],
+    })),
+
+  assistantThreads: {},
+  addAssistantMessage: (threadId, msg) =>
+    set((state) => ({
+      assistantThreads: {
+        ...state.assistantThreads,
+        [threadId]: [...(state.assistantThreads[threadId] ?? []), msg],
+      },
+    })),
+  clearAssistantThread: (threadId) =>
+    set((state) => ({
+      assistantThreads: { ...state.assistantThreads, [threadId]: [] },
     })),
 }));
