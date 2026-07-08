@@ -34,6 +34,19 @@ export function MediaEmbed({ url }: { url?: string }) {
     );
   }
 
+  if (media.kind === "videofile") {
+    return (
+      <video
+        controls
+        preload="metadata"
+        src={media.src}
+        className="w-full rounded-[2rem] ring-1 ring-border bg-black aspect-video"
+      >
+        Ваш браузер не поддерживает видео.
+      </video>
+    );
+  }
+
   if (media.kind === "audio") {
     return (
       <audio controls preload="none" src={media.src} className="w-full">

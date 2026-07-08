@@ -1,8 +1,11 @@
 import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, Eye, X, Pencil } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { LinkOrUpload } from "../components/LinkOrUpload";
+import { MediaEmbed } from "../components/MediaEmbed";
+import { CoverPlaceholder } from "../components/CoverPlaceholder";
+import { parseMedia } from "../lib/embed";
 import type { ContentType } from "../lib/types";
 import { toast } from "sonner";
 
@@ -58,6 +61,8 @@ function MentorDashboard() {
   const [mCover, setMCover] = useState("");
   const [showMForm, setShowMForm] = useState(false);
   const [showEForm, setShowEForm] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const profile = useAppStore((s) => s.profile);
   // Примерное время чтения статьи по числу слов (~170 слов/мин).
   const readingMin = Math.max(
     1,
@@ -97,7 +102,8 @@ function MentorDashboard() {
     setMMedia("");
     setMCover("");
     setShowMForm(false);
-    toast.success("Материал опубликован — он уже в ленте клуба");
+    setPreview(false);
+    toast.success("Материал добавлен в ленту клуба");
   };
 
   const publishEvent = () => {
@@ -204,12 +210,12 @@ function MentorDashboard() {
               <LinkOrUpload value={mCover} onChange={setMCover} folder="covers" accept="image/*" placeholder="Ссылка на картинку" hint="Нет обложки? Подставим красивую в едином стиле клуба." />
             </div>
             <button
-              onClick={publishMaterial}
+              onClick={() => setPreview(true)}
               disabled={!mTitle.trim() || !mDesc.trim()}
               className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
             >
-              <Plus className="size-4" />
-              Опубликовать
+              <Eye className="size-4" />
+              Предпросмотр карточки
             </button>
           </section>
           )}
@@ -307,6 +313,75 @@ function MentorDashboard() {
             )}
           </div>
         </>
+      )}
+
+      {/* Предпросмотр карточки перед добавлением в ленту */}
+      {preview && (
+        <div className="fixed inset-0 z-50 bg-black/50 overflow-y-auto">
+          <div className="min-h-full flex items-start justify-center p-3">
+            <div className="w-full max-w-md bg-background rounded-[2rem] ring-1 ring-border overflow-hidden mb-24">
+              <div className="px-5 pt-4 pb-2 flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Как увидят участницы
+                </span>
+                <button onClick={() => setPreview(false)} aria-label="Закрыть" className="text-muted-foreground">
+                  <X className="size-5" />
+                </button>
+              </div>
+              <div className="px-5 pb-5 space-y-4">
+                {(() => {
+                  const pv = parseMedia(mMedia);
+                  return pv && pv.kind !== "link" ? (
+                    <MediaEmbed url={mMedia} />
+                  ) : mCover ? (
+                    <img src={mCover} alt="" className="w-full aspect-video object-cover rounded-[2rem] ring-1 ring-border" />
+                  ) : (
+                    <div className="rounded-[2rem] overflow-hidden ring-1 ring-border aspect-video">
+                      <CoverPlaceholder title={mTitle} topic={mTopic} type={mType} className="w-full h-full" />
+                    </div>
+                  );
+                })()}
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-accent font-medium">
+                    {TYPES.find((t) => t.key === mType)?.label} · {mTopic}
+                    {mType === "article" && mBody.trim()
+                      ? ` · ${readingMin} мин чтения`
+                      : mDuration
+                        ? ` · ${mDuration}`
+                        : ""}
+                  </p>
+                  <h1 className="font-[Lora] text-2xl leading-tight mt-1">{mTitle}</h1>
+                  <p className="text-sm text-muted-foreground mt-1">{profile.name}</p>
+                </div>
+                {mDesc && <p className="text-sm text-muted-foreground leading-relaxed">{mDesc}</p>}
+                {mBody.trim() && (
+                  <div className="space-y-3">
+                    {mBody.trim().split(/\n+/).map((p, i) => (
+                      <p key={i} className="text-[15px] leading-relaxed text-foreground/90">{p}</p>
+                    ))}
+                  </div>
+                )}
+                {parseMedia(mMedia)?.kind === "link" && <MediaEmbed url={mMedia} />}
+              </div>
+              <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border p-3 flex gap-2">
+                <button
+                  onClick={() => setPreview(false)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-sm ring-1 ring-border text-foreground"
+                >
+                  <Pencil className="size-4" />
+                  Редактировать
+                </button>
+                <button
+                  onClick={publishMaterial}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground"
+                >
+                  <Plus className="size-4" />
+                  В ленту
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="text-center py-2">
