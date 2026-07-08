@@ -99,6 +99,9 @@ function ProfilePage() {
       {/* Экспертная страница — только для наставника */}
       {role === "mentor" && <ExpertPageEditor />}
 
+      {/* Участнический профиль — только в роли участницы */}
+      {role === "member" && (
+      <>
       {/* Колесо баланса */}
       <section className="flex flex-col items-center">
         <h2 className="font-[Lora] text-xl self-start mb-2">Колесо баланса</h2>
@@ -239,6 +242,8 @@ function ProfilePage() {
           </div>
         )}
       </section>
+      </>
+      )}
 
       {/* Role switcher */}
       <section className="space-y-3">
