@@ -9,6 +9,8 @@ import {
   MessageCircle,
   Settings,
   ChevronRight,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { useAuth } from "../lib/auth";
@@ -93,6 +95,9 @@ function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Экспертная страница — только для наставника */}
+      {role === "mentor" && <ExpertPageEditor />}
 
       {/* Колесо баланса */}
       <section className="flex flex-col items-center">
@@ -310,5 +315,47 @@ function StatCard({
         {label}
       </span>
     </div>
+  );
+}
+
+const efield =
+  "w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary";
+
+/** Редактор экспертной страницы — в профиле наставника. */
+function ExpertPageEditor() {
+  const ep = useAppStore((s) => s.expertProfile);
+  const update = useAppStore((s) => s.updateExpertProfile);
+  return (
+    <section className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
+      <div>
+        <h2 className="font-[Lora] text-lg">Моя страница эксперта</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Так вас увидят участницы в разделе «Наставники».
+        </p>
+      </div>
+      <input value={ep.specialization ?? ""} onChange={(e) => update({ specialization: e.target.value })} placeholder="Специализация — напр. Психолог, коуч по деньгам" className={efield} />
+      <input value={ep.tagline ?? ""} onChange={(e) => update({ tagline: e.target.value })} placeholder="Коротко о вас, одной строкой" className={efield} />
+      <textarea value={ep.offer ?? ""} onChange={(e) => update({ offer: e.target.value })} rows={3} placeholder="Чем могу помочь — услуги, консультации, форматы" style={{ textTransform: "none" }} className={`${efield} resize-none`} />
+      <textarea value={ep.about ?? ""} onChange={(e) => update({ about: e.target.value })} rows={4} placeholder="Подробнее о вашем опыте и подходе" style={{ textTransform: "none" }} className={`${efield} resize-none`} />
+      <input value={ep.contact ?? ""} onChange={(e) => update({ contact: e.target.value })} inputMode="url" placeholder="Как связаться: телеграм, почта или ссылка" className={efield} />
+      <button
+        onClick={() => {
+          update({ published: !ep.published });
+          toast.success(ep.published ? "Страница скрыта" : "Страница видна участницам");
+        }}
+        disabled={!ep.specialization?.trim()}
+        className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-full text-sm font-medium border transition-all disabled:opacity-40 ${
+          ep.published ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border"
+        }`}
+      >
+        {ep.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+        {ep.published ? "Видна участницам" : "Показать участницам"}
+      </button>
+      {ep.published && (
+        <Link to="/mentors/$mentorId" params={{ mentorId: "me" }} className="block text-center text-xs text-accent">
+          Посмотреть, как это выглядит →
+        </Link>
+      )}
+    </section>
   );
 }

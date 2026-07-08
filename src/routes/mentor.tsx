@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar, UserRound, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { LinkOrUpload } from "../components/LinkOrUpload";
 import type { ContentType } from "../lib/types";
@@ -36,17 +36,10 @@ const field =
   "w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary";
 
 function MentorDashboard() {
-  // Активная вкладка — из хэша адреса (чтобы нижняя навигация открывала нужную).
+  // Раздел — из хэша адреса (нижняя навигация переключает Материалы/События).
   const { location } = useRouterState();
-  const navigate = useNavigate();
-  const tab = (["material", "event", "profile"].includes(location.hash)
-    ? location.hash
-    : "material") as "material" | "event" | "profile";
-  const setTab = (key: "material" | "event" | "profile") =>
-    navigate({ to: "/mentor", hash: key });
+  const tab = location.hash === "event" ? "event" : "material";
 
-  const expertProfile = useAppStore((s) => s.expertProfile);
-  const updateExpertProfile = useAppStore((s) => s.updateExpertProfile);
   const myMaterials = useAppStore((s) => s.myMaterials);
   const addMyMaterial = useAppStore((s) => s.addMyMaterial);
   const removeMyMaterial = useAppStore((s) => s.removeMyMaterial);
@@ -63,6 +56,8 @@ function MentorDashboard() {
   const [mBody, setMBody] = useState("");
   const [mMedia, setMMedia] = useState("");
   const [mCover, setMCover] = useState("");
+  const [showMForm, setShowMForm] = useState(false);
+  const [showEForm, setShowEForm] = useState(false);
   // Примерное время чтения статьи по числу слов (~170 слов/мин).
   const readingMin = Math.max(
     1,
@@ -101,6 +96,7 @@ function MentorDashboard() {
     setMDuration("");
     setMMedia("");
     setMCover("");
+    setShowMForm(false);
     toast.success("Материал опубликован — он уже в ленте клуба");
   };
 
@@ -125,6 +121,7 @@ function MentorDashboard() {
     setEPrice("");
     setESpots("");
     setEPayUrl("");
+    setShowEForm(false);
     toast.success("Мероприятие создано — оно уже в «Событиях»");
   };
 
@@ -140,37 +137,21 @@ function MentorDashboard() {
         <span className="font-[Lora] text-lg">Кабинет наставника</span>
       </div>
 
-      <div className="bg-cream p-5 rounded-[2rem] ring-1 ring-border">
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Здесь вы создаёте пользу для клуба. Всё, что вы публикуете, сразу
-          появляется у участниц — в ленте на главной, в темах и «Событиях».
-        </p>
-      </div>
-
-      {/* Табы */}
-      <div className="flex gap-1 bg-card ring-1 ring-border rounded-full p-1">
-        {[
-          { key: "material" as const, label: "Материалы", Icon: FileText },
-          { key: "event" as const, label: "События", Icon: Calendar },
-          { key: "profile" as const, label: "Моя страница", Icon: UserRound },
-        ].map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-full text-xs font-medium transition-colors ${
-              tab === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-            }`}
-          >
-            <t.Icon className="size-3.5" />
-            {t.label}
-          </button>
-        ))}
-      </div>
-
       {tab === "material" && (
         <>
+          <div className="flex items-center justify-between">
+            <h2 className="font-[Lora] text-xl">Мои материалы</h2>
+            <button
+              onClick={() => setShowMForm((v) => !v)}
+              className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-full"
+            >
+              <Plus className="size-4" />
+              {showMForm ? "Свернуть" : "Добавить"}
+            </button>
+          </div>
+
+          {showMForm && (
           <section className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
-            <h2 className="font-[Lora] text-lg">Новый материал</h2>
             <input value={mTitle} onChange={(e) => setMTitle(e.target.value)} placeholder="Название" className={field} />
             <div className="grid grid-cols-2 gap-2">
               <select value={mType} onChange={(e) => setMType(e.target.value as ContentType)} className={field}>
@@ -231,11 +212,11 @@ function MentorDashboard() {
               Опубликовать
             </button>
           </section>
+          )}
 
-          <section className="space-y-2">
-            <h2 className="font-[Lora] text-lg">Мои материалы</h2>
+          <div className="space-y-2">
             {myMaterials.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">Пока ничего не опубликовано.</p>
+              <p className="text-sm text-muted-foreground py-2">Пока ничего не опубликовано. Нажмите «Добавить».</p>
             ) : (
               myMaterials.map((c) => (
                 <div key={c.id} className="bg-card ring-1 ring-border rounded-2xl p-4 flex items-center gap-3">
@@ -252,14 +233,25 @@ function MentorDashboard() {
                 </div>
               ))
             )}
-          </section>
+          </div>
         </>
       )}
 
       {tab === "event" && (
         <>
+          <div className="flex items-center justify-between">
+            <h2 className="font-[Lora] text-xl">Мои мероприятия</h2>
+            <button
+              onClick={() => setShowEForm((v) => !v)}
+              className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-full"
+            >
+              <Plus className="size-4" />
+              {showEForm ? "Свернуть" : "Добавить"}
+            </button>
+          </div>
+
+          {showEForm && (
           <section className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
-            <h2 className="font-[Lora] text-lg">Новое мероприятие</h2>
             <input value={eTitle} onChange={(e) => setETitle(e.target.value)} placeholder="Название встречи" className={field} />
             <div className="grid grid-cols-2 gap-2">
               <input value={eDate} onChange={(e) => setEDate(e.target.value)} placeholder="Дата, напр. 20 июля" className={field} />
@@ -292,11 +284,11 @@ function MentorDashboard() {
               Создать
             </button>
           </section>
+          )}
 
-          <section className="space-y-2">
-            <h2 className="font-[Lora] text-lg">Мои мероприятия</h2>
+          <div className="space-y-2">
             {myEvents.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">Пока нет мероприятий.</p>
+              <p className="text-sm text-muted-foreground py-2">Пока нет мероприятий. Нажмите «Добавить».</p>
             ) : (
               myEvents.map((e) => (
                 <div key={e.id} className="bg-card ring-1 ring-border rounded-2xl p-4 flex items-center gap-3">
@@ -313,41 +305,8 @@ function MentorDashboard() {
                 </div>
               ))
             )}
-          </section>
-        </>
-      )}
-
-      {tab === "profile" && (
-        <section className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
-          <div>
-            <h2 className="font-[Lora] text-lg">Ваша страница эксперта</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Так вас увидят участницы в разделе «Наставники».</p>
           </div>
-          <input value={expertProfile.specialization ?? ""} onChange={(e) => updateExpertProfile({ specialization: e.target.value })} placeholder="Специализация — напр. Психолог, коуч по деньгам" className={field} />
-          <input value={expertProfile.tagline ?? ""} onChange={(e) => updateExpertProfile({ tagline: e.target.value })} placeholder="Коротко о вас, одной строкой" className={field} />
-          <textarea value={expertProfile.offer ?? ""} onChange={(e) => updateExpertProfile({ offer: e.target.value })} rows={3} placeholder="Чем могу помочь — услуги, консультации, форматы" style={{ textTransform: "none" }} className={`${field} resize-none`} />
-          <textarea value={expertProfile.about ?? ""} onChange={(e) => updateExpertProfile({ about: e.target.value })} rows={4} placeholder="Подробнее о вашем опыте и подходе" style={{ textTransform: "none" }} className={`${field} resize-none`} />
-          <input value={expertProfile.contact ?? ""} onChange={(e) => updateExpertProfile({ contact: e.target.value })} inputMode="url" placeholder="Как связаться: телеграм, почта или ссылка" className={field} />
-
-          <button
-            onClick={() => {
-              updateExpertProfile({ published: !expertProfile.published });
-              toast.success(expertProfile.published ? "Страница скрыта" : "Страница видна участницам");
-            }}
-            disabled={!expertProfile.specialization?.trim()}
-            className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-full text-sm font-medium border transition-all disabled:opacity-40 ${
-              expertProfile.published ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border"
-            }`}
-          >
-            {expertProfile.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-            {expertProfile.published ? "Видна участницам" : "Показать участницам"}
-          </button>
-          {expertProfile.published && (
-            <Link to="/mentors/$mentorId" params={{ mentorId: "me" }} className="block text-center text-xs text-accent">
-              Посмотреть, как это выглядит →
-            </Link>
-          )}
-        </section>
+        </>
       )}
 
       <div className="text-center py-2">
