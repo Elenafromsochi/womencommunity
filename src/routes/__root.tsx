@@ -35,9 +35,18 @@ function Loader() {
   );
 }
 
+// Фон приложения зависит от роли — чтобы режимы не путались.
+const ROLE_BG: Record<string, string | undefined> = {
+  member: undefined, // участница — обычный светлый фон
+  mentor: "hsl(38 44% 92%)", // эксперт — бежевый
+  curator: "hsl(150 26% 92%)", // куратор — мягкий шалфейный
+  admin: "hsl(280 24% 94%)", // администратор — лавандовый
+};
+
 function RootComponent() {
   const { session, loading } = useAuth();
   const hydrated = useAppStore((s) => s.hydrated);
+  const role = useAppStore((s) => s.role);
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const { location } = useRouterState();
   const navigate = useNavigate();
@@ -63,7 +72,10 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <div className="mobile-shell flex flex-col">
+      <div
+        className="mobile-shell flex flex-col"
+        style={ROLE_BG[role] ? { background: ROLE_BG[role] } : undefined}
+      >
         {!hideChrome && <AppHeader />}
         <main className="flex-1 overflow-y-auto no-scrollbar">
           <Outlet />
