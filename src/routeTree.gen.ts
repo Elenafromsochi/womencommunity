@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
+import { Route as StudioRouteImport } from './routes/studio'
 import { Route as StateRouteImport } from './routes/state'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -34,6 +35,11 @@ import { Route as EventsEventIdRouteImport } from './routes/events_.$eventId'
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
   path: '/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StateRoute = StateRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
+  '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
+  '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
+  '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
   '/events_/$eventId': typeof EventsEventIdRoute
   '/groups_/$groupId': typeof GroupsGroupIdRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/state'
+    | '/studio'
     | '/topics'
     | '/events/$eventId'
     | '/groups/$groupId'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/state'
+    | '/studio'
     | '/topics'
     | '/events/$eventId'
     | '/groups/$groupId'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/profile'
     | '/state'
+    | '/studio'
     | '/topics'
     | '/events_/$eventId'
     | '/groups_/$groupId'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   StateRoute: typeof StateRoute
+  StudioRoute: typeof StudioRoute
   TopicsRoute: typeof TopicsRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   GroupsGroupIdRoute: typeof GroupsGroupIdRoute
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/topics'
       fullPath: '/topics'
       preLoaderRoute: typeof TopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/state': {
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   StateRoute: StateRoute,
+  StudioRoute: StudioRoute,
   TopicsRoute: TopicsRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   GroupsGroupIdRoute: GroupsGroupIdRoute,

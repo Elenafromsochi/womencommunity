@@ -244,7 +244,7 @@ function ProfilePage() {
         <div className="space-y-2">
           {[
             { key: "member" as const, label: "Участница", desc: "Основной интерфейс", to: "/" },
-            { key: "mentor" as const, label: "Наставник", desc: "Кабинет наставника", to: "/mentor" },
+            { key: "mentor" as const, label: "Наставник", desc: "Студия наставника", to: "/studio" },
             { key: "curator" as const, label: "Куратор", desc: "Кабинет куратора", to: "/curator" },
             { key: "admin" as const, label: "Администратор", desc: "Панель управления", to: "/admin" },
           ].map((r) => (

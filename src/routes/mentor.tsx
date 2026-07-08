@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar, UserRound, Eye, EyeOff } from "lucide-react";
 import { useAppStore } from "../lib/store";
@@ -36,7 +36,14 @@ const field =
   "w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary";
 
 function MentorDashboard() {
-  const [tab, setTab] = useState<"material" | "event" | "profile">("material");
+  // Активная вкладка — из хэша адреса (чтобы нижняя навигация открывала нужную).
+  const { location } = useRouterState();
+  const navigate = useNavigate();
+  const tab = (["material", "event", "profile"].includes(location.hash)
+    ? location.hash
+    : "material") as "material" | "event" | "profile";
+  const setTab = (key: "material" | "event" | "profile") =>
+    navigate({ to: "/mentor", hash: key });
 
   const expertProfile = useAppStore((s) => s.expertProfile);
   const updateExpertProfile = useAppStore((s) => s.updateExpertProfile);
