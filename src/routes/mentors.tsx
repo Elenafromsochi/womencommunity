@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, Calendar, Star, Users } from "lucide-react";
-import { mentors } from "../lib/mock-data";
+import { useAllMentors } from "../lib/content";
 import { useAppStore } from "../lib/store";
 
 export const Route = createFileRoute("/mentors")({
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/mentors")({
 
 function MentorsPage() {
   const savedMentorIds = useAppStore((s) => s.savedMentorIds);
+  const mentors = useAllMentors();
 
   return (
     <div className="px-6 space-y-6 pb-4">

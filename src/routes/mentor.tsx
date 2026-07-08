@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, FileText, Calendar, UserRound, Eye, EyeOff } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { LinkOrUpload } from "../components/LinkOrUpload";
 import type { ContentType } from "../lib/types";
@@ -36,8 +36,10 @@ const field =
   "w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary";
 
 function MentorDashboard() {
-  const [tab, setTab] = useState<"material" | "event">("material");
+  const [tab, setTab] = useState<"material" | "event" | "profile">("material");
 
+  const expertProfile = useAppStore((s) => s.expertProfile);
+  const updateExpertProfile = useAppStore((s) => s.updateExpertProfile);
   const myMaterials = useAppStore((s) => s.myMaterials);
   const addMyMaterial = useAppStore((s) => s.addMyMaterial);
   const removeMyMaterial = useAppStore((s) => s.removeMyMaterial);
@@ -67,6 +69,9 @@ function MentorDashboard() {
   const [eType, setEType] = useState<"online" | "offline">("online");
   const [ePlace, setEPlace] = useState("");
   const [eDesc, setEDesc] = useState("");
+  const [ePrice, setEPrice] = useState("");
+  const [eSpots, setESpots] = useState("");
+  const [ePayUrl, setEPayUrl] = useState("");
 
   const publishMaterial = () => {
     if (!mTitle.trim() || !mDesc.trim()) return;
@@ -101,12 +106,18 @@ function MentorDashboard() {
       description: eDesc.trim(),
       type: eType,
       location: ePlace.trim() || undefined,
+      price: ePrice.trim() ? Math.max(0, parseInt(ePrice, 10) || 0) : 0,
+      spots: eSpots.trim() ? Math.max(1, parseInt(eSpots, 10) || 20) : undefined,
+      paymentUrl: ePayUrl.trim() || undefined,
     });
     setETitle("");
     setEDate("");
     setETime("");
     setEPlace("");
     setEDesc("");
+    setEPrice("");
+    setESpots("");
+    setEPayUrl("");
     toast.success("Мероприятие создано — оно уже в «Событиях»");
   };
 
@@ -130,19 +141,20 @@ function MentorDashboard() {
       </div>
 
       {/* Табы */}
-      <div className="flex gap-2 bg-card ring-1 ring-border rounded-full p-1">
+      <div className="flex gap-1 bg-card ring-1 ring-border rounded-full p-1">
         {[
           { key: "material" as const, label: "Материалы", Icon: FileText },
-          { key: "event" as const, label: "Мероприятия", Icon: Calendar },
+          { key: "event" as const, label: "События", Icon: Calendar },
+          { key: "profile" as const, label: "Моя страница", Icon: UserRound },
         ].map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-full text-xs font-medium transition-colors ${
               tab === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
             }`}
           >
-            <t.Icon className="size-4" />
+            <t.Icon className="size-3.5" />
             {t.label}
           </button>
         ))}
@@ -254,6 +266,16 @@ function MentorDashboard() {
               <input value={ePlace} onChange={(e) => setEPlace(e.target.value)} placeholder="Место / ссылка" className={field} />
             </div>
             <textarea value={eDesc} onChange={(e) => setEDesc(e.target.value)} rows={4} placeholder="О чём встреча" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+            <div className="grid grid-cols-2 gap-2">
+              <input value={ePrice} onChange={(e) => setEPrice(e.target.value)} inputMode="numeric" placeholder="Цена, ₽ (0 — бесплатно)" className={field} />
+              <input value={eSpots} onChange={(e) => setESpots(e.target.value)} inputMode="numeric" placeholder="Мест всего" className={field} />
+            </div>
+            {ePrice.trim() && ePrice.trim() !== "0" && (
+              <div>
+                <input value={ePayUrl} onChange={(e) => setEPayUrl(e.target.value)} inputMode="url" placeholder="Ссылка на оплату (ЮKassa, Продамус, бот…)" className={field} />
+                <p className="text-[11px] text-muted-foreground px-1 mt-1">Участница нажмёт «Оплатить участие» и перейдёт по этой ссылке.</p>
+              </div>
+            )}
             <button
               onClick={publishEvent}
               disabled={!eTitle.trim() || !eDate.trim() || !eTime.trim()}
@@ -286,6 +308,39 @@ function MentorDashboard() {
             )}
           </section>
         </>
+      )}
+
+      {tab === "profile" && (
+        <section className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
+          <div>
+            <h2 className="font-[Lora] text-lg">Ваша страница эксперта</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Так вас увидят участницы в разделе «Наставники».</p>
+          </div>
+          <input value={expertProfile.specialization ?? ""} onChange={(e) => updateExpertProfile({ specialization: e.target.value })} placeholder="Специализация — напр. Психолог, коуч по деньгам" className={field} />
+          <input value={expertProfile.tagline ?? ""} onChange={(e) => updateExpertProfile({ tagline: e.target.value })} placeholder="Коротко о вас, одной строкой" className={field} />
+          <textarea value={expertProfile.offer ?? ""} onChange={(e) => updateExpertProfile({ offer: e.target.value })} rows={3} placeholder="Чем могу помочь — услуги, консультации, форматы" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+          <textarea value={expertProfile.about ?? ""} onChange={(e) => updateExpertProfile({ about: e.target.value })} rows={4} placeholder="Подробнее о вашем опыте и подходе" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+          <input value={expertProfile.contact ?? ""} onChange={(e) => updateExpertProfile({ contact: e.target.value })} inputMode="url" placeholder="Как связаться: телеграм, почта или ссылка" className={field} />
+
+          <button
+            onClick={() => {
+              updateExpertProfile({ published: !expertProfile.published });
+              toast.success(expertProfile.published ? "Страница скрыта" : "Страница видна участницам");
+            }}
+            disabled={!expertProfile.specialization?.trim()}
+            className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-full text-sm font-medium border transition-all disabled:opacity-40 ${
+              expertProfile.published ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border"
+            }`}
+          >
+            {expertProfile.published ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+            {expertProfile.published ? "Видна участницам" : "Показать участницам"}
+          </button>
+          {expertProfile.published && (
+            <Link to="/mentors/$mentorId" params={{ mentorId: "me" }} className="block text-center text-xs text-accent">
+              Посмотреть, как это выглядит →
+            </Link>
+          )}
+        </section>
       )}
 
       <div className="text-center py-2">

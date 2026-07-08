@@ -4,6 +4,7 @@ import type {
   CycleData,
   DiagnosticResult,
   Event,
+  ExpertProfile,
   JournalEntry,
   PathStepItem,
   ProgressState,
@@ -45,6 +46,8 @@ export interface CloudState {
   /** Материалы и мероприятия, опубликованные экспертом. */
   myMaterials?: ContentItem[];
   myEvents?: Event[];
+  /** Экспертная страница наставника. */
+  expertProfile?: ExpertProfile;
 }
 
 /** Загрузить состояние пользователя из облака. null — строки ещё нет (новый аккаунт). */

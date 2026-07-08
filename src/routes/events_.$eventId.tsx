@@ -98,17 +98,28 @@ function EventDetailPage() {
 
         {isRegistered ? (
           <div className="w-full py-3.5 text-center text-sm font-medium text-accent bg-accent/10 rounded-full">
-            Вы записаны на это мероприятие
+            {event.price > 0 ? "Вы участвуете" : "Вы записаны на это мероприятие"}
           </div>
+        ) : event.price > 0 && event.paymentUrl ? (
+          <a
+            href={event.paymentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => toggleEventRegistration(event.id)}
+            className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium bg-primary text-primary-foreground rounded-full"
+          >
+            Оплатить участие · {event.price.toLocaleString("ru-RU")} ₽
+            <ArrowRight className="size-4" />
+          </a>
         ) : (
           <button
             onClick={() => {
               toggleEventRegistration(event.id);
-              toast.success("Вы записаны на мероприятие!");
+              toast.success(event.price > 0 ? "Заявка отправлена!" : "Вы записаны на мероприятие!");
             }}
             className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium bg-primary text-primary-foreground rounded-full"
           >
-            Записаться
+            {event.price > 0 ? `Оплатить участие · ${event.price.toLocaleString("ru-RU")} ₽` : "Записаться"}
             <ArrowRight className="size-4" />
           </button>
         )}

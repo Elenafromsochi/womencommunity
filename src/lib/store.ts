@@ -13,6 +13,7 @@ import type {
   PathStepItem,
   ContentItem,
   Event,
+  ExpertProfile,
 } from "./types";
 import type { CloudState } from "./sync";
 import type { AssistantMessage } from "./assistant";
@@ -134,8 +135,15 @@ interface AppState {
     description: string;
     type: "online" | "offline";
     location?: string;
+    price?: number;
+    spots?: number;
+    paymentUrl?: string;
   }) => void;
   removeMyEvent: (id: string) => void;
+
+  // ===== Экспертная страница =====
+  expertProfile: ExpertProfile;
+  updateExpertProfile: (partial: Partial<ExpertProfile>) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -163,6 +171,7 @@ const defaultUserData = {
   assistantThreads: {} as Record<string, AssistantMessage[]>,
   myMaterials: [] as ContentItem[],
   myEvents: [] as Event[],
+  expertProfile: {} as ExpertProfile,
 };
 
 /** Извлечь сохраняемый в облако срез состояния. */
@@ -188,6 +197,7 @@ export function selectCloudState(s: AppState): CloudState {
     assistantThreads: s.assistantThreads,
     myMaterials: s.myMaterials,
     myEvents: s.myEvents,
+    expertProfile: s.expertProfile,
   };
 }
 
@@ -462,15 +472,20 @@ export const useAppStore = create<AppState>()((set, get) => ({
           date: e.date,
           time: e.time,
           description: e.description,
-          spots: 20,
-          spotsTotal: 20,
+          spots: e.spots ?? 20,
+          spotsTotal: e.spots ?? 20,
           type: e.type,
-          price: 0,
+          price: e.price ?? 0,
           location: e.location,
+          paymentUrl: e.paymentUrl,
         },
         ...state.myEvents,
       ],
     })),
   removeMyEvent: (id) =>
     set((state) => ({ myEvents: state.myEvents.filter((x) => x.id !== id) })),
+
+  expertProfile: {},
+  updateExpertProfile: (partial) =>
+    set((state) => ({ expertProfile: { ...state.expertProfile, ...partial } })),
 }));

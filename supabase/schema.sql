@@ -78,3 +78,26 @@ create policy "buddy_inv insert own" on public.buddy_invites
 drop policy if exists "buddy_inv update to" on public.buddy_invites;
 create policy "buddy_inv update to" on public.buddy_invites
   for update to authenticated using (auth.uid() = to_user) with check (auth.uid() = to_user);
+
+-- ============================================================================
+-- Отклики (комментарии) к материалам — общие для всех участниц.
+-- ============================================================================
+create table if not exists public.material_comments (
+  id uuid primary key default gen_random_uuid(),
+  material_id text not null,
+  user_id uuid references auth.users (id) on delete cascade,
+  author text not null,
+  text text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.material_comments enable row level security;
+
+drop policy if exists "comments read" on public.material_comments;
+create policy "comments read" on public.material_comments
+  for select to authenticated using (true);
+drop policy if exists "comments insert own" on public.material_comments;
+create policy "comments insert own" on public.material_comments
+  for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "comments delete own" on public.material_comments;
+create policy "comments delete own" on public.material_comments
+  for delete to authenticated using (auth.uid() = user_id);
