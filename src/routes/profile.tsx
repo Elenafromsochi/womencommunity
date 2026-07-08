@@ -33,6 +33,8 @@ function ProfilePage() {
   const profile = useAppStore((s) => s.profile);
   const role = useAppStore((s) => s.role);
   const setRole = useAppStore((s) => s.setRole);
+  const expertProfile = useAppStore((s) => s.expertProfile);
+  const isExpert = Boolean(expertProfile.specialization?.trim());
   const savedContentIds = useAppStore((s) => s.savedContentIds);
   const savedMentorIds = useAppStore((s) => s.savedMentorIds);
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
@@ -76,19 +78,34 @@ function ProfilePage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h1 className="font-[Lora] text-2xl leading-tight">{profile.name}</h1>
-              {profile.city && (
-                <p className="text-sm text-muted-foreground mt-0.5">{profile.city}</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-[Lora] text-2xl leading-tight">{profile.name}</h1>
+                {/* Плашка «Эксперт» в участническом профиле — учусь и преподаю */}
+                {role === "member" && isExpert && (
+                  <span className="text-[10px] font-medium text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                    Эксперт
+                  </span>
+                )}
+              </div>
+              {role === "mentor" ? (
+                expertProfile.specialization && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{expertProfile.specialization}</p>
+                )
+              ) : (
+                profile.city && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{profile.city}</p>
+                )
               )}
             </div>
             <Link
               to="/edit-profile"
               className="shrink-0 text-xs text-accent font-medium border-b border-accent/30 pb-0.5"
             >
-              Изменить
+              {role === "mentor" ? "Изменить фото" : "Изменить"}
             </Link>
           </div>
-          {profile.about && (
+          {/* «О себе» — только у участницы (у эксперта своё описание на его странице) */}
+          {role === "member" && profile.about && (
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
               {profile.about}
             </p>
