@@ -107,7 +107,17 @@ function MentorDetailPage() {
             <Bookmark className={`size-4 ${isSaved ? "fill-current" : ""}`} />
             {isSaved ? "В избранном" : "В избранное"}
           </button>
-          {mentor.contact ? (
+          {mentor.userId ? (
+            <Link
+              to="/chat/$peerId"
+              params={{ peerId: mentor.userId }}
+              search={{ name: mentor.name }}
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
+            >
+              <MessageCircle className="size-4" />
+              Написать
+            </Link>
+          ) : mentor.contact ? (
             <a
               href={contactHref(mentor.contact)}
               target="_blank"

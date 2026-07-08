@@ -101,3 +101,23 @@ create policy "comments insert own" on public.material_comments
 drop policy if exists "comments delete own" on public.material_comments;
 create policy "comments delete own" on public.material_comments
   for delete to authenticated using (auth.uid() = user_id);
+
+-- ============================================================================
+-- Личные чаты 1:1 (участница ↔ эксперт).
+-- ============================================================================
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_id uuid not null references auth.users (id) on delete cascade,
+  recipient_id uuid not null references auth.users (id) on delete cascade,
+  sender_name text not null default '',
+  text text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.messages enable row level security;
+
+drop policy if exists "messages read own" on public.messages;
+create policy "messages read own" on public.messages
+  for select to authenticated using (auth.uid() = sender_id or auth.uid() = recipient_id);
+drop policy if exists "messages insert own" on public.messages;
+create policy "messages insert own" on public.messages
+  for insert to authenticated with check (auth.uid() = sender_id);

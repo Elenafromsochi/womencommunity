@@ -28,7 +28,7 @@ function StudioHome() {
     <div className="px-6 space-y-8 pb-4">
       <section>
         <h1 className="font-[Lora] text-3xl text-balance leading-tight">
-          Студия, <span className="italic">{profile.name}</span>
+          Здравствуйте, <span className="italic">{profile.name}</span>
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Ваше пространство: материалы, события и связь с участницами.

@@ -21,10 +21,10 @@ const memberTabs = [
 
 // Навигация наставника — его собственное пространство.
 const expertTabs = [
-  { to: "/studio", label: "Студия", Icon: LayoutGrid, hash: "" },
+  { to: "/studio", label: "Главная", Icon: LayoutGrid, hash: "" },
   { to: "/mentor", label: "Материалы", Icon: FileText, hash: "material" },
   { to: "/mentor", label: "События", Icon: Calendar, hash: "event" },
-  { to: "/community", label: "Чат", Icon: MessagesSquare, hash: "" },
+  { to: "/inbox", label: "Чат", Icon: MessagesSquare, hash: "" },
   { to: "/profile", label: "Профиль", Icon: User, hash: "" },
 ] as const;
 
