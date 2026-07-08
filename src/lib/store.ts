@@ -14,6 +14,7 @@ import type {
   ContentItem,
   Event,
   ExpertProfile,
+  MaterialRecord,
 } from "./types";
 import type { CloudState } from "./sync";
 import type { AssistantMessage } from "./assistant";
@@ -144,6 +145,16 @@ interface AppState {
   // ===== Экспертная страница =====
   expertProfile: ExpertProfile;
   updateExpertProfile: (partial: Partial<ExpertProfile>) => void;
+
+  // ===== Общая база материалов (из Supabase, НЕ хранится в облаке аккаунта) =====
+  /** Одобренные материалы клуба — их видят все участницы в ленте. */
+  approvedMaterials: ContentItem[];
+  setApprovedMaterials: (items: ContentItem[]) => void;
+  /** Материалы текущего эксперта (любой статус) — для его кабинета. */
+  myMaterialRecords: MaterialRecord[];
+  setMyMaterialRecords: (items: MaterialRecord[]) => void;
+  /** Очистить общие материалы (выход из аккаунта). */
+  clearSharedMaterials: () => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -488,4 +499,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
   expertProfile: {},
   updateExpertProfile: (partial) =>
     set((state) => ({ expertProfile: { ...state.expertProfile, ...partial } })),
+
+  approvedMaterials: [],
+  setApprovedMaterials: (items) => set({ approvedMaterials: items }),
+  myMaterialRecords: [],
+  setMyMaterialRecords: (items) => set({ myMaterialRecords: items }),
+  clearSharedMaterials: () => set({ approvedMaterials: [], myMaterialRecords: [] }),
 }));

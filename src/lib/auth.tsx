@@ -9,6 +9,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { useAppStore, selectCloudState } from "./store";
 import { loadCloudState, saveCloudState } from "./sync";
+import { loadSharedMaterials } from "./materials-db";
 
 interface AuthContextValue {
   session: Session | null;
@@ -52,8 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loadCloudState(userId).then((state) => {
         if (!cancelled) useAppStore.getState().hydrate(state);
       });
+      // Общая база материалов клуба (одобренные для ленты + свои для кабинета).
+      void loadSharedMaterials(userId);
     } else {
       useAppStore.getState().resetToDefaults();
+      useAppStore.getState().clearSharedMaterials();
     }
     return () => {
       cancelled = true;

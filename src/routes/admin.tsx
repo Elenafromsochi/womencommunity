@@ -1,5 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Users, FileText, Calendar, Shield, BarChart3 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Users, Calendar, Shield, BarChart3, Check, X, Clock } from "lucide-react";
+import { MediaEmbed } from "../components/MediaEmbed";
+import { parseMedia } from "../lib/embed";
+import { useAppStore } from "../lib/store";
+import {
+  fetchPendingMaterials,
+  moderateMaterial,
+  loadSharedMaterials,
+} from "../lib/materials-db";
+import type { MaterialRecord } from "../lib/types";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -24,19 +35,10 @@ function AdminDashboard() {
         <span className="font-[Lora] text-lg">Администратор</span>
       </div>
 
-      <div className="bg-cream p-6 rounded-[2.5rem] ring-1 ring-border text-center">
-        <div className="size-16 rounded-full bg-card flex items-center justify-center text-3xl mx-auto mb-4 ring-1 ring-border/50">
-          ⚙️
-        </div>
-        <h2 className="font-[Lora] text-xl">Панель администратора</h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          Этот раздел в разработке. В полной версии здесь будет:
-        </p>
-      </div>
+      <ModerationQueue />
 
       <div className="grid grid-cols-2 gap-3">
         <PlaceholderCard icon={<Users className="size-5" />} label="Пользователи" desc="Управление ролями" />
-        <PlaceholderCard icon={<FileText className="size-5" />} label="Модерация" desc="Контент и жалобы" />
         <PlaceholderCard icon={<Calendar className="size-5" />} label="Мероприятия" desc="Все события" />
         <PlaceholderCard icon={<Shield className="size-5" />} label="Роли" desc="Назначение ролей" />
         <PlaceholderCard icon={<BarChart3 className="size-5" />} label="Аналитика" desc="Статистика сообщества" />
@@ -50,6 +52,174 @@ function AdminDashboard() {
           Вернуться к интерфейсу участницы
         </Link>
       </div>
+    </div>
+  );
+}
+
+function ModerationQueue() {
+  const userId = useAppStore((s) => s.userId);
+  const [pending, setPending] = useState<MaterialRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const refresh = async () => {
+    try {
+      const items = await fetchPendingMaterials();
+      setPending(items);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
+  const decide = async (
+    m: MaterialRecord,
+    status: "approved" | "rejected",
+    reason?: string,
+  ) => {
+    setBusyId(m.id);
+    const { error } = await moderateMaterial(m.id, status, reason);
+    setBusyId(null);
+    if (error) {
+      toast.error("Не удалось. Проверьте права администратора.");
+      return;
+    }
+    // Убираем из очереди и обновляем общий список (одобренный — в ленту всем).
+    setPending((prev) => prev.filter((x) => x.id !== m.id));
+    if (userId) void loadSharedMaterials(userId);
+    toast.success(status === "approved" ? "Опубликовано" : "Отклонено");
+  };
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Clock className="size-4 text-accent" />
+        <h2 className="font-[Lora] text-xl">Модерация материалов</h2>
+        {pending.length > 0 && (
+          <span className="ml-auto text-xs font-medium bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">
+            {pending.length} на проверке
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground py-2">Загружаем очередь…</p>
+      ) : pending.length === 0 ? (
+        <div className="bg-cream p-6 rounded-[2rem] ring-1 ring-border text-center">
+          <p className="text-sm text-muted-foreground">
+            Новых материалов на модерации нет.
+          </p>
+          <p className="text-[11px] text-muted-foreground/70 mt-2">
+            Если очередь пуста, но вы ждёте материалы — проверьте, что ваш UID
+            добавлен в таблицу admins (см. supabase/schema.sql).
+          </p>
+        </div>
+      ) : (
+        pending.map((m) => (
+          <ModerationCard key={m.id} m={m} busy={busyId === m.id} onDecide={decide} />
+        ))
+      )}
+    </section>
+  );
+}
+
+function ModerationCard({
+  m,
+  busy,
+  onDecide,
+}: {
+  m: MaterialRecord;
+  busy: boolean;
+  onDecide: (m: MaterialRecord, status: "approved" | "rejected", reason?: string) => void;
+}) {
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState("");
+  const media = parseMedia(m.mediaUrl);
+
+  return (
+    <div className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
+      <div>
+        <p className="text-[11px] uppercase tracking-wider text-accent font-medium">
+          {m.topic}
+          {m.duration ? ` · ${m.duration}` : ""}
+        </p>
+        <h3 className="font-[Lora] text-lg leading-tight mt-0.5">{m.title}</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">Автор: {m.author}</p>
+      </div>
+
+      {m.description && (
+        <p className="text-sm text-muted-foreground leading-relaxed">{m.description}</p>
+      )}
+
+      {m.cover && !media && (
+        <img src={m.cover} alt="" className="w-full aspect-video object-cover rounded-2xl ring-1 ring-border" />
+      )}
+      {media && media.kind !== "link" && <MediaEmbed url={m.mediaUrl} />}
+
+      {m.body && m.body.length > 0 && (
+        <div className="space-y-2 max-h-48 overflow-y-auto rounded-2xl bg-background/50 p-3 ring-1 ring-border">
+          {m.body.map((p, i) => (
+            <p key={i} className="text-[13px] leading-relaxed text-foreground/80">{p}</p>
+          ))}
+        </div>
+      )}
+
+      <Link
+        to="/material/$id"
+        params={{ id: m.id }}
+        className="inline-block text-xs text-primary font-medium"
+      >
+        Открыть карточку целиком →
+      </Link>
+
+      {rejecting ? (
+        <div className="space-y-2">
+          <input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Причина отклонения (увидит автор)"
+            style={{ textTransform: "none" }}
+            className="w-full bg-background border border-border rounded-2xl px-4 py-2.5 text-sm normal-case placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => setRejecting(false)}
+              className="flex-1 py-2.5 rounded-full text-sm ring-1 ring-border text-foreground"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={() => onDecide(m, "rejected", reason.trim() || undefined)}
+              disabled={busy}
+              className="flex-1 py-2.5 rounded-full text-sm font-medium bg-rose text-white disabled:opacity-50"
+            >
+              Отклонить
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <button
+            onClick={() => setRejecting(true)}
+            disabled={busy}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm ring-1 ring-border text-foreground disabled:opacity-50"
+          >
+            <X className="size-4" />
+            Отклонить
+          </button>
+          <button
+            onClick={() => onDecide(m, "approved")}
+            disabled={busy}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-50"
+          >
+            <Check className="size-4" />
+            Одобрить
+          </button>
+        </div>
+      )}
     </div>
   );
 }

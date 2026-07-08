@@ -6,8 +6,16 @@ import { LinkOrUpload } from "../components/LinkOrUpload";
 import { MediaEmbed } from "../components/MediaEmbed";
 import { CoverPlaceholder } from "../components/CoverPlaceholder";
 import { parseMedia } from "../lib/embed";
-import type { ContentType } from "../lib/types";
+import { insertMaterial, deleteMaterial, loadSharedMaterials } from "../lib/materials-db";
+import type { ContentType, MaterialStatus } from "../lib/types";
 import { toast } from "sonner";
+
+// Подпись статуса материала для эксперта.
+const STATUS_BADGE: Record<MaterialStatus, { label: string; cls: string }> = {
+  pending: { label: "На модерации", cls: "bg-amber-100 text-amber-700" },
+  approved: { label: "Опубликован", cls: "bg-emerald-100 text-emerald-700" },
+  rejected: { label: "Отклонён", cls: "bg-rose-100 text-rose-700" },
+};
 
 export const Route = createFileRoute("/mentor")({
   head: () => ({
@@ -43,9 +51,8 @@ function MentorDashboard() {
   const { location } = useRouterState();
   const tab = location.hash === "event" ? "event" : "material";
 
-  const myMaterials = useAppStore((s) => s.myMaterials);
-  const addMyMaterial = useAppStore((s) => s.addMyMaterial);
-  const removeMyMaterial = useAppStore((s) => s.removeMyMaterial);
+  const myMaterials = useAppStore((s) => s.myMaterialRecords);
+  const userId = useAppStore((s) => s.userId);
   const myEvents = useAppStore((s) => s.myEvents);
   const addMyEvent = useAppStore((s) => s.addMyEvent);
   const removeMyEvent = useAppStore((s) => s.removeMyEvent);
@@ -62,6 +69,7 @@ function MentorDashboard() {
   const [showMForm, setShowMForm] = useState(false);
   const [showEForm, setShowEForm] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const profile = useAppStore((s) => s.profile);
   // Примерное время чтения статьи по числу слов (~170 слов/мин).
   const readingMin = Math.max(
@@ -80,9 +88,16 @@ function MentorDashboard() {
   const [eSpots, setESpots] = useState("");
   const [ePayUrl, setEPayUrl] = useState("");
 
-  const publishMaterial = () => {
-    if (!mTitle.trim() || !mDesc.trim()) return;
-    addMyMaterial({
+  const publishMaterial = async () => {
+    if (!mTitle.trim() || !mDesc.trim() || publishing) return;
+    if (!userId) {
+      toast.error("Не удалось определить аккаунт. Обновите страницу.");
+      return;
+    }
+    setPublishing(true);
+    const { error } = await insertMaterial({
+      authorId: userId,
+      authorName: profile.name || "Наставник",
       title: mTitle.trim(),
       type: mType,
       topic: mTopic,
@@ -95,6 +110,12 @@ function MentorDashboard() {
       mediaUrl: mMedia.trim() || undefined,
       cover: mCover.trim() || undefined,
     });
+    setPublishing(false);
+    if (error) {
+      toast.error("Не получилось отправить. Попробуйте ещё раз.");
+      return;
+    }
+    await loadSharedMaterials(userId);
     setMTitle("");
     setMDesc("");
     setMBody("");
@@ -103,7 +124,17 @@ function MentorDashboard() {
     setMCover("");
     setShowMForm(false);
     setPreview(false);
-    toast.success("Материал добавлен в ленту клуба");
+    toast.success("Отправлено на модерацию — администратор проверит и опубликует");
+  };
+
+  const handleDeleteMaterial = async (id: string) => {
+    const { error } = await deleteMaterial(id);
+    if (error) {
+      toast.error("Не удалось удалить");
+      return;
+    }
+    if (userId) await loadSharedMaterials(userId);
+    toast.success("Удалено");
   };
 
   const publishEvent = () => {
@@ -228,12 +259,20 @@ function MentorDashboard() {
                 <div key={c.id} className="bg-card ring-1 ring-border rounded-2xl p-4 flex items-center gap-3">
                   <Link to="/material/$id" params={{ id: c.id }} className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{c.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{c.topic}{c.duration ? ` · ${c.duration}` : ""}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_BADGE[c.status].cls}`}>
+                        {STATUS_BADGE[c.status].label}
+                      </span>
+                      <p className="text-xs text-muted-foreground truncate">{c.topic}{c.duration ? ` · ${c.duration}` : ""}</p>
+                    </div>
+                    {c.status === "rejected" && c.rejectReason && (
+                      <p className="text-[11px] text-rose mt-1">Причина: {c.rejectReason}</p>
+                    )}
                   </Link>
                   <Link to="/material/$id" params={{ id: c.id }} aria-label="Открыть" className="text-muted-foreground">
                     <ArrowRight className="size-4" />
                   </Link>
-                  <button onClick={() => { removeMyMaterial(c.id); toast.success("Удалено"); }} aria-label="Удалить" className="text-muted-foreground/50 hover:text-rose">
+                  <button onClick={() => handleDeleteMaterial(c.id)} aria-label="Удалить" className="text-muted-foreground/50 hover:text-rose">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
@@ -373,10 +412,11 @@ function MentorDashboard() {
                 </button>
                 <button
                   onClick={publishMaterial}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground"
+                  disabled={publishing}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-sm font-medium bg-primary text-primary-foreground disabled:opacity-50"
                 >
                   <Plus className="size-4" />
-                  В ленту
+                  {publishing ? "Отправляем…" : "На модерацию"}
                 </button>
               </div>
             </div>

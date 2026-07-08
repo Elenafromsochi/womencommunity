@@ -121,3 +121,79 @@ create policy "messages read own" on public.messages
 drop policy if exists "messages insert own" on public.messages;
 create policy "messages insert own" on public.messages
   for insert to authenticated with check (auth.uid() = sender_id);
+
+-- ============================================================================
+-- Администраторы клуба. Роль администратора — НЕ в клиентском состоянии, а
+-- здесь, в базе, чтобы модерацию нельзя было обойти, просто переключив роль в
+-- приложении. Добавь свой uid одной строкой (uid берётся в Supabase →
+-- Authentication → Users → колонка UID):
+--   insert into public.admins (user_id) values ('ВАШ-UID') on conflict do nothing;
+-- ============================================================================
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users (id) on delete cascade
+);
+alter table public.admins enable row level security;
+
+-- Каждый видит только свою строку (нужно, чтобы приложение знало «я админ?»).
+drop policy if exists "admins read self" on public.admins;
+create policy "admins read self" on public.admins
+  for select to authenticated using (auth.uid() = user_id);
+
+-- Проверка «текущий пользователь — администратор?» для политик ниже.
+-- SECURITY DEFINER обходит RLS таблицы admins, поэтому проверка работает,
+-- даже если сам пользователь не может читать чужие строки.
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (select 1 from public.admins where user_id = auth.uid());
+$$;
+
+-- ============================================================================
+-- Общая база материалов + модерация.
+-- Эксперт публикует материал → он ложится сюда со статусом 'pending'
+-- (на модерации). Администратор одобряет ('approved') или отклоняет
+-- ('rejected'). Одобренные материалы видят все участницы клуба.
+-- ============================================================================
+create table if not exists public.materials (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references auth.users (id) on delete cascade,
+  author_name text not null default '',
+  title text not null,
+  type text not null default 'article',
+  topic text not null default '',
+  description text not null default '',
+  body jsonb,                 -- абзацы статьи (массив строк)
+  duration text,
+  media_url text,
+  cover text,
+  status text not null default 'pending', -- pending | approved | rejected
+  reject_reason text,
+  created_at timestamptz not null default now()
+);
+alter table public.materials enable row level security;
+
+-- Читать можно: одобренные — всем; свои (любой статус) — автору; всё — админу.
+drop policy if exists "materials read" on public.materials;
+create policy "materials read" on public.materials
+  for select to authenticated
+  using (status = 'approved' or auth.uid() = author_id or public.is_admin());
+
+-- Создавать можно только свой материал и только со статусом 'pending'.
+drop policy if exists "materials insert own pending" on public.materials;
+create policy "materials insert own pending" on public.materials
+  for insert to authenticated
+  with check (auth.uid() = author_id and status = 'pending');
+
+-- Менять статус (одобрить/отклонить) может администратор.
+drop policy if exists "materials update admin" on public.materials;
+create policy "materials update admin" on public.materials
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Удалять можно свой материал или админу — любой.
+drop policy if exists "materials delete own or admin" on public.materials;
+create policy "materials delete own or admin" on public.materials
+  for delete to authenticated using (auth.uid() = author_id or public.is_admin());
