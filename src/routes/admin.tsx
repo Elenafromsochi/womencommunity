@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Users, Calendar, Shield, BarChart3, Check, X, Clock } from "lucide-react";
 import { MediaEmbed } from "../components/MediaEmbed";
+import { BackToMemberButton } from "../components/BackToMemberButton";
 import { parseMedia } from "../lib/embed";
 import { useAppStore } from "../lib/store";
 import {
@@ -45,12 +46,7 @@ function AdminDashboard() {
       </div>
 
       <div className="text-center py-6">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm text-primary font-medium"
-        >
-          Вернуться к интерфейсу участницы
-        </Link>
+        <BackToMemberButton />
       </div>
     </div>
   );

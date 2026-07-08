@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Users, MessageSquare, Calendar, ClipboardList, BarChart3 } from "lucide-react";
+import { BackToMemberButton } from "../components/BackToMemberButton";
 
 export const Route = createFileRoute("/curator")({
   head: () => ({
@@ -43,12 +44,7 @@ function CuratorDashboard() {
       </div>
 
       <div className="text-center py-6">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-sm text-primary font-medium"
-        >
-          Вернуться к интерфейсу участницы
-        </Link>
+        <BackToMemberButton />
       </div>
     </div>
   );

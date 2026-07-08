@@ -5,6 +5,7 @@ import { useAppStore } from "../lib/store";
 import { LinkOrUpload } from "../components/LinkOrUpload";
 import { MediaEmbed } from "../components/MediaEmbed";
 import { CoverPlaceholder } from "../components/CoverPlaceholder";
+import { BackToMemberButton } from "../components/BackToMemberButton";
 import { parseMedia } from "../lib/embed";
 import { insertMaterial, deleteMaterial, loadSharedMaterials } from "../lib/materials-db";
 import type { ContentType, MaterialStatus } from "../lib/types";
@@ -425,9 +426,7 @@ function MentorDashboard() {
       )}
 
       <div className="text-center py-2">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-primary font-medium">
-          Вернуться к интерфейсу участницы
-        </Link>
+        <BackToMemberButton />
       </div>
     </div>
   );
