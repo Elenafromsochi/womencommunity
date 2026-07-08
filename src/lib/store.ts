@@ -454,7 +454,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
           duration: m.duration,
           mediaUrl: m.mediaUrl,
           cover: m.cover,
-          date: new Date().toISOString(),
+          date: new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" }),
         },
         ...state.myMaterials,
       ],

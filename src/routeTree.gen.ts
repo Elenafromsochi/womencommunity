@@ -17,6 +17,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MentorsRouteImport } from './routes/mentors'
 import { Route as MentorRouteImport } from './routes/mentor'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as EditProfileRouteImport } from './routes/edit-profile'
@@ -31,6 +32,7 @@ import { Route as MentorsMentorIdRouteImport } from './routes/mentors_.$mentorId
 import { Route as MaterialIdRouteImport } from './routes/material.$id'
 import { Route as GroupsGroupIdRouteImport } from './routes/groups_.$groupId'
 import { Route as EventsEventIdRouteImport } from './routes/events_.$eventId'
+import { Route as ChatPeerIdRouteImport } from './routes/chat.$peerId'
 
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
@@ -70,6 +72,11 @@ const MentorsRoute = MentorsRouteImport.update({
 const MentorRoute = MentorRouteImport.update({
   id: '/mentor',
   path: '/mentor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsRoute = GroupsRouteImport.update({
@@ -142,6 +149,11 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
   path: '/events/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatPeerIdRoute = ChatPeerIdRouteImport.update({
+  id: '/chat/$peerId',
+  path: '/chat/$peerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -153,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
+  '/inbox': typeof InboxRoute
   '/mentor': typeof MentorRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
@@ -161,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
+  '/chat/$peerId': typeof ChatPeerIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/material/$id': typeof MaterialIdRoute
@@ -177,6 +191,7 @@ export interface FileRoutesByTo {
   '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
+  '/inbox': typeof InboxRoute
   '/mentor': typeof MentorRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
@@ -185,6 +200,7 @@ export interface FileRoutesByTo {
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
+  '/chat/$peerId': typeof ChatPeerIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/material/$id': typeof MaterialIdRoute
@@ -202,6 +218,7 @@ export interface FileRoutesById {
   '/edit-profile': typeof EditProfileRoute
   '/events': typeof EventsRoute
   '/groups': typeof GroupsRoute
+  '/inbox': typeof InboxRoute
   '/mentor': typeof MentorRoute
   '/mentors': typeof MentorsRoute
   '/notifications': typeof NotificationsRoute
@@ -210,6 +227,7 @@ export interface FileRoutesById {
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
   '/topics': typeof TopicsRoute
+  '/chat/$peerId': typeof ChatPeerIdRoute
   '/events_/$eventId': typeof EventsEventIdRoute
   '/groups_/$groupId': typeof GroupsGroupIdRoute
   '/material/$id': typeof MaterialIdRoute
@@ -228,6 +246,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/events'
     | '/groups'
+    | '/inbox'
     | '/mentor'
     | '/mentors'
     | '/notifications'
@@ -236,6 +255,7 @@ export interface FileRouteTypes {
     | '/state'
     | '/studio'
     | '/topics'
+    | '/chat/$peerId'
     | '/events/$eventId'
     | '/groups/$groupId'
     | '/material/$id'
@@ -252,6 +272,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/events'
     | '/groups'
+    | '/inbox'
     | '/mentor'
     | '/mentors'
     | '/notifications'
@@ -260,6 +281,7 @@ export interface FileRouteTypes {
     | '/state'
     | '/studio'
     | '/topics'
+    | '/chat/$peerId'
     | '/events/$eventId'
     | '/groups/$groupId'
     | '/material/$id'
@@ -276,6 +298,7 @@ export interface FileRouteTypes {
     | '/edit-profile'
     | '/events'
     | '/groups'
+    | '/inbox'
     | '/mentor'
     | '/mentors'
     | '/notifications'
@@ -284,6 +307,7 @@ export interface FileRouteTypes {
     | '/state'
     | '/studio'
     | '/topics'
+    | '/chat/$peerId'
     | '/events_/$eventId'
     | '/groups_/$groupId'
     | '/material/$id'
@@ -301,6 +325,7 @@ export interface RootRouteChildren {
   EditProfileRoute: typeof EditProfileRoute
   EventsRoute: typeof EventsRoute
   GroupsRoute: typeof GroupsRoute
+  InboxRoute: typeof InboxRoute
   MentorRoute: typeof MentorRoute
   MentorsRoute: typeof MentorsRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -309,6 +334,7 @@ export interface RootRouteChildren {
   StateRoute: typeof StateRoute
   StudioRoute: typeof StudioRoute
   TopicsRoute: typeof TopicsRoute
+  ChatPeerIdRoute: typeof ChatPeerIdRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
   GroupsGroupIdRoute: typeof GroupsGroupIdRoute
   MaterialIdRoute: typeof MaterialIdRoute
@@ -372,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/mentor'
       fullPath: '/mentor'
       preLoaderRoute: typeof MentorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups': {
@@ -472,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$peerId': {
+      id: '/chat/$peerId'
+      path: '/chat/$peerId'
+      fullPath: '/chat/$peerId'
+      preLoaderRoute: typeof ChatPeerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -485,6 +525,7 @@ const rootRouteChildren: RootRouteChildren = {
   EditProfileRoute: EditProfileRoute,
   EventsRoute: EventsRoute,
   GroupsRoute: GroupsRoute,
+  InboxRoute: InboxRoute,
   MentorRoute: MentorRoute,
   MentorsRoute: MentorsRoute,
   NotificationsRoute: NotificationsRoute,
@@ -493,6 +534,7 @@ const rootRouteChildren: RootRouteChildren = {
   StateRoute: StateRoute,
   StudioRoute: StudioRoute,
   TopicsRoute: TopicsRoute,
+  ChatPeerIdRoute: ChatPeerIdRoute,
   EventsEventIdRoute: EventsEventIdRoute,
   GroupsGroupIdRoute: GroupsGroupIdRoute,
   MaterialIdRoute: MaterialIdRoute,

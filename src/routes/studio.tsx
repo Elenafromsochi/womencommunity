@@ -21,29 +21,31 @@ const CLUB_NEWS = [
 
 function StudioHome() {
   const profile = useAppStore((s) => s.profile);
-  const myMaterials = useAppStore((s) => s.myMaterials);
-  const myEvents = useAppStore((s) => s.myEvents);
 
   return (
     <div className="px-6 space-y-8 pb-4">
       <section>
         <h1 className="font-[Lora] text-3xl text-balance leading-tight">
-          Студия, <span className="italic">{profile.name}</span>
+          Здравствуйте, <span className="italic">{profile.name}</span>
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Ваше пространство: материалы, события и связь с участницами.
         </p>
       </section>
 
-      {/* Мини-статистика */}
-      <section className="grid grid-cols-2 gap-3">
-        <div className="bg-card ring-1 ring-border rounded-[1.5rem] p-5">
-          <p className="font-[Lora] text-3xl">{myMaterials.length}</p>
-          <p className="text-xs text-muted-foreground mt-1">Материалов</p>
+      {/* Сводка */}
+      <section className="grid grid-cols-3 gap-2">
+        <div className="bg-card ring-1 ring-border rounded-[1.5rem] p-4">
+          <p className="font-[Lora] text-2xl">0</p>
+          <p className="text-[11px] text-muted-foreground mt-1">Просмотры</p>
         </div>
-        <div className="bg-card ring-1 ring-border rounded-[1.5rem] p-5">
-          <p className="font-[Lora] text-3xl">{myEvents.length}</p>
-          <p className="text-xs text-muted-foreground mt-1">Событий</p>
+        <div className="bg-card ring-1 ring-border rounded-[1.5rem] p-4">
+          <p className="font-[Lora] text-2xl">0</p>
+          <p className="text-[11px] text-muted-foreground mt-1">Заявки</p>
+        </div>
+        <div className="bg-card ring-1 ring-border rounded-[1.5rem] p-4">
+          <p className="font-[Lora] text-2xl">0</p>
+          <p className="text-[11px] text-muted-foreground mt-1">Сообщения</p>
         </div>
       </section>
 
@@ -59,7 +61,7 @@ function StudioHome() {
             <Calendar className="size-5 text-accent" />
             <span className="text-sm font-medium leading-tight">Новое событие</span>
           </Link>
-          <Link to="/mentor" hash="profile" className="bg-card ring-1 ring-border rounded-2xl p-4 flex flex-col gap-1.5">
+          <Link to="/profile" className="bg-card ring-1 ring-border rounded-2xl p-4 flex flex-col gap-1.5">
             <UserRound className="size-5 text-primary" />
             <span className="text-sm font-medium leading-tight">Моя страница</span>
           </Link>

@@ -19,6 +19,7 @@ export function useAllEvents(): Event[] {
 export function useAllMentors(): Mentor[] {
   const profile = useAppStore((s) => s.profile);
   const ep = useAppStore((s) => s.expertProfile);
+  const userId = useAppStore((s) => s.userId);
   const myMaterials = useAppStore((s) => s.myMaterials);
   const myEvents = useAppStore((s) => s.myEvents);
   if (!ep.published || !ep.specialization) return mentors;
@@ -45,6 +46,7 @@ export function useAllMentors(): Mentor[] {
     avatar: profile.avatar,
     experience: ep.about ?? "",
     contact: ep.contact,
+    userId: userId ?? undefined,
   };
   return [me, ...mentors];
 }

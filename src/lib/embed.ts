@@ -4,6 +4,7 @@
 
 export type Media =
   | { kind: "video"; embedUrl: string }
+  | { kind: "videofile"; src: string }
   | { kind: "music"; embedUrl: string; height: number }
   | { kind: "audio"; src: string }
   | { kind: "pdf"; src: string }
@@ -11,6 +12,7 @@ export type Media =
   | null;
 
 const AUDIO_EXT = /\.(mp3|m4a|wav|ogg|aac|flac)(\?|#|$)/i;
+const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i;
 
 export function parseMedia(raw?: string): Media {
   const url = (raw ?? "").trim();
@@ -18,6 +20,9 @@ export function parseMedia(raw?: string): Media {
 
   // PDF-документ
   if (/\.pdf(\?|#|$)/i.test(url)) return { kind: "pdf", src: url };
+
+  // Прямой видеофайл (загружен экспертом)
+  if (VIDEO_EXT.test(url)) return { kind: "videofile", src: url };
 
   // Прямой аудиофайл
   if (AUDIO_EXT.test(url)) return { kind: "audio", src: url };
