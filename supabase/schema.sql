@@ -217,13 +217,39 @@ begin
     raise exception 'not authorized';
   end if;
   select json_build_object(
+    -- Люди
     'members_total', (select count(*) from auth.users),
     'new_7d', (select count(*) from auth.users where created_at > now() - interval '7 days'),
     'experts_total', (select count(*) from public.user_state
         where coalesce((state->'expertProfile'->>'published')::boolean, false) = true),
+    -- Контент
     'materials_total', (select count(*) from public.materials),
     'materials_pending', (select count(*) from public.materials where status = 'pending'),
-    'materials_approved', (select count(*) from public.materials where status = 'approved')
+    'materials_approved', (select count(*) from public.materials where status = 'approved'),
+    -- Активность (updated_at обновляется при каждом сохранении данных участницы)
+    'active_7d', (select count(*) from public.user_state
+        where updated_at > now() - interval '7 days'),
+    'journal_total', (select coalesce(sum(
+        case when jsonb_typeof(state->'journalEntries') = 'array'
+             then jsonb_array_length(state->'journalEntries') else 0 end), 0)
+      from public.user_state),
+    'steps_done', (select count(*)
+      from public.user_state us,
+      lateral jsonb_array_elements(
+        case when jsonb_typeof(us.state->'sphereSteps') = 'array'
+             then us.state->'sphereSteps' else '[]'::jsonb end) st
+      where (st->>'done')::boolean is true),
+    -- Платное (пока из данных экспертов; реальные оплаты добавим со заглушками)
+    'paid_events', (select count(*)
+      from public.user_state us,
+      lateral jsonb_array_elements(
+        case when jsonb_typeof(us.state->'myEvents') = 'array'
+             then us.state->'myEvents' else '[]'::jsonb end) ev
+      where coalesce((ev->>'price')::numeric, 0) > 0),
+    'registrations_total', (select coalesce(sum(
+        case when jsonb_typeof(state->'registeredEventIds') = 'array'
+             then jsonb_array_length(state->'registeredEventIds') else 0 end), 0)
+      from public.user_state)
   ) into result;
   return result;
 end;

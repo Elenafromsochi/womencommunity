@@ -102,6 +102,22 @@ function OwnerDashboard() {
         <StatTile label="Опубликовано" value={val(stats?.materials_approved)} />
       </div>
 
+      {/* Активность */}
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground px-1 pt-1">Активность</p>
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Активных за 7 дней" value={val(stats?.active_7d)} />
+        <StatTile label="Записей в дневник" value={val(stats?.journal_total)} />
+        <StatTile label="Отмечено шагов" value={val(stats?.steps_done)} />
+      </div>
+
+      {/* Платное */}
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground px-1 pt-1">Платное</p>
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Платных мероприятий" value={val(stats?.paid_events)} />
+        <StatTile label="Записей на события" value={val(stats?.registrations_total)} />
+        <StatTile label="Оплат" value={loading ? "…" : "скоро"} />
+      </div>
+
       {!loading && !stats && (
         <p className="text-[11px] text-muted-foreground/70 px-1">
           Цифры появятся после выполнения SQL с функцией platform_stats и
