@@ -197,3 +197,36 @@ create policy "materials update admin" on public.materials
 drop policy if exists "materials delete own or admin" on public.materials;
 create policy "materials delete own or admin" on public.materials
   for delete to authenticated using (auth.uid() = author_id or public.is_admin());
+
+-- ============================================================================
+-- Дашборд владельца: сводная статистика платформы в реальном времени.
+-- SECURITY DEFINER считает по всем строкам (в обход RLS), но вызвать функцию
+-- может только администратор — проверка is_admin() внутри. Так владелец видит
+-- общие цифры, не получая доступа к личным данным участниц.
+-- ============================================================================
+create or replace function public.platform_stats()
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  result json;
+begin
+  if not public.is_admin() then
+    raise exception 'not authorized';
+  end if;
+  select json_build_object(
+    'members_total', (select count(*) from auth.users),
+    'new_7d', (select count(*) from auth.users where created_at > now() - interval '7 days'),
+    'experts_total', (select count(*) from public.user_state
+        where coalesce((state->'expertProfile'->>'published')::boolean, false) = true),
+    'materials_total', (select count(*) from public.materials),
+    'materials_pending', (select count(*) from public.materials where status = 'pending'),
+    'materials_approved', (select count(*) from public.materials where status = 'approved')
+  ) into result;
+  return result;
+end;
+$$;
+
+grant execute on function public.platform_stats() to authenticated;
