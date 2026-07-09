@@ -36,7 +36,7 @@ export function useAllMentors(): Mentor[] {
   if (!ep.published || !ep.specialization) return mentors;
   const me: Mentor = {
     id: "me",
-    name: profile.name || "Наставник",
+    name: profile.name || "Эксперт",
     specialization: ep.specialization,
     description: ep.tagline || ep.offer || "",
     topics: ep.topics ?? [],

@@ -326,13 +326,13 @@ export const notifications: Notification[] = [
   { id: "n2", type: "event", title: "Напоминание", body: "Вечер открытых сердец завтра в 19:00", date: "Сегодня, 09:00", read: false },
   { id: "n3", type: "group", title: "Набор в группу", body: "Открыт набор в «Путь к себе» — 2 места осталось", date: "Вчера", read: true },
   { id: "n4", type: "message", title: "Новое сообщение", body: "Алена Смирнова ответила на ваш вопрос", date: "Вчера", read: true },
-  { id: "n5", type: "reply", title: "Ответ наставника", body: "Мария Вебер прокомментировала вашу запись", date: "2 дня назад", read: true },
+  { id: "n5", type: "reply", title: "Ответ эксперта", body: "Мария Вебер прокомментировала вашу запись", date: "2 дня назад", read: true },
 ];
 
 export const chatMessages: ChatMessage[] = [
   { id: "ch1", author: "Ольга", text: "Привет всем! Недавно присоединилась к сообществу, рада знакомству 💫", timestamp: "10:15", isMe: false, avatar: mentor3Img },
   { id: "ch2", author: "Виктория", text: "Добро пожаловать, Ольга! Какие темы тебе ближе всего?", timestamp: "10:18", isMe: false, avatar: mentor2Img },
-  { id: "ch3", author: "Вы", text: "Привет! Мне интересны отношения и самореализация. Ищу наставника ☺️", timestamp: "10:22", isMe: true, status: "read", readBy: ["Ольга", "Виктория", "Анна"] },
+  { id: "ch3", author: "Вы", text: "Привет! Мне интересны отношения и самореализация. Ищу эксперта ☺️", timestamp: "10:22", isMe: true, status: "read", readBy: ["Ольга", "Виктория", "Анна"] },
   { id: "ch4", author: "Анна", text: "О, я хожу к Марии Вебер — очень рекомендую, если про отношения", timestamp: "10:25", isMe: false, avatar: mentor1Img, attachments: [{ type: "link", url: "/mentors/m1", label: "Профиль Марии Вебер" }] },
   { id: "ch5", author: "Ольга", text: "Спасибо за рекомендации! Пойду смотреть её материалы", timestamp: "10:30", isMe: false, avatar: mentor3Img },
 ];
@@ -352,7 +352,7 @@ export const groupChats: Record<string, ChatMessage[]> = {
 };
 
 export const communityPosts: CommunityPost[] = [
-  { id: "p1", author: "Команда ЖО", title: "Добро пожаловать в сообщество!", content: "Мы рады, что вы здесь. Начните с заполнения анкеты и знакомства с наставниками.", type: "news", date: "5 июня", likes: 124, comments: 8, avatar: undefined },
+  { id: "p1", author: "Команда ЖО", title: "Добро пожаловать в сообщество!", content: "Мы рады, что вы здесь. Начните с заполнения анкеты и знакомства с экспертами.", type: "news", date: "5 июня", likes: 124, comments: 8, avatar: undefined },
   { id: "p2", author: "Екатерина М.", title: "Привет от новой участницы", content: "Живу в Петербурге, работаю дизайнером. Интересуюсь личностным ростом и творчеством. Буду рада знакомству!", type: "introduction", date: "4 июня", likes: 45, comments: 12, avatar: mentor4Img },
   { id: "p3", author: "Мария Вебер", title: "Новая статья: «Искусство малых ритуалов»", content: "Поделилась своими мыслями о том, как маленькие ежедневные практики меняют качество жизни. Читайте в разделе Темы → Личностный рост.", type: "news", date: "3 июня", likes: 89, comments: 15, avatar: mentor1Img },
   { id: "p4", author: "Наталья С.", title: "Кто пойдёт на керамику в субботу?", content: "Ещё 2 места свободно! Будет очень уютно, обещаю 🍵", type: "discussion", date: "2 июня", likes: 32, comments: 6, avatar: mentor2Img },

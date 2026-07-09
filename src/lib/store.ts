@@ -461,7 +461,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
           topic: m.topic,
           description: m.description,
           body: m.body,
-          author: state.profile.name || "Наставник",
+          author: state.profile.name || "Эксперт",
           duration: m.duration,
           mediaUrl: m.mediaUrl,
           cover: m.cover,
@@ -479,7 +479,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         {
           id: `my-e-${Date.now()}`,
           title: e.title,
-          mentor: state.profile.name || "Наставник",
+          mentor: state.profile.name || "Эксперт",
           date: e.date,
           time: e.time,
           description: e.description,

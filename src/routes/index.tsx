@@ -118,7 +118,7 @@ function HomePage() {
             <span className="text-sm font-medium leading-tight">
               Поговорить с человеком
             </span>
-            <span className="text-[11px] text-muted-foreground">Наставники клуба</span>
+            <span className="text-[11px] text-muted-foreground">Эксперты клуба</span>
           </Link>
           <Link
             to="/buddy"
@@ -309,7 +309,7 @@ function HomePage() {
       {/* Mentors */}
       <section className="space-y-4">
         <Link to="/mentors" className="flex items-center gap-1.5">
-          <h2 className="font-[Lora] text-2xl">Наставники</h2>
+          <h2 className="font-[Lora] text-2xl">Эксперты</h2>
           <ChevronRight className="size-5 text-muted-foreground shrink-0" />
         </Link>
         <div className="flex gap-4 overflow-x-auto no-scrollbar -mx-6 px-6">

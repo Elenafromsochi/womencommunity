@@ -25,8 +25,8 @@ function contactHref(c: string): string {
 export const Route = createFileRoute("/mentors_/$mentorId")({
   head: () => ({
     meta: [
-      { title: "Женское общество — Наставник" },
-      { name: "description", content: "Страница наставника" },
+      { title: "Женское общество — Эксперт" },
+      { name: "description", content: "Страница эксперта" },
     ],
   }),
   component: MentorDetailPage,
@@ -42,7 +42,7 @@ function MentorDetailPage() {
   if (!mentor) {
     return (
       <div className="px-6 py-12 text-center text-muted-foreground">
-        Наставник не найден
+        Эксперт не найден
       </div>
     );
   }
@@ -57,7 +57,7 @@ function MentorDetailPage() {
         >
           <ArrowLeft className="size-5" />
         </Link>
-        <span className="font-[Lora] text-lg">Наставник</span>
+        <span className="font-[Lora] text-lg">Эксперт</span>
       </div>
 
       {/* Profile */}
@@ -129,7 +129,7 @@ function MentorDetailPage() {
             </a>
           ) : (
             <button
-              onClick={() => toast.success("Сообщение отправлено наставнику")}
+              onClick={() => toast.success("Сообщение отправлено эксперту")}
               className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-full"
             >
               <MessageCircle className="size-4" />
@@ -166,7 +166,7 @@ function MentorDetailPage() {
       <div className="px-6">
         <div className="bg-card p-5 rounded-[2rem] ring-1 ring-border flex items-center justify-between">
           <div>
-            <p className="font-[Lora] text-lg">Материалы наставника</p>
+            <p className="font-[Lora] text-lg">Материалы эксперта</p>
             <p className="text-sm text-muted-foreground">
               Статьи, аудио, видео и практики
             </p>
