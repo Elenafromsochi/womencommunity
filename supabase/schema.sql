@@ -380,7 +380,7 @@ begin
     (payer_id, payer_name, kind, mastermind_id, item_title, expert_id,
      amount, platform_fee, expert_amount)
   values
-    (auth.uid(), coalesce(v_name, ''), 'mastermind', m.id, m.title, m.author_id,
+    (auth.uid(), coalesce(v_name, ''), 'mastermind', p_mastermind_id, m.title, m.author_id,
      m.price, v_fee, v_expert);
   return json_build_object('ok', true, 'amount', m.price);
 end;
