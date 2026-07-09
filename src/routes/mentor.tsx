@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2, Eye, X, Pencil } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { LinkOrUpload } from "../components/LinkOrUpload";
@@ -8,6 +8,13 @@ import { CoverPlaceholder } from "../components/CoverPlaceholder";
 import { BackToMemberButton } from "../components/BackToMemberButton";
 import { parseMedia } from "../lib/embed";
 import { insertMaterial, deleteMaterial, loadSharedMaterials } from "../lib/materials-db";
+import {
+  createMastermind,
+  deleteMastermind,
+  loadPayments,
+  fetchExpertSales,
+  PLATFORM_FEE_RATE,
+} from "../lib/payments";
 import type { ContentType, MaterialStatus } from "../lib/types";
 import { toast } from "sonner";
 
@@ -352,6 +359,8 @@ function MentorDashboard() {
               ))
             )}
           </div>
+
+          <MastermindsSection />
         </>
       )}
 
@@ -429,5 +438,159 @@ function MentorDashboard() {
         <BackToMemberButton />
       </div>
     </div>
+  );
+}
+
+const fmt = (n: number) => n.toLocaleString("ru-RU");
+
+/** Мастермайнды эксперта — платные продукты (оплата через платформу, сплит 50/50). */
+function MastermindsSection() {
+  const userId = useAppStore((s) => s.userId);
+  const profile = useAppStore((s) => s.profile);
+  const masterminds = useAppStore((s) => s.masterminds);
+  const mine = masterminds.filter((m) => m.authorId === userId);
+
+  const [show, setShow] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [earned, setEarned] = useState<number | null>(null);
+  const [sales, setSales] = useState(0);
+
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [type, setType] = useState<"online" | "offline">("online");
+  const [place, setPlace] = useState("");
+  const [desc, setDesc] = useState("");
+  const [price, setPrice] = useState("");
+  const [spots, setSpots] = useState("");
+
+  const loadEarnings = async () => {
+    if (!userId) return;
+    const rows = await fetchExpertSales(userId);
+    setEarned(rows.reduce((s, r) => s + r.expertAmount, 0));
+    setSales(rows.length);
+  };
+
+  useEffect(() => {
+    void loadEarnings();
+  }, [userId]);
+
+  const priceNum = Math.max(0, parseInt(price, 10) || 0);
+  const expertShare = Math.round(priceNum * (1 - PLATFORM_FEE_RATE));
+
+  const create = async () => {
+    if (!userId || saving || !title.trim() || !date.trim() || priceNum <= 0) return;
+    setSaving(true);
+    const { error } = await createMastermind({
+      authorId: userId,
+      authorName: profile.name || "Эксперт",
+      title: title.trim(),
+      description: desc.trim(),
+      date: date.trim() || undefined,
+      time: time.trim() || undefined,
+      type,
+      location: place.trim() || undefined,
+      price: priceNum,
+      spots: spots.trim() ? Math.max(1, parseInt(spots, 10) || 0) : undefined,
+    });
+    setSaving(false);
+    if (error) {
+      toast.error("Не удалось создать");
+      return;
+    }
+    await loadPayments(userId);
+    setTitle(""); setDate(""); setTime(""); setPlace(""); setDesc(""); setPrice(""); setSpots("");
+    setShow(false);
+    toast.success("Мастермайнд создан — он уже в «Событиях» у участниц");
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await deleteMastermind(id);
+    if (error) { toast.error("Не удалось удалить"); return; }
+    if (userId) await loadPayments(userId);
+    toast.success("Удалено");
+  };
+
+  return (
+    <section className="space-y-3 pt-4">
+      {/* Баланс эксперта */}
+      <div className="bg-primary text-primary-foreground rounded-[2rem] p-5">
+        <p className="text-[11px] uppercase tracking-wider text-primary-foreground/70">
+          Заработано на платформе
+        </p>
+        <p className="font-[Lora] text-3xl mt-1">
+          {earned === null ? "…" : `${fmt(earned)} ₽`}
+        </p>
+        <p className="text-xs text-primary-foreground/80 mt-1">
+          {sales} {sales === 1 ? "оплата" : "оплат"} · ваша доля {Math.round((1 - PLATFORM_FEE_RATE) * 100)}% с каждой
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <h2 className="font-[Lora] text-xl">Мои мастермайнды</h2>
+        <button
+          onClick={() => setShow((v) => !v)}
+          className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-4 py-2 rounded-full"
+        >
+          <Plus className="size-4" />
+          {show ? "Свернуть" : "Добавить"}
+        </button>
+      </div>
+
+      {show && (
+        <div className="bg-card ring-1 ring-border rounded-[2rem] p-5 space-y-3">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Название мастермайнда" className={field} />
+          <div className="grid grid-cols-2 gap-2">
+            <input value={date} onChange={(e) => setDate(e.target.value)} placeholder="Дата, напр. 20 июля" className={field} />
+            <input value={time} onChange={(e) => setTime(e.target.value)} placeholder="Время, напр. 19:00" className={field} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <select value={type} onChange={(e) => setType(e.target.value as "online" | "offline")} className={field}>
+              <option value="online">Онлайн</option>
+              <option value="offline">Очно</option>
+            </select>
+            <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Место / ссылка" className={field} />
+          </div>
+          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} placeholder="О чём мастермайнд, для кого" style={{ textTransform: "none" }} className={`${field} resize-none`} />
+          <div className="grid grid-cols-2 gap-2">
+            <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" placeholder="Стоимость, ₽" className={field} />
+            <input value={spots} onChange={(e) => setSpots(e.target.value)} inputMode="numeric" placeholder="Мест всего" className={field} />
+          </div>
+          {priceNum > 0 && (
+            <p className="text-[11px] text-muted-foreground px-1">
+              С каждой оплаты {fmt(priceNum)} ₽ вам — {fmt(expertShare)} ₽, платформе — {fmt(priceNum - expertShare)} ₽.
+            </p>
+          )}
+          <button
+            onClick={create}
+            disabled={saving || !title.trim() || !date.trim() || priceNum <= 0}
+            className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground text-sm font-medium py-3 rounded-full disabled:opacity-40"
+          >
+            <Plus className="size-4" />
+            {saving ? "Создаём…" : "Создать мастермайнд"}
+          </button>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {mine.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-2">Пока нет мастермайндов. Нажмите «Добавить».</p>
+        ) : (
+          mine.map((m) => (
+            <div key={m.id} className="bg-card ring-1 ring-border rounded-2xl p-4 flex items-center gap-3">
+              <Link to="/events/$eventId" params={{ eventId: m.id }} className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{m.title}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {[m.date, m.time].filter(Boolean).join(" · ")}{m.price ? ` · ${fmt(m.price)} ₽` : ""}
+                </p>
+              </Link>
+              <button onClick={() => remove(m.id)} aria-label="Удалить" className="text-muted-foreground/50 hover:text-rose">
+                <Trash2 className="size-4" />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
   );
 }

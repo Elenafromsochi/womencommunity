@@ -217,16 +217,172 @@ begin
     raise exception 'not authorized';
   end if;
   select json_build_object(
+    -- Люди
     'members_total', (select count(*) from auth.users),
     'new_7d', (select count(*) from auth.users where created_at > now() - interval '7 days'),
     'experts_total', (select count(*) from public.user_state
         where coalesce((state->'expertProfile'->>'published')::boolean, false) = true),
+    -- Контент
     'materials_total', (select count(*) from public.materials),
     'materials_pending', (select count(*) from public.materials where status = 'pending'),
-    'materials_approved', (select count(*) from public.materials where status = 'approved')
+    'materials_approved', (select count(*) from public.materials where status = 'approved'),
+    -- Активность (updated_at обновляется при каждом сохранении данных участницы)
+    'active_7d', (select count(*) from public.user_state
+        where updated_at > now() - interval '7 days'),
+    'journal_total', (select coalesce(sum(
+        case when jsonb_typeof(state->'journalEntries') = 'array'
+             then jsonb_array_length(state->'journalEntries') else 0 end), 0)
+      from public.user_state),
+    'steps_done', (select count(*)
+      from public.user_state us,
+      lateral jsonb_array_elements(
+        case when jsonb_typeof(us.state->'sphereSteps') = 'array'
+             then us.state->'sphereSteps' else '[]'::jsonb end) st
+      where (st->>'done')::boolean is true),
+    -- Платное: оборот и сплит (из таблицы payments — реальные заглушки оплаты)
+    'revenue_total', (select coalesce(sum(amount), 0) from public.payments where status = 'paid'),
+    'platform_earned', (select coalesce(sum(platform_fee), 0) from public.payments where status = 'paid'),
+    'experts_earned', (select coalesce(sum(expert_amount), 0) from public.payments where status = 'paid'),
+    'subs_active', (select count(distinct payer_id) from public.payments
+        where kind = 'subscription' and status = 'paid' and expires_at > now()),
+    'masterminds_total', (select count(*) from public.masterminds),
+    'payments_count', (select count(*) from public.payments where status = 'paid')
   ) into result;
   return result;
 end;
 $$;
 
 grant execute on function public.platform_stats() to authenticated;
+
+-- ============================================================================
+-- ОПЛАТЫ (заглушки). Две точки оплаты:
+--  1) Подписка на клуб (участница → платформа, 100% платформе).
+--  2) Мастермайнд эксперта (участница → платформа → сплит 50/50 эксперту).
+-- Пока платёж имитируется: функции ниже создают запись об оплате и считают
+-- сплит на сервере. Когда подключим провайдера (ЮKassa/СБП-сплитование) —
+-- заменим только «движок», вся логика балансов уже готова.
+-- ============================================================================
+
+-- Мастермайнды — платные продукты экспертов, видны всем участницам.
+create table if not exists public.masterminds (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references auth.users (id) on delete cascade,
+  author_name text not null default '',
+  title text not null,
+  description text not null default '',
+  date text,
+  time text,
+  type text not null default 'online',
+  location text,
+  price numeric not null default 0,
+  spots integer,
+  created_at timestamptz not null default now()
+);
+alter table public.masterminds enable row level security;
+
+drop policy if exists "masterminds read" on public.masterminds;
+create policy "masterminds read" on public.masterminds
+  for select to authenticated using (true);
+drop policy if exists "masterminds insert own" on public.masterminds;
+create policy "masterminds insert own" on public.masterminds
+  for insert to authenticated with check (auth.uid() = author_id);
+drop policy if exists "masterminds update own" on public.masterminds;
+create policy "masterminds update own" on public.masterminds
+  for update to authenticated using (auth.uid() = author_id) with check (auth.uid() = author_id);
+drop policy if exists "masterminds delete own or admin" on public.masterminds;
+create policy "masterminds delete own or admin" on public.masterminds
+  for delete to authenticated using (auth.uid() = author_id or public.is_admin());
+
+-- Платежи (подписки и оплаты мастермайндов).
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  payer_id uuid not null references auth.users (id) on delete cascade,
+  payer_name text not null default '',
+  kind text not null,               -- 'subscription' | 'mastermind'
+  plan text,                        -- для подписки: 'monthly' | 'yearly'
+  mastermind_id uuid references public.masterminds (id) on delete set null,
+  item_title text not null default '',
+  expert_id uuid references auth.users (id) on delete set null,
+  amount numeric not null default 0,
+  platform_fee numeric not null default 0,
+  expert_amount numeric not null default 0,
+  expires_at timestamptz,           -- для подписки
+  status text not null default 'paid',
+  created_at timestamptz not null default now()
+);
+alter table public.payments enable row level security;
+
+-- Читать: свои платежи — плательщик; продажи — эксперт; всё — админ.
+drop policy if exists "payments read" on public.payments;
+create policy "payments read" on public.payments
+  for select to authenticated
+  using (auth.uid() = payer_id or auth.uid() = expert_id or public.is_admin());
+-- Вставка — только через функции оплаты (SECURITY DEFINER), прямой insert закрыт.
+
+-- Оплата подписки (100% платформе). Цены заданы на сервере.
+create or replace function public.pay_subscription(p_plan text)
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_amount numeric;
+  v_expires timestamptz;
+  v_name text;
+begin
+  if p_plan = 'monthly' then
+    v_amount := 490; v_expires := now() + interval '1 month';
+  elsif p_plan = 'yearly' then
+    v_amount := 3900; v_expires := now() + interval '1 year';
+  else
+    raise exception 'unknown plan';
+  end if;
+  select coalesce(state->'profile'->>'name', '') into v_name
+    from public.user_state where user_id = auth.uid();
+  insert into public.payments
+    (payer_id, payer_name, kind, plan, item_title, amount, platform_fee, expert_amount, expires_at)
+  values
+    (auth.uid(), coalesce(v_name, ''), 'subscription', p_plan,
+     case when p_plan = 'yearly' then 'Подписка на год' else 'Подписка на месяц' end,
+     v_amount, v_amount, 0, v_expires);
+  return json_build_object('ok', true, 'expires_at', v_expires, 'amount', v_amount);
+end;
+$$;
+grant execute on function public.pay_subscription(text) to authenticated;
+
+-- Оплата мастермайнда (сплит 50/50). Цена и эксперт берутся из мастермайнда.
+create or replace function public.pay_mastermind(p_mastermind_id uuid)
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  m public.masterminds%rowtype;
+  v_fee numeric;
+  v_expert numeric;
+  v_name text;
+begin
+  select * into m from public.masterminds where id = p_mastermind_id;
+  if not found then raise exception 'mastermind not found'; end if;
+  -- Уже оплачено этой участницей — не дублируем.
+  if exists (select 1 from public.payments
+             where kind = 'mastermind' and mastermind_id = p_mastermind_id
+               and payer_id = auth.uid() and status = 'paid') then
+    return json_build_object('ok', true, 'already', true);
+  end if;
+  v_fee := round(m.price * 0.5);       -- комиссия платформы 50%
+  v_expert := m.price - v_fee;
+  select coalesce(state->'profile'->>'name', '') into v_name
+    from public.user_state where user_id = auth.uid();
+  insert into public.payments
+    (payer_id, payer_name, kind, mastermind_id, item_title, expert_id,
+     amount, platform_fee, expert_amount)
+  values
+    (auth.uid(), coalesce(v_name, ''), 'mastermind', p_mastermind_id, m.title, m.author_id,
+     m.price, v_fee, v_expert);
+  return json_build_object('ok', true, 'amount', m.price);
+end;
+$$;
+grant execute on function public.pay_mastermind(uuid) to authenticated;

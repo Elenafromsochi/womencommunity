@@ -73,6 +73,8 @@ function OwnerDashboard() {
   }, []);
 
   const val = (n?: number) => (loading ? "…" : n === undefined || n === null ? "—" : n);
+  const money = (n?: number) =>
+    loading ? "…" : n === undefined || n === null ? "—" : `${n.toLocaleString("ru-RU")} ₽`;
 
   return (
     <section className="space-y-3">
@@ -100,6 +102,27 @@ function OwnerDashboard() {
         <StatTile label="Материалов" value={val(stats?.materials_total)} />
         <StatTile label="На модерации" value={val(stats?.materials_pending)} amber />
         <StatTile label="Опубликовано" value={val(stats?.materials_approved)} />
+      </div>
+
+      {/* Активность */}
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground px-1 pt-1">Активность</p>
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Активных за 7 дней" value={val(stats?.active_7d)} />
+        <StatTile label="Записей в дневник" value={val(stats?.journal_total)} />
+        <StatTile label="Отмечено шагов" value={val(stats?.steps_done)} />
+      </div>
+
+      {/* Деньги */}
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground px-1 pt-1">Деньги</p>
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Оборот всего" value={money(stats?.revenue_total)} accent />
+        <StatTile label="Осталось платформе" value={money(stats?.platform_earned)} />
+        <StatTile label="Начислено экспертам" value={money(stats?.experts_earned)} />
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Активных подписок" value={val(stats?.subs_active)} />
+        <StatTile label="Мастермайндов" value={val(stats?.masterminds_total)} />
+        <StatTile label="Оплат всего" value={val(stats?.payments_count)} />
       </div>
 
       {!loading && !stats && (

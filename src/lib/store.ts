@@ -18,6 +18,7 @@ import type {
 } from "./types";
 import type { CloudState } from "./sync";
 import type { AssistantMessage } from "./assistant";
+import type { Mastermind, SubscriptionStatus } from "./payments";
 import { mockUser } from "./mock-data";
 import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
 import { defaultCycle, recomputeAvgCycleLength } from "./cycle";
@@ -155,6 +156,17 @@ interface AppState {
   setMyMaterialRecords: (items: MaterialRecord[]) => void;
   /** Очистить общие материалы (выход из аккаунта). */
   clearSharedMaterials: () => void;
+
+  // ===== Оплаты (из Supabase, НЕ хранится в облаке аккаунта) =====
+  /** Мастермайнды клуба — платные продукты экспертов, видны всем. */
+  masterminds: Mastermind[];
+  setMasterminds: (items: Mastermind[]) => void;
+  /** Статус подписки текущего пользователя. */
+  subscription: SubscriptionStatus | null;
+  setSubscription: (s: SubscriptionStatus | null) => void;
+  /** ID оплаченных мастермайндов — чтобы показывать «Вы участвуете». */
+  paidMastermindIds: string[];
+  setPaidMastermindIds: (ids: string[]) => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -504,5 +516,19 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setApprovedMaterials: (items) => set({ approvedMaterials: items }),
   myMaterialRecords: [],
   setMyMaterialRecords: (items) => set({ myMaterialRecords: items }),
-  clearSharedMaterials: () => set({ approvedMaterials: [], myMaterialRecords: [] }),
+  clearSharedMaterials: () =>
+    set({
+      approvedMaterials: [],
+      myMaterialRecords: [],
+      masterminds: [],
+      subscription: null,
+      paidMastermindIds: [],
+    }),
+
+  masterminds: [],
+  setMasterminds: (items) => set({ masterminds: items }),
+  subscription: null,
+  setSubscription: (s) => set({ subscription: s }),
+  paidMastermindIds: [],
+  setPaidMastermindIds: (ids) => set({ paidMastermindIds: ids }),
 }));

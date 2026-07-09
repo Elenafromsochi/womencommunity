@@ -1,5 +1,6 @@
 import { useAppStore } from "./store";
 import { contentItems, events, mentors } from "./mock-data";
+import { mastermindToEvent } from "./payments";
 import type { ContentItem, Event, Mentor } from "./types";
 
 // Ленты клуба = одобренные материалы из общей базы + материалы клуба.
@@ -23,7 +24,8 @@ export function useContentById(id: string): ContentItem | undefined {
 
 export function useAllEvents(): Event[] {
   const mine = useAppStore((s) => s.myEvents);
-  return [...mine, ...events];
+  const masterminds = useAppStore((s) => s.masterminds);
+  return [...masterminds.map(mastermindToEvent), ...mine, ...events];
 }
 
 /** Наставники клуба + опубликованная экспертная страница текущего пользователя. */
