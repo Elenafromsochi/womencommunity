@@ -60,6 +60,8 @@ export interface Event {
   location?: string;
   /** Ссылка на оплату (ЮKassa, Продамус, телеграм-бот…) для платных событий. */
   paymentUrl?: string;
+  /** Если задан — это мастермайнд из общей базы (оплата через платформу, сплит эксперту). */
+  mastermindId?: string;
 }
 
 export type EventPreview = Omit<Event, "spots" | "spotsTotal" | "description" | "location">;

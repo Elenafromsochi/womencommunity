@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { ArrowLeft, ArrowRight, MapPin, Video, Users, Clock } from "lucide-react";
 import { useAllEvents } from "../lib/content";
 import { useAppStore } from "../lib/store";
+import { payMastermind, loadPayments } from "../lib/payments";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/events_/$eventId")({
@@ -19,7 +21,25 @@ function EventDetailPage() {
   const event = useAllEvents().find((e) => e.id === eventId);
   const registeredEventIds = useAppStore((s) => s.registeredEventIds);
   const toggleEventRegistration = useAppStore((s) => s.toggleEventRegistration);
-  const isRegistered = event ? registeredEventIds.includes(event.id) : false;
+  const userId = useAppStore((s) => s.userId);
+  const paidMastermindIds = useAppStore((s) => s.paidMastermindIds);
+  const [paying, setPaying] = useState(false);
+  const isMastermind = Boolean(event?.mastermindId);
+  const isRegistered = event
+    ? isMastermind
+      ? paidMastermindIds.includes(event.mastermindId!)
+      : registeredEventIds.includes(event.id)
+    : false;
+
+  const payForMastermind = async () => {
+    if (!event?.mastermindId || !userId || paying) return;
+    setPaying(true);
+    const { error } = await payMastermind(event.mastermindId);
+    if (!error) await loadPayments(userId);
+    setPaying(false);
+    if (error) toast.error("Оплата не прошла. Попробуйте ещё раз.");
+    else toast.success("Вы записаны на мастермайнд 🌸");
+  };
 
   if (!event) {
     return (
@@ -100,6 +120,22 @@ function EventDetailPage() {
           <div className="w-full py-3.5 text-center text-sm font-medium text-accent bg-accent/10 rounded-full">
             {event.price > 0 ? "Вы участвуете" : "Вы записаны на это мероприятие"}
           </div>
+        ) : isMastermind ? (
+          <>
+            <button
+              onClick={payForMastermind}
+              disabled={paying}
+              className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-medium bg-primary text-primary-foreground rounded-full disabled:opacity-50"
+            >
+              {paying
+                ? "Оплачиваем…"
+                : `Оплатить участие · ${event.price.toLocaleString("ru-RU")} ₽`}
+              <ArrowRight className="size-4" />
+            </button>
+            <p className="text-[11px] text-muted-foreground/70 text-center">
+              Оплата тестовая (заглушка) — деньги не списываются.
+            </p>
+          </>
         ) : event.price > 0 && event.paymentUrl ? (
           <a
             href={event.paymentUrl}

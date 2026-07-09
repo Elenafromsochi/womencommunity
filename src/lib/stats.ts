@@ -18,9 +18,13 @@ export interface PlatformStats {
   active_7d: number;
   journal_total: number;
   steps_done: number;
-  // Платное
-  paid_events: number;
-  registrations_total: number;
+  // Платное / оборот
+  revenue_total: number;
+  platform_earned: number;
+  experts_earned: number;
+  subs_active: number;
+  masterminds_total: number;
+  payments_count: number;
 }
 
 export async function fetchPlatformStats(): Promise<PlatformStats | null> {

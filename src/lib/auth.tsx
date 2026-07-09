@@ -10,6 +10,7 @@ import { supabase } from "./supabase";
 import { useAppStore, selectCloudState } from "./store";
 import { loadCloudState, saveCloudState } from "./sync";
 import { loadSharedMaterials } from "./materials-db";
+import { loadPayments } from "./payments";
 
 interface AuthContextValue {
   session: Session | null;
@@ -55,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       // Общая база материалов клуба (одобренные для ленты + свои для кабинета).
       void loadSharedMaterials(userId);
+      // Оплаты: мастермайнды, статус подписки, оплаченные мастермайнды.
+      void loadPayments(userId);
     } else {
       useAppStore.getState().resetToDefaults();
       useAppStore.getState().clearSharedMaterials();

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopicsRouteImport } from './routes/topics'
+import { Route as SubscriptionRouteImport } from './routes/subscription'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as StateRouteImport } from './routes/state'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -37,6 +38,11 @@ import { Route as ChatPeerIdRouteImport } from './routes/chat.$peerId'
 const TopicsRoute = TopicsRouteImport.update({
   id: '/topics',
   path: '/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionRoute = SubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudioRoute = StudioRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
+  '/subscription': typeof SubscriptionRoute
   '/topics': typeof TopicsRoute
   '/chat/$peerId': typeof ChatPeerIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
+  '/subscription': typeof SubscriptionRoute
   '/topics': typeof TopicsRoute
   '/chat/$peerId': typeof ChatPeerIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/state': typeof StateRoute
   '/studio': typeof StudioRoute
+  '/subscription': typeof SubscriptionRoute
   '/topics': typeof TopicsRoute
   '/chat/$peerId': typeof ChatPeerIdRoute
   '/events_/$eventId': typeof EventsEventIdRoute
@@ -254,6 +263,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/state'
     | '/studio'
+    | '/subscription'
     | '/topics'
     | '/chat/$peerId'
     | '/events/$eventId'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/state'
     | '/studio'
+    | '/subscription'
     | '/topics'
     | '/chat/$peerId'
     | '/events/$eventId'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/state'
     | '/studio'
+    | '/subscription'
     | '/topics'
     | '/chat/$peerId'
     | '/events_/$eventId'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   StateRoute: typeof StateRoute
   StudioRoute: typeof StudioRoute
+  SubscriptionRoute: typeof SubscriptionRoute
   TopicsRoute: typeof TopicsRoute
   ChatPeerIdRoute: typeof ChatPeerIdRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/topics'
       fullPath: '/topics'
       preLoaderRoute: typeof TopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscription': {
+      id: '/subscription'
+      path: '/subscription'
+      fullPath: '/subscription'
+      preLoaderRoute: typeof SubscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/studio': {
@@ -533,6 +553,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   StateRoute: StateRoute,
   StudioRoute: StudioRoute,
+  SubscriptionRoute: SubscriptionRoute,
   TopicsRoute: TopicsRoute,
   ChatPeerIdRoute: ChatPeerIdRoute,
   EventsEventIdRoute: EventsEventIdRoute,
