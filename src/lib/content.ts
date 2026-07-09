@@ -2,12 +2,23 @@ import { useAppStore } from "./store";
 import { contentItems, events, mentors } from "./mock-data";
 import type { ContentItem, Event, Mentor } from "./types";
 
-// Ленты клуба = материалы/события клуба + опубликованные экспертом.
-// Свои — сверху, чтобы участница сразу видела новое.
+// Ленты клуба = одобренные материалы из общей базы + материалы клуба.
+// Одобренные (свежие) — сверху, чтобы участница сразу видела новое.
 
 export function useAllContent(): ContentItem[] {
-  const mine = useAppStore((s) => s.myMaterials);
-  return [...mine, ...contentItems];
+  const approved = useAppStore((s) => s.approvedMaterials);
+  return [...approved, ...contentItems];
+}
+
+/**
+ * Найти материал по id для страницы материала. Помимо ленты включает свои
+ * материалы эксперта (в т.ч. на модерации/отклонённые), чтобы он мог открыть
+ * карточку из кабинета до одобрения.
+ */
+export function useContentById(id: string): ContentItem | undefined {
+  const approved = useAppStore((s) => s.approvedMaterials);
+  const mine = useAppStore((s) => s.myMaterialRecords);
+  return [...mine, ...approved, ...contentItems].find((c) => c.id === id);
 }
 
 export function useAllEvents(): Event[] {
@@ -20,7 +31,7 @@ export function useAllMentors(): Mentor[] {
   const profile = useAppStore((s) => s.profile);
   const ep = useAppStore((s) => s.expertProfile);
   const userId = useAppStore((s) => s.userId);
-  const myMaterials = useAppStore((s) => s.myMaterials);
+  const myMaterials = useAppStore((s) => s.myMaterialRecords);
   const myEvents = useAppStore((s) => s.myEvents);
   if (!ep.published || !ep.specialization) return mentors;
   const me: Mentor = {

@@ -97,6 +97,16 @@ export interface ContentItem {
   date: string;
 }
 
+/** Статус материала в общей базе: на модерации / опубликован / отклонён. */
+export type MaterialStatus = "pending" | "approved" | "rejected";
+
+/** Материал из общей базы с полями модерации (для кабинета эксперта и админа). */
+export interface MaterialRecord extends ContentItem {
+  status: MaterialStatus;
+  authorId: string;
+  rejectReason?: string;
+}
+
 export interface Review {
   id: string;
   author: string;

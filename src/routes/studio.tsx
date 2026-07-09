@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FileText, Calendar, UserRound, Megaphone, ArrowRight } from "lucide-react";
 import { useAppStore } from "../lib/store";
 
@@ -21,6 +21,8 @@ const CLUB_NEWS = [
 
 function StudioHome() {
   const profile = useAppStore((s) => s.profile);
+  const setRole = useAppStore((s) => s.setRole);
+  const navigate = useNavigate();
 
   return (
     <div className="px-6 space-y-8 pb-4">
@@ -65,10 +67,16 @@ function StudioHome() {
             <UserRound className="size-5 text-primary" />
             <span className="text-sm font-medium leading-tight">Моя страница</span>
           </Link>
-          <Link to="/profile" className="bg-cream ring-1 ring-border rounded-2xl p-4 flex flex-col gap-1.5 justify-center">
+          <button
+            onClick={() => {
+              setRole("member");
+              navigate({ to: "/" });
+            }}
+            className="bg-cream ring-1 ring-border rounded-2xl p-4 flex flex-col gap-1.5 justify-center text-left"
+          >
             <span className="text-sm font-medium leading-tight">Вернуться участницей</span>
-            <span className="text-[11px] text-muted-foreground">Сменить роль в профиле</span>
-          </Link>
+            <span className="text-[11px] text-muted-foreground">Открыть интерфейс участницы</span>
+          </button>
         </div>
       </section>
 
