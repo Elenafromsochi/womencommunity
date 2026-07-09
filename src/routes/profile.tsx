@@ -199,10 +199,10 @@ function ProfilePage() {
 
       {/* Saved mentors */}
       <section className="space-y-3">
-        <h2 className="font-[Lora] text-xl">Избранные наставники</h2>
+        <h2 className="font-[Lora] text-xl">Избранные эксперты</h2>
         {savedMentors.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
-            Пока нет избранных наставников.
+            Пока нет избранных экспертов.
           </p>
         ) : (
           <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-6 px-6">
@@ -272,7 +272,7 @@ function ProfilePage() {
         <div className="space-y-2">
           {[
             { key: "member" as const, label: "Участница", desc: "Основной интерфейс", to: "/" },
-            { key: "mentor" as const, label: "Наставник", desc: "Студия наставника", to: "/studio" },
+            { key: "mentor" as const, label: "Эксперт", desc: "Кабинет эксперта", to: "/studio" },
             { key: "curator" as const, label: "Куратор", desc: "Кабинет куратора", to: "/curator" },
             { key: "admin" as const, label: "Администратор", desc: "Панель управления", to: "/admin" },
           ].map((r) => (
@@ -353,7 +353,7 @@ function ExpertPageEditor() {
       <div>
         <h2 className="font-[Lora] text-lg">Моя страница эксперта</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Так вас увидят участницы в разделе «Наставники».
+          Так вас увидят участницы в разделе «Эксперты».
         </p>
       </div>
       <input value={ep.specialization ?? ""} onChange={(e) => update({ specialization: e.target.value })} placeholder="Специализация — напр. Психолог, коуч по деньгам" className={efield} />

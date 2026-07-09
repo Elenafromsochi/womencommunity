@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Users, Calendar, Shield, BarChart3, Check, X, Clock } from "lucide-react";
+import { ArrowLeft, Users, Calendar, Shield, BarChart3, Check, X, Clock, RefreshCw } from "lucide-react";
 import { MediaEmbed } from "../components/MediaEmbed";
 import { BackToMemberButton } from "../components/BackToMemberButton";
 import { parseMedia } from "../lib/embed";
@@ -10,6 +10,7 @@ import {
   moderateMaterial,
   loadSharedMaterials,
 } from "../lib/materials-db";
+import { fetchPlatformStats, type PlatformStats } from "../lib/stats";
 import type { MaterialRecord } from "../lib/types";
 import { toast } from "sonner";
 
@@ -36,6 +37,8 @@ function AdminDashboard() {
         <span className="font-[Lora] text-lg">Администратор</span>
       </div>
 
+      <OwnerDashboard />
+
       <ModerationQueue />
 
       <div className="grid grid-cols-2 gap-3">
@@ -48,6 +51,96 @@ function AdminDashboard() {
       <div className="text-center py-6">
         <BackToMemberButton />
       </div>
+    </div>
+  );
+}
+
+function OwnerDashboard() {
+  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      setStats(await fetchPlatformStats());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
+  const val = (n?: number) => (loading ? "…" : n === undefined || n === null ? "—" : n);
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <BarChart3 className="size-4 text-accent" />
+        <h2 className="font-[Lora] text-xl">Обзор платформы</h2>
+        <button
+          onClick={refresh}
+          aria-label="Обновить"
+          className="ml-auto size-8 rounded-full bg-card ring-1 ring-border flex items-center justify-center text-muted-foreground"
+        >
+          <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+
+      {/* Люди */}
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Участниц" value={val(stats?.members_total)} accent />
+        <StatTile label="Экспертов" value={val(stats?.experts_total)} />
+        <StatTile label="Новых за 7 дней" value={val(stats?.new_7d)} />
+      </div>
+
+      {/* Контент */}
+      <div className="grid grid-cols-3 gap-2">
+        <StatTile label="Материалов" value={val(stats?.materials_total)} />
+        <StatTile label="На модерации" value={val(stats?.materials_pending)} amber />
+        <StatTile label="Опубликовано" value={val(stats?.materials_approved)} />
+      </div>
+
+      {!loading && !stats && (
+        <p className="text-[11px] text-muted-foreground/70 px-1">
+          Цифры появятся после выполнения SQL с функцией platform_stats и
+          добавления вашего UID в таблицу admins (см. supabase/schema.sql).
+        </p>
+      )}
+    </section>
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  accent,
+  amber,
+}: {
+  label: string;
+  value: string | number;
+  accent?: boolean;
+  amber?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-[1.5rem] p-4 ring-1 ${
+        accent
+          ? "bg-primary text-primary-foreground ring-primary"
+          : amber
+            ? "bg-amber-50 ring-amber-200"
+            : "bg-card ring-border"
+      }`}
+    >
+      <p className="font-[Lora] text-2xl leading-none">{value}</p>
+      <p
+        className={`text-[11px] mt-1.5 leading-tight ${
+          accent ? "text-primary-foreground/80" : "text-muted-foreground"
+        }`}
+      >
+        {label}
+      </p>
     </div>
   );
 }

@@ -6,8 +6,8 @@ import { useAppStore } from "../lib/store";
 export const Route = createFileRoute("/mentors")({
   head: () => ({
     meta: [
-      { title: "Женское общество — Наставники" },
-      { name: "description", content: "Каталог наставниц сообщества" },
+      { title: "Женское общество — Эксперты" },
+      { name: "description", content: "Каталог экспертов сообщества" },
     ],
   }),
   component: MentorsPage,
@@ -19,7 +19,7 @@ function MentorsPage() {
 
   return (
     <div className="px-6 space-y-6 pb-4">
-      <h1 className="font-[Lora] text-3xl leading-tight">Наставники</h1>
+      <h1 className="font-[Lora] text-3xl leading-tight">Эксперты</h1>
       <p className="text-sm text-muted-foreground">
         Эксперты, которые помогут вам на пути развития
       </p>

@@ -21,8 +21,8 @@ const STATUS_BADGE: Record<MaterialStatus, { label: string; cls: string }> = {
 export const Route = createFileRoute("/mentor")({
   head: () => ({
     meta: [
-      { title: "Женское общество — Кабинет наставника" },
-      { name: "description", content: "Интерфейс наставника" },
+      { title: "Женское общество — Кабинет эксперта" },
+      { name: "description", content: "Интерфейс эксперта" },
     ],
   }),
   component: MentorDashboard,
@@ -98,7 +98,7 @@ function MentorDashboard() {
     setPublishing(true);
     const { error } = await insertMaterial({
       authorId: userId,
-      authorName: profile.name || "Наставник",
+      authorName: profile.name || "Эксперт",
       title: mTitle.trim(),
       type: mType,
       topic: mTopic,
@@ -172,7 +172,7 @@ function MentorDashboard() {
         >
           <ArrowLeft className="size-5" />
         </Link>
-        <span className="font-[Lora] text-lg">Кабинет наставника</span>
+        <span className="font-[Lora] text-lg">Кабинет эксперта</span>
       </div>
 
       {tab === "material" && (

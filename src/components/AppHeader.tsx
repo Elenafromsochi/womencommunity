@@ -3,10 +3,19 @@ import { Bell, User } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { notifications } from "../lib/mock-data";
 
+// Подпись роли в шапке — чтобы в любом кабинете было видно, в каком вы режиме.
+const ROLE_LABEL: Record<string, string | null> = {
+  member: null, // участница — обычный режим, без плашки
+  mentor: "Эксперт",
+  curator: "Куратор",
+  admin: "Администратор",
+};
+
 export function AppHeader() {
   const { location } = useRouterState();
   const path = location.pathname;
   const profile = useAppStore((s) => s.profile);
+  const role = useAppStore((s) => s.role);
   const read = useAppStore((s) => s.notificationsRead);
   const unread = notifications.filter((n) => !n.read && !read.includes(n.id)).length;
 
@@ -16,7 +25,7 @@ export function AppHeader() {
   const titleMap: Record<string, string> = {
     "/": "Женское общество",
     "/topics": "Темы",
-    "/mentors": "Наставники",
+    "/mentors": "Эксперты",
     "/events": "События",
     "/community": "Сообщество",
     "/groups": "Группы",
@@ -24,11 +33,19 @@ export function AppHeader() {
     "/notifications": "Уведомления",
   };
   const title = titleMap[path] ?? "Женское общество";
+  const roleLabel = ROLE_LABEL[role];
 
   return (
     <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/50">
       <div className="flex items-center justify-between px-6 py-3">
-        <h1 className="font-[Lora] text-lg leading-none truncate">{title}</h1>
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="font-[Lora] text-lg leading-none truncate">{title}</h1>
+          {roleLabel && (
+            <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide bg-primary/12 text-primary px-2 py-0.5 rounded-full ring-1 ring-primary/20">
+              {roleLabel}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <Link
             to="/notifications"
