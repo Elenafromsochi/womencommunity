@@ -372,7 +372,7 @@ begin
                and payer_id = auth.uid() and status = 'paid') then
     return json_build_object('ok', true, 'already', true);
   end if;
-  v_fee := round(m.price * 0.5);       -- комиссия платформы 50%
+  v_fee := round(m.price * 0.15);      -- комиссия платформы 15%, эксперту 85%
   v_expert := m.price - v_fee;
   select coalesce(state->'profile'->>'name', '') into v_name
     from public.user_state where user_id = auth.uid();

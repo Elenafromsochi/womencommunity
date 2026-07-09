@@ -12,7 +12,7 @@ import {
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/subscription")({
-  head: () => ({ meta: [{ title: "Женское общество — Подписка" }] }),
+  head: () => ({ meta: [{ title: "Женское общество — Доступ к платформе" }] }),
   component: SubscriptionPage,
 });
 
@@ -55,27 +55,28 @@ function SubscriptionPage() {
   return (
     <div className="px-6 space-y-6 pb-8">
       <div className="pt-2 flex items-center gap-3">
-        <Link to="/profile" className="size-10 rounded-full bg-card flex items-center justify-center ring-1 ring-border">
+        <Link to="/studio" className="size-10 rounded-full bg-card flex items-center justify-center ring-1 ring-border">
           <ArrowLeft className="size-5" />
         </Link>
-        <span className="font-[Lora] text-lg">Подписка на клуб</span>
+        <span className="font-[Lora] text-lg">Доступ к платформе</span>
       </div>
 
       {subscription?.active ? (
         <div className="bg-primary text-primary-foreground rounded-[2rem] p-6">
           <div className="flex items-center gap-2">
             <Crown className="size-5" />
-            <span className="font-[Lora] text-xl">Подписка активна</span>
+            <span className="font-[Lora] text-xl">Доступ активен</span>
           </div>
           <p className="text-sm text-primary-foreground/85 mt-2">
-            {subscription.plan === "yearly" ? "Годовая" : "Месячная"} · действует до{" "}
+            {subscription.plan === "yearly" ? "Годовой" : "Месячный"} · действует до{" "}
             {ruDate(subscription.expiresAt)}
           </p>
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Доступ ко всем материалам, событиям и поддержке клуба. Можно продлевать
-          помесячно или оформить год выгоднее.
+          Доступ к платформе для эксперта: вести материалы, события и мастермайнды,
+          продавать их участницам. Платформа удерживает {Math.round(0.15 * 100)}% с
+          каждой продажи, остальное — ваше. Для участниц платформа бесплатна.
         </p>
       )}
 
