@@ -386,3 +386,63 @@ begin
 end;
 $$;
 grant execute on function public.pay_mastermind(uuid) to authenticated;
+
+-- ============================================================================
+-- УВЕДОМЛЕНИЯ. Приходят конкретному пользователю. Создаются автоматически
+-- триггерами (эксперту — при решении модерации; администраторам — при новом
+-- материале на проверку). Клиент только читает свои и отмечает прочитанными.
+-- ============================================================================
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  recipient_id uuid not null references auth.users (id) on delete cascade,
+  type text not null,
+  title text not null,
+  body text not null default '',
+  link text,
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+alter table public.notifications enable row level security;
+
+drop policy if exists "notif read own" on public.notifications;
+create policy "notif read own" on public.notifications
+  for select to authenticated using (auth.uid() = recipient_id);
+drop policy if exists "notif update own" on public.notifications;
+create policy "notif update own" on public.notifications
+  for update to authenticated using (auth.uid() = recipient_id) with check (auth.uid() = recipient_id);
+-- Вставку делают только триггеры (SECURITY DEFINER), прямой insert закрыт.
+
+-- Новый материал на модерацию → уведомить всех администраторов.
+create or replace function public.notify_admins_new_material()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.notifications (recipient_id, type, title, body, link)
+  select a.user_id, 'moderation_new', 'Новый материал на модерации', new.title, '/admin'
+  from public.admins a;
+  return new;
+end; $$;
+drop trigger if exists trg_material_new on public.materials;
+create trigger trg_material_new after insert on public.materials
+  for each row when (new.status = 'pending')
+  execute function public.notify_admins_new_material();
+
+-- Решение по материалу (одобрен/отклонён) → уведомить автора-эксперта.
+create or replace function public.notify_author_moderation()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.status is distinct from old.status then
+    insert into public.notifications (recipient_id, type, title, body, link)
+    values (
+      new.author_id, 'moderation_result',
+      case when new.status = 'approved' then 'Материал одобрен'
+           when new.status = 'rejected' then 'Материал отклонён'
+           else 'Статус материала обновлён' end,
+      new.title || case when new.status = 'rejected' and coalesce(new.reject_reason, '') <> ''
+                        then ' — причина: ' || new.reject_reason else '' end,
+      '/mentor');
+  end if;
+  return new;
+end; $$;
+drop trigger if exists trg_material_status on public.materials;
+create trigger trg_material_status after update on public.materials
+  for each row execute function public.notify_author_moderation();

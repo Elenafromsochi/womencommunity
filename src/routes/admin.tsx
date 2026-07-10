@@ -11,6 +11,7 @@ import {
   loadSharedMaterials,
 } from "../lib/materials-db";
 import { fetchPlatformStats, type PlatformStats } from "../lib/stats";
+import { loadNotifications } from "../lib/notifications-db";
 import type { MaterialRecord } from "../lib/types";
 import { toast } from "sonner";
 
@@ -201,7 +202,10 @@ function ModerationQueue() {
     }
     // Убираем из очереди и обновляем общий список (одобренный — в ленту всем).
     setPending((prev) => prev.filter((x) => x.id !== m.id));
-    if (userId) void loadSharedMaterials(userId);
+    if (userId) {
+      void loadSharedMaterials(userId);
+      void loadNotifications(userId);
+    }
     toast.success(status === "approved" ? "Опубликовано" : "Отклонено");
   };
 

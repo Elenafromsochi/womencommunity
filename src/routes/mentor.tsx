@@ -8,6 +8,7 @@ import { CoverPlaceholder } from "../components/CoverPlaceholder";
 import { BackToMemberButton } from "../components/BackToMemberButton";
 import { parseMedia } from "../lib/embed";
 import { insertMaterial, deleteMaterial, loadSharedMaterials } from "../lib/materials-db";
+import { loadNotifications } from "../lib/notifications-db";
 import {
   createMastermind,
   deleteMastermind,
@@ -124,6 +125,7 @@ function MentorDashboard() {
       return;
     }
     await loadSharedMaterials(userId);
+    void loadNotifications(userId);
     setMTitle("");
     setMDesc("");
     setMBody("");
