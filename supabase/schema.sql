@@ -420,6 +420,8 @@ begin
   select a.user_id, 'moderation_new', 'Новый материал на модерации', new.title, '/admin'
   from public.admins a;
   return new;
+exception when others then
+  return new; -- уведомление не должно мешать сохранению материала
 end; $$;
 drop trigger if exists trg_material_new on public.materials;
 create trigger trg_material_new after insert on public.materials
@@ -442,6 +444,8 @@ begin
       '/mentor');
   end if;
   return new;
+exception when others then
+  return new; -- уведомление не должно мешать сохранению материала
 end; $$;
 drop trigger if exists trg_material_status on public.materials;
 create trigger trg_material_status after update on public.materials
