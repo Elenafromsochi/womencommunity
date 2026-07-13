@@ -7,7 +7,7 @@ import type { Event } from "./types";
 // pay_subscription / pay_mastermind, которые считают сплит на сервере.
 
 export const SUB_PRICES = { monthly: 490, yearly: 3900 };
-export const PLATFORM_FEE_RATE = 0.5; // 50% платформе
+export const PLATFORM_FEE_RATE = 0.15; // 15% платформе, 85% эксперту
 
 export interface Mastermind {
   id: string;

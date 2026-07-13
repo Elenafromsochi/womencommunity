@@ -19,6 +19,7 @@ import type {
 import type { CloudState } from "./sync";
 import type { AssistantMessage } from "./assistant";
 import type { Mastermind, SubscriptionStatus } from "./payments";
+import type { AppNotification } from "./notifications-db";
 import { mockUser } from "./mock-data";
 import { computeLevel, RETEST_INTERVAL_DAYS } from "./methodology";
 import { defaultCycle, recomputeAvgCycleLength } from "./cycle";
@@ -167,6 +168,11 @@ interface AppState {
   /** ID оплаченных мастермайндов — чтобы показывать «Вы участвуете». */
   paidMastermindIds: string[];
   setPaidMastermindIds: (ids: string[]) => void;
+
+  // ===== Уведомления (из Supabase) =====
+  inbox: AppNotification[];
+  setInbox: (items: AppNotification[]) => void;
+  markInboxRead: () => void;
 }
 
 /** Максимум фокус-сфер. */
@@ -523,6 +529,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       masterminds: [],
       subscription: null,
       paidMastermindIds: [],
+      inbox: [],
     }),
 
   masterminds: [],
@@ -531,4 +538,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setSubscription: (s) => set({ subscription: s }),
   paidMastermindIds: [],
   setPaidMastermindIds: (ids) => set({ paidMastermindIds: ids }),
+
+  inbox: [],
+  setInbox: (items) => set({ inbox: items }),
+  markInboxRead: () =>
+    set((state) => ({ inbox: state.inbox.map((n) => ({ ...n, read: true })) })),
 }));

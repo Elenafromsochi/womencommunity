@@ -38,11 +38,38 @@ export function LinkOrUpload({
       const el = document.createElement(file.type.startsWith("video") ? "video" : "audio");
       el.preload = "metadata";
       const obj = URL.createObjectURL(file);
-      el.onloadedmetadata = () => {
-        if (isFinite(el.duration) && el.duration > 0) {
-          onDuration(`${Math.max(1, Math.round(el.duration / 60))} мин`);
+      let done = false;
+      const finalize = (dur: number) => {
+        if (done) return;
+        done = true;
+        if (isFinite(dur) && dur > 0) {
+          onDuration(`${Math.max(1, Math.round(dur / 60))} мин`);
         }
         URL.revokeObjectURL(obj);
+      };
+      el.onloadedmetadata = () => {
+        // iOS/Safari часто отдаёт Infinity — «дожимаем» перемоткой в конец.
+        if (!isFinite(el.duration) || el.duration <= 0) {
+          el.ontimeupdate = () => {
+            el.ontimeupdate = null;
+            finalize(el.duration);
+            try {
+              el.currentTime = 0;
+            } catch {
+              /* игнор */
+            }
+          };
+          try {
+            el.currentTime = 1e7;
+          } catch {
+            finalize(el.duration);
+          }
+        } else {
+          finalize(el.duration);
+        }
+      };
+      el.onerror = () => {
+        if (!done) URL.revokeObjectURL(obj);
       };
       el.src = obj;
     }

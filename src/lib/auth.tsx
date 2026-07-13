@@ -11,6 +11,7 @@ import { useAppStore, selectCloudState } from "./store";
 import { loadCloudState, saveCloudState } from "./sync";
 import { loadSharedMaterials } from "./materials-db";
 import { loadPayments } from "./payments";
+import { loadNotifications } from "./notifications-db";
 
 interface AuthContextValue {
   session: Session | null;
@@ -58,6 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void loadSharedMaterials(userId);
       // Оплаты: мастермайнды, статус подписки, оплаченные мастермайнды.
       void loadPayments(userId);
+      // Уведомления (модерация и т.д.).
+      void loadNotifications(userId);
     } else {
       useAppStore.getState().resetToDefaults();
       useAppStore.getState().clearSharedMaterials();

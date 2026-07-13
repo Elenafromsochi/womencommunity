@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileText, Calendar, UserRound, Megaphone, ArrowRight } from "lucide-react";
+import { FileText, Calendar, UserRound, Megaphone, ArrowRight, Crown, ChevronRight } from "lucide-react";
 import { useAppStore } from "../lib/store";
 
 export const Route = createFileRoute("/studio")({
@@ -21,8 +21,13 @@ const CLUB_NEWS = [
 
 function StudioHome() {
   const profile = useAppStore((s) => s.profile);
+  const subscription = useAppStore((s) => s.subscription);
   const setRole = useAppStore((s) => s.setRole);
   const navigate = useNavigate();
+  const accessActive = subscription?.active;
+  const accessUntil = subscription?.expiresAt
+    ? new Date(subscription.expiresAt).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
+    : "";
 
   return (
     <div className="px-6 space-y-8 pb-4">
@@ -34,6 +39,31 @@ function StudioHome() {
           Ваше пространство: материалы, события и связь с участницами.
         </p>
       </section>
+
+      {/* Доступ к платформе */}
+      <Link
+        to="/subscription"
+        className={`flex items-center gap-3 rounded-[2rem] p-5 ring-1 ${
+          accessActive ? "bg-primary text-primary-foreground ring-primary" : "bg-cream ring-border"
+        }`}
+      >
+        <div
+          className={`size-11 rounded-full flex items-center justify-center ${
+            accessActive ? "bg-primary-foreground/15" : "bg-card ring-1 ring-border"
+          }`}
+        >
+          <Crown className={`size-5 ${accessActive ? "text-primary-foreground" : "text-primary"}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium">
+            {accessActive ? "Доступ активен" : "Доступ к платформе"}
+          </p>
+          <p className={`text-xs ${accessActive ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+            {accessActive ? `Действует до ${accessUntil}` : "Оформить доступ, чтобы вести и продавать"}
+          </p>
+        </div>
+        <ChevronRight className={`size-4 shrink-0 ${accessActive ? "text-primary-foreground/80" : "text-muted-foreground"}`} />
+      </Link>
 
       {/* Сводка */}
       <section className="grid grid-cols-3 gap-2">

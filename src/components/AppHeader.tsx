@@ -1,7 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, User } from "lucide-react";
 import { useAppStore } from "../lib/store";
-import { notifications } from "../lib/mock-data";
 
 // Подпись роли в шапке — чтобы в любом кабинете было видно, в каком вы режиме.
 const ROLE_LABEL: Record<string, string | null> = {
@@ -16,8 +15,8 @@ export function AppHeader() {
   const path = location.pathname;
   const profile = useAppStore((s) => s.profile);
   const role = useAppStore((s) => s.role);
-  const read = useAppStore((s) => s.notificationsRead);
-  const unread = notifications.filter((n) => !n.read && !read.includes(n.id)).length;
+  const inbox = useAppStore((s) => s.inbox);
+  const unread = inbox.filter((n) => !n.read).length;
 
   // hide on onboarding & detail pages with their own header
   if (path.startsWith("/onboarding")) return null;

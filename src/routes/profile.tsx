@@ -11,7 +11,6 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
-  Crown,
 } from "lucide-react";
 import { useAppStore } from "../lib/store";
 import { useAuth } from "../lib/auth";
@@ -121,9 +120,6 @@ function ProfilePage() {
       {/* Участнический профиль — только в роли участницы */}
       {role === "member" && (
       <>
-      {/* Подписка на клуб */}
-      <SubscriptionCard />
-
       {/* Колесо баланса */}
       <section className="flex flex-col items-center">
         <h2 className="font-[Lora] text-xl self-start mb-2">Колесо баланса</h2>
@@ -384,37 +380,5 @@ function ExpertPageEditor() {
         </Link>
       )}
     </section>
-  );
-}
-
-/** Карточка подписки на клуб в профиле участницы. */
-function SubscriptionCard() {
-  const subscription = useAppStore((s) => s.subscription);
-  const active = subscription?.active;
-  const until = subscription?.expiresAt
-    ? new Date(subscription.expiresAt).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
-    : "";
-  return (
-    <Link
-      to="/subscription"
-      className={`flex items-center gap-3 rounded-[2rem] p-5 ring-1 ${
-        active ? "bg-primary text-primary-foreground ring-primary" : "bg-cream ring-border"
-      }`}
-    >
-      <div
-        className={`size-11 rounded-full flex items-center justify-center ${
-          active ? "bg-primary-foreground/15" : "bg-card ring-1 ring-border"
-        }`}
-      >
-        <Crown className={`size-5 ${active ? "text-primary-foreground" : "text-primary"}`} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">{active ? "Подписка активна" : "Подписка на клуб"}</p>
-        <p className={`text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-          {active ? `Действует до ${until}` : "Оформить доступ к клубу"}
-        </p>
-      </div>
-      <ChevronRight className={`size-4 shrink-0 ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`} />
-    </Link>
   );
 }
