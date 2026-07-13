@@ -230,18 +230,21 @@ function MentorDashboard() {
 
             {/* Видео */}
             {mType === "video" && (
-              <div>
+              <div className="space-y-2">
                 <p className="text-xs font-medium mb-1.5">Видео</p>
                 <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="video/*" placeholder="Ссылка на видео (YouTube, Rutube, VK Видео…)" hint="Вставьте ссылку — будет встроенный плеер. Или загрузите свой видеофайл." onDuration={setMDuration} />
+                <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 12 мин" className={field} />
+                <p className="text-[11px] text-muted-foreground px-1">Для загруженного файла посчитаем сами; для ссылки впишите вручную.</p>
               </div>
             )}
 
             {/* Аудио */}
             {mType === "audio" && (
-              <div>
+              <div className="space-y-2">
                 <p className="text-xs font-medium mb-1.5">Аудио</p>
                 <LinkOrUpload value={mMedia} onChange={setMMedia} folder="media" accept="audio/*" placeholder="Ссылка на аудио (Яндекс Музыка, файл .mp3…)" hint="Вставьте ссылку или загрузите файл — длительность посчитаем сами." onDuration={setMDuration} />
-                {mDuration && <p className="text-[11px] text-muted-foreground px-1">Длительность: {mDuration}</p>}
+                <input value={mDuration} onChange={(e) => setMDuration(e.target.value)} placeholder="Длительность, напр. 8 мин" className={field} />
+                <p className="text-[11px] text-muted-foreground px-1">Для загруженного файла посчитаем сами; для ссылки впишите вручную.</p>
               </div>
             )}
 
